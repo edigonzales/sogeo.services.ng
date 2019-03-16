@@ -106,7 +106,7 @@ ul, ol, dl {
 
 *:not(pre) > code {
     font-family: 'IBM Plex Mono', monospace;
-    font-style: italic;
+    font-style: normal;
     color: black;
     font-size: 18px;
     border-width: 0px;
@@ -126,9 +126,6 @@ pre code {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 18px;
 }
-
-
-
 
 .listingblock ol.linenums {
     font-style: normal;
@@ -150,7 +147,7 @@ li code {
 
 li p code {
     font-style: normal;
-    background-color: #f2f2f2;
+    background-color: white;
 }
 
 li.L1, li.L3, li.L5, li.L7, li.L9 {
