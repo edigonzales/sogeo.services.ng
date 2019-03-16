@@ -1,0 +1,19 @@
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --modeldir "http://models.geo.admin.ch;." --models "Nutzungsplanung_Hauptnutzung_V1_1;SO_ARP_Nutzungsplanung_20171106" --dbschema npl_polymorph --schemaimport
+
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --models Nutzungsplanung_Hauptnutzung_V1_1 --dbschema npl_polymorph --import Hauptnutzung_CH_V1_1.xml
+
+# Export SO-Modell
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --modeldir "http://models.geo.admin.ch;." --models "SO_ARP_Nutzungsplanung_20171106" --exportModels SO_ARP_Nutzungsplanung_20171106 --dbschema npl_polymorph --export npl_so.xtf
+
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --modeldir "http://models.geo.admin.ch;." --models "SO_ARP_Nutzungsplanung_20171106" --dbschema npl_polymorph --export npl_so.xtf
+
+xmllint --format npl_so.xtf -o npl_so.xtf
+
+# Export CH-Modell
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --modeldir "http://models.geo.admin.ch;." --models "SO_ARP_Nutzungsplanung_20171106" --exportModels Nutzungsplanung_LV95_V1_1 --dbschema npl_polymorph --export npl_ch.xtf
+
+java -jar ~/apps/ili2pg-3.10.10/ili2pg.jar --dbhost geodb-dev.cgjofbdf5rqg.eu-central-1.rds.amazonaws.com --dbdatabase xanadu2 --dbusr stefan --dbpwd XXXXXX --nameByTopic --disableValidation --defaultSrsCode 2056 --expandMultilingual --strokeArcs --createGeomIdx --createFkIdx --createEnumTabs --beautifyEnumDispName  --modeldir "http://models.geo.admin.ch;." --models "Nutzungsplanung_LV95_V1_1" --exportModels Nutzungsplanung_LV95_V1_1 --dbschema npl_polymorph --export npl_ch.xtf
+
+xmllint --format npl_ch.xtf -o npl_ch.xtf
+
+

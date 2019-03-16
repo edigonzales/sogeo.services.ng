@@ -1,0 +1,28 @@
+= QGIS Server vs. MapServer - Revisited
+Stefan Ziegler
+2016-06-21
+:jbake-type: post
+:jbake-status: published
+:jbake-tags: QGIS,QGIS-Server,WMS,Benchmark,MapServer
+:idprefix:
+
+Auf vielfachen Wunsch hier noch die Resultate mit _MapServer_ als FCGI. AVWMS und Orthofoto (&laquo;nearest neighbour&raquo;) sind dann schon eine andere Hausnummer. Jedoch zeigt sich dann bei den maximalen Antwortzeiten ein ähnliches Verhalten wie bei _QGIS Server_. Der FCGI-Experte würde wahrscheinlich (?) sagen: &laquo;Logisch!&raquo;.
+
+*AVWMS:*
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/avwms_req_per_sec.png[alt="AVWMS requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/avwms_max_resp_time.png[alt="AVWMS max response", align="center"]
+
+*Orthofoto (&laquo;nearest neighbour&raquo;):*
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/ortho_req_per_sec.png[alt="Orthofoto (nearest neighour) requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/ortho_max_resp_time.png[alt="Orthofoto (nearest neighour) max response", align="center"]
+
+*Orthofoto (&laquo;average&raquo;):*
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/ortho_resampling_req_per_sec.png[alt="Orthofoto (average) requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver_revisited/ortho_resampling_max_resp_time.png[alt="Orthofoto (average) max response", align="center"]
+

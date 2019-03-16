@@ -1,0 +1,5 @@
+["PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone.Typ"]
+type="off"
+
+["PlanerischerGewaesserschutz_V1.GWSZonen.Dokument.Titel"]
+multiplicity="warning"

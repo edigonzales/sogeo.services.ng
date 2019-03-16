@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ili2pg-3.2.0-20160708" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="Units" VERSION="2012-02-20" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="InternationalCodes_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="Localisation_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="LocalisationCH_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="Dictionaries_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="DictionariesCH_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="CoordSys" VERSION="2015-11-24" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="CHAdminCodes_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="AdministrativeUnits_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="AdministrativeUnitsCH_V1" VERSION="2011-08-30" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV03_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV95_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="PlanerischerGewaesserschutz_V1" VERSION="2015-05-26" URI="http://models.geo.admin.ch/BAFU"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <PlanerischerGewaesserschutz_V1.GSBereiche BID="PlanerischerGewaesserschutz_V1.GSBereiche">
+</PlanerischerGewaesserschutz_V1.GSBereiche>
+    <PlanerischerGewaesserschutz_V1.GWSZonen BID="PlanerischerGewaesserschutz_V1.GWSZonen">
+      <PlanerischerGewaesserschutz_V1.GWSZonen.Status TID="4">
+        <Rechtsstatus>inKraft</Rechtsstatus>
+        <Rechtskraftdatum>2005-11-15</Rechtskraftdatum>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.Status>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone TID="5">
+        <Identifikator OID="CHSOPGWS00000001"/>
+        <Geometrie>
+          <SURFACE>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>600332.34595131</C1>
+                  <C2>248050.591615455</C2>
+                </COORD>
+                <COORD>
+                  <C1>600354.276037847</C1>
+                  <C2>248046.635193924</C2>
+                </COORD>
+                <COORD>
+                  <C1>600369.457941318</C1>
+                  <C2>248043.610508575</C2>
+                </COORD>
+                <COORD>
+                  <C1>600367.031883319</C1>
+                  <C2>248030.6069705</C2>
+                </COORD>
+                <COORD>
+                  <C1>600346.325916352</C1>
+                  <C2>248034.94995628</C2>
+                </COORD>
+                <COORD>
+                  <C1>600332.448836714</C1>
+                  <C2>248037.71901215</C2>
+                </COORD>
+                <COORD>
+                  <C1>600333.739072646</C1>
+                  <C2>248043.270711922</C2>
+                </COORD>
+                <COORD>
+                  <C1>600332.34595131</C1>
+                  <C2>248050.591615455</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+          </SURFACE>
+        </Geometrie>
+        <Typ>S1</Typ>
+        <istAltrechtlich>false</istAltrechtlich>
+        <Status REF="4"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone TID="6">
+        <Identifikator OID="CHSOPGWS00000002"/>
+        <Geometrie>
+          <SURFACE>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>600212.501845729</C1>
+                  <C2>247841.027113118</C2>
+                </COORD>
+                <COORD>
+                  <C1>600219.292103296</C1>
+                  <C2>247841.955853369</C2>
+                </COORD>
+                <COORD>
+                  <C1>600226.538354214</C1>
+                  <C2>247842.515999949</C2>
+                </COORD>
+                <COORD>
+                  <C1>600227.667433292</C1>
+                  <C2>247834.197234648</C2>
+                </COORD>
+                <COORD>
+                  <C1>600228.388707925</C1>
+                  <C2>247824.74583908</C2>
+                </COORD>
+                <COORD>
+                  <C1>600221.472622517</C1>
+                  <C2>247823.86526144</C2>
+                </COORD>
+                <COORD>
+                  <C1>600214.298314366</C1>
+                  <C2>247823.506462949</C2>
+                </COORD>
+                <COORD>
+                  <C1>600213.343540038</C1>
+                  <C2>247831.877928762</C2>
+                </COORD>
+                <COORD>
+                  <C1>600212.501845729</C1>
+                  <C2>247841.027113118</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+          </SURFACE>
+        </Geometrie>
+        <Typ>S1</Typ>
+        <istAltrechtlich>false</istAltrechtlich>
+        <Status REF="4"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone TID="7">
+        <Identifikator OID="CHSOPGWS00000003"/>
+        <Geometrie>
+          <SURFACE>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>600378.543442888</C1>
+                  <C2>247751.593076988</C2>
+                </COORD>
+                <COORD>
+                  <C1>600325.198730983</C1>
+                  <C2>247757.019626352</C2>
+                </COORD>
+                <COORD>
+                  <C1>600262.337072552</C1>
+                  <C2>247763.128356659</C2>
+                </COORD>
+                <COORD>
+                  <C1>600210.389116428</C1>
+                  <C2>247768.826349913</C2>
+                </COORD>
+                <COORD>
+                  <C1>600161.333269166</C1>
+                  <C2>247773.541736622</C2>
+                </COORD>
+                <COORD>
+                  <C1>600060.946629761</C1>
+                  <C2>247784.49013128</C2>
+                </COORD>
+                <COORD>
+                  <C1>600069.263356459</C1>
+                  <C2>247855.082483912</C2>
+                </COORD>
+                <COORD>
+                  <C1>600074.185175073</C1>
+                  <C2>247899.264239655</C2>
+                </COORD>
+                <COORD>
+                  <C1>600121.64298483</C1>
+                  <C2>247926.766605658</C2>
+                </COORD>
+                <COORD>
+                  <C1>600193.824346969</C1>
+                  <C2>247968.410681525</C2>
+                </COORD>
+                <COORD>
+                  <C1>600260.392228044</C1>
+                  <C2>248007.441596719</C2>
+                </COORD>
+                <COORD>
+                  <C1>600312.161785413</C1>
+                  <C2>248037.612539261</C2>
+                </COORD>
+                <COORD>
+                  <C1>600332.34595131</C1>
+                  <C2>248050.591615455</C2>
+                </COORD>
+                <COORD>
+                  <C1>600333.739072646</C1>
+                  <C2>248043.270711922</C2>
+                </COORD>
+                <COORD>
+                  <C1>600332.448836714</C1>
+                  <C2>248037.71901215</C2>
+                </COORD>
+                <COORD>
+                  <C1>600346.325916352</C1>
+                  <C2>248034.94995628</C2>
+                </COORD>
+                <COORD>
+                  <C1>600367.031883319</C1>
+                  <C2>248030.6069705</C2>
+                </COORD>
+                <COORD>
+                  <C1>600369.457941318</C1>
+                  <C2>248043.610508575</C2>
+                </COORD>
+                <COORD>
+                  <C1>600386.267810029</C1>
+                  <C2>248016.153643668</C2>
+                </COORD>
+                <COORD>
+                  <C1>600399.507272575</C1>
+                  <C2>247994.72570323</C2>
+                </COORD>
+                <COORD>
+                  <C1>600399.442402124</C1>
+                  <C2>247972.99647569</C2>
+                </COORD>
+                <COORD>
+                  <C1>600399.267302246</C1>
+                  <C2>247903.303230464</C2>
+                </COORD>
+                <COORD>
+                  <C1>600398.727101031</C1>
+                  <C2>247813.503333559</C2>
+                </COORD>
+                <COORD>
+                  <C1>600398.605451717</C1>
+                  <C2>247788.969602805</C2>
+                </COORD>
+                <COORD>
+                  <C1>600388.348238115</C1>
+                  <C2>247769.539459693</C2>
+                </COORD>
+                <COORD>
+                  <C1>600378.543442888</C1>
+                  <C2>247751.593076988</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>600212.501845729</C1>
+                  <C2>247841.027113118</C2>
+                </COORD>
+                <COORD>
+                  <C1>600213.343540038</C1>
+                  <C2>247831.877928762</C2>
+                </COORD>
+                <COORD>
+                  <C1>600214.298314366</C1>
+                  <C2>247823.506462949</C2>
+                </COORD>
+                <COORD>
+                  <C1>600221.472622517</C1>
+                  <C2>247823.86526144</C2>
+                </COORD>
+                <COORD>
+                  <C1>600228.388707925</C1>
+                  <C2>247824.74583908</C2>
+                </COORD>
+                <COORD>
+                  <C1>600227.667433292</C1>
+                  <C2>247834.197234648</C2>
+                </COORD>
+                <COORD>
+                  <C1>600226.538354214</C1>
+                  <C2>247842.515999949</C2>
+                </COORD>
+                <COORD>
+                  <C1>600219.292103296</C1>
+                  <C2>247841.955853369</C2>
+                </COORD>
+                <COORD>
+                  <C1>600212.501845729</C1>
+                  <C2>247841.027113118</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+          </SURFACE>
+        </Geometrie>
+        <Typ>S2</Typ>
+        <istAltrechtlich>false</istAltrechtlich>
+        <Status REF="4"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone TID="8">
+        <Identifikator OID="CHSOPGWS00000004"/>
+        <Geometrie>
+          <SURFACE>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>600060.946629761</C1>
+                  <C2>247784.49013128</C2>
+                </COORD>
+                <COORD>
+                  <C1>600161.333269166</C1>
+                  <C2>247773.541736622</C2>
+                </COORD>
+                <COORD>
+                  <C1>600210.389116428</C1>
+                  <C2>247768.826349913</C2>
+                </COORD>
+                <COORD>
+                  <C1>600262.337072552</C1>
+                  <C2>247763.128356659</C2>
+                </COORD>
+                <COORD>
+                  <C1>600325.198730983</C1>
+                  <C2>247757.019626352</C2>
+                </COORD>
+                <COORD>
+                  <C1>600378.543442888</C1>
+                  <C2>247751.593076988</C2>
+                </COORD>
+                <COORD>
+                  <C1>600400.672447649</C1>
+                  <C2>247732.852862681</C2>
+                </COORD>
+                <COORD>
+                  <C1>600413.336923401</C1>
+                  <C2>247732.468596719</C2>
+                </COORD>
+                <COORD>
+                  <C1>600429.471486895</C1>
+                  <C2>247711.484949887</C2>
+                </COORD>
+                <COORD>
+                  <C1>600443.532254496</C1>
+                  <C2>247693.573983221</C2>
+                </COORD>
+                <COORD>
+                  <C1>600465.851964437</C1>
+                  <C2>247690.03140549</C2>
+                </COORD>
+                <COORD>
+                  <C1>600465.450290672</C1>
+                  <C2>247644.741463291</C2>
+                </COORD>
+                <COORD>
+                  <C1>600465.273787095</C1>
+                  <C2>247623.761524167</C2>
+                </COORD>
+                <COORD>
+                  <C1>600416.839892783</C1>
+                  <C2>247575.217064565</C2>
+                </COORD>
+                <COORD>
+                  <C1>600375.486050001</C1>
+                  <C2>247533.137918649</C2>
+                </COORD>
+                <COORD>
+                  <C1>600363.083456487</C1>
+                  <C2>247542.487794326</C2>
+                </COORD>
+                <COORD>
+                  <C1>600317.094374698</C1>
+                  <C2>247578.665390065</C2>
+                </COORD>
+                <COORD>
+                  <C1>600271.617102823</C1>
+                  <C2>247614.099747925</C2>
+                </COORD>
+                <COORD>
+                  <C1>600225.167005814</C1>
+                  <C2>247650.971284458</C2>
+                </COORD>
+                <COORD>
+                  <C1>600200.949146441</C1>
+                  <C2>247667.276791941</C2>
+                </COORD>
+                <COORD>
+                  <C1>600153.465399644</C1>
+                  <C2>247693.318641769</C2>
+                </COORD>
+                <COORD>
+                  <C1>600117.015395417</C1>
+                  <C2>247712.793564104</C2>
+                </COORD>
+                <COORD>
+                  <C1>600092.184024672</C1>
+                  <C2>247744.534874109</C2>
+                </COORD>
+                <COORD>
+                  <C1>600060.946629761</C1>
+                  <C2>247784.49013128</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+          </SURFACE>
+        </Geometrie>
+        <Typ>S4</Typ>
+        <istAltrechtlich>false</istAltrechtlich>
+        <Status REF="4"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.GWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.Dokument TID="2">
+        <Art>GesetzlicheGrundlage</Art>
+        <Titel>Gewässerschutzverordnung</Titel>
+        <OffiziellerTitel>Verordnung zum Schutz der Gewässer</OffiziellerTitel>
+        <Abkuerzung>GSchV-SO</Abkuerzung>
+        <OffizielleNr>BGS 712.912BGS 712.912BGS 712.912BGS 712.912BGS 712.912BGS 712.912</OffizielleNr>
+        <publiziertAb>2000-12-19</publiziertAb>
+        <Rechtsstatus>inKraft</Rechtsstatus>
+        <TextImWeb>http://bgs.so.ch/frontend/versions/3463</TextImWeb>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.Dokument>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.Dokument TID="1">
+        <Art>Rechtsvorschrift</Art>
+        <OffiziellerTitel>Schutzzonenreglement für die Stöckli und die Wasserquelle</OffiziellerTitel>
+        <Kanton>SO</Kanton>
+        <Gemeinde>12611</Gemeinde>
+        <publiziertAb>2016-01-01</publiziertAb>
+        <Rechtsstatus>inKraft</Rechtsstatus>
+        <TextImWeb>https://www.baerschwil.ch/reglemente?file=tl_files/downloads/reglemente/Schutzzonenreglement%20Wasserbergquellen.pdf</TextImWeb>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.Dokument>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.HinweisWeitereDokumente TID="3">
+        <Ursprung REF="2"/>
+        <Hinweis REF="1"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.HinweisWeitereDokumente>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone TID="9">
+        <Rechtsvorschrift REF="1"/>
+        <GWSZone REF="5"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone TID="10">
+        <Rechtsvorschrift REF="1"/>
+        <GWSZone REF="6"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone TID="12">
+        <Rechtsvorschrift REF="1"/>
+        <GWSZone REF="7"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone>
+      <PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone TID="13">
+        <Rechtsvorschrift REF="1"/>
+        <GWSZone REF="8"/>
+      </PlanerischerGewaesserschutz_V1.GWSZonen.RechtsvorschriftGWSZone>
+    </PlanerischerGewaesserschutz_V1.GWSZonen>
+    <PlanerischerGewaesserschutz_V1.TransferMetadaten BID="PlanerischerGewaesserschutz_V1.TransferMetadaten">
+</PlanerischerGewaesserschutz_V1.TransferMetadaten>
+  </DATASECTION>
+</TRANSFER>

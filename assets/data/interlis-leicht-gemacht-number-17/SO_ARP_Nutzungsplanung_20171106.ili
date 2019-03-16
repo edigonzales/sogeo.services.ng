@@ -1,0 +1,29 @@
+INTERLIS 2.3;
+
+MODEL SO_ARP_Nutzungsplanung_20171106 (en)
+AT "http://www.agi.so.ch"
+VERSION "2017-11-06"  =
+  IMPORTS Nutzungsplanung_LV95_V1_1,GeometryCHLV95_V1;
+
+  TOPIC Geobasisdaten
+  EXTENDS Nutzungsplanung_LV95_V1_1.Geobasisdaten =
+
+    CLASS Grundnutzung_Zonenflaeche_Pos =
+      Ori : MANDATORY 0.0 .. 399.9;
+      HAli : MANDATORY INTERLIS.HALIGNMENT;
+      VAli : MANDATORY INTERLIS.VALIGNMENT;
+      Pos : MANDATORY GeometryCHLV95_V1.Coord2;
+    END Grundnutzung_Zonenflaeche_Pos;
+
+    CLASS Typ (EXTENDED) =
+      Baumassenziffer : 0.00 .. 9.00;
+    END Typ;
+
+    ASSOCIATION Grundnutzung_Grundnutzung_Pos =
+      Grundnutzung -<> {1} Nutzungsplanung_LV95_V1_1.Geobasisdaten.Grundnutzung_Zonenflaeche;
+      Grundnutzung_Pos -- {0..*} Grundnutzung_Zonenflaeche_Pos;
+    END Grundnutzung_Grundnutzung_Pos;
+
+  END Geobasisdaten;
+
+END SO_ARP_Nutzungsplanung_20171106.

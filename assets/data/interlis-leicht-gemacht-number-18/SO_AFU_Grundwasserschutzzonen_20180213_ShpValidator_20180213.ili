@@ -1,0 +1,28 @@
+INTERLIS 2.3;
+
+!!@ technicalContact=mailto:agi@bd.so.ch
+MODEL SO_AFU_Grundwasserschutzzonen_20180213_ShpValidator_20180213 (de)
+AT "http://geo.so.ch/models/AFU"
+VERSION "2018-02-13"  =
+  IMPORTS GeometryCHLV95_V1;
+
+  TOPIC ShpValidatorTopic =
+
+    CLASS ShpValidatorClass =
+      ogc_fid : MANDATORY 0 .. 10000000;
+      zone : MANDATORY (
+        GZ2,
+        GZ1,
+        SARE,
+        GZ3,
+        GZ2B
+      );
+      archive : MANDATORY 0 .. 1;
+      rrbnr : MANDATORY 1 .. 9999;
+      rrb_date : MANDATORY FORMAT INTERLIS.XMLDate "1973-1-1" .. "2017-12-31";
+      the_geom : MANDATORY GeometryCHLV95_V1.SurfaceWithOverlaps2mm;
+    END ShpValidatorClass;
+
+  END ShpValidatorTopic;
+
+END SO_AFU_Grundwasserschutzzonen_20180213_ShpValidator_20180213.

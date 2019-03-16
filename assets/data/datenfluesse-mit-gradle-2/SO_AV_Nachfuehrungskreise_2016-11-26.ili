@@ -1,0 +1,66 @@
+INTERLIS 2.3;
+
+/** Dieses Modell beschreibt die Nachführungskreise der amtlichen Vermessung.
+ */
+!!@ technicalContact=mailto:agi@bd.so.ch
+!!@ furtherInformation=http://models.geo.so.ch/AGI/SO_AV_Nachfuehrungskreise_20151224.pdf
+!!@ IDGeoIV=SO-1004
+MODEL SO_AV_Nachfuehrungskreise_20161126 (de)
+AT "http://www.geo.so.ch"
+VERSION "2016-05-21"  =
+  IMPORTS GeometryCHLV95_V1;
+
+  TOPIC Nachfuehrungskreise =
+    OID AS INTERLIS.UUIDOID;
+
+    CLASS Nachfuehrungskreis =
+      Name : MANDATORY TEXT*255;
+      Perimeter : MANDATORY GeometryCHLV95_V1.MultiSurface;
+      UNIQUE Name;
+    END Nachfuehrungskreis;
+
+  END Nachfuehrungskreise;
+
+  TOPIC Nachfuehrungsgeometer =
+    OID AS INTERLIS.UUIDOID;
+    DEPENDS ON SO_AV_Nachfuehrungskreise_20161126.Nachfuehrungskreise;
+
+    CLASS Firmenstandort =
+      Name : MANDATORY TEXT*255;
+      Zusatzname : TEXT*255;
+      UID : TEXT*12;
+      Lokalisationsname : MANDATORY TEXT*255;
+      Hausnummer : MANDATORY TEXT*20;
+      PLZ : MANDATORY 2000 .. 6000;
+      Ortschaft : MANDATORY TEXT*255;
+      Telefonnummer : MANDATORY TEXT*255;
+      Faxnummer : TEXT*255;
+      E_Mail : MANDATORY TEXT*255;
+      Web : MANDATORY INTERLIS.URI;
+    END Firmenstandort;
+
+    CLASS Nachfuehrungsgeometer =
+      Vorname : MANDATORY TEXT*255;
+      Nachname : MANDATORY TEXT*255;
+    END Nachfuehrungsgeometer;
+
+    ASSOCIATION Kreis_Geometer =
+      Kreis (EXTERNAL) -- {0..*} SO_AV_Nachfuehrungskreise_20161126.Nachfuehrungskreise.Nachfuehrungskreis;
+      Geometer -- {1} Nachfuehrungsgeometer;
+      Vertragsbeginn : MANDATORY INTERLIS.XMLDate;
+      Vertragsende : INTERLIS.XMLDate;
+    END Kreis_Geometer;
+
+    ASSOCIATION Standort_Geometer =
+      Standort -- {1..*} Firmenstandort;
+      Geometer -- {1} Nachfuehrungsgeometer;
+    END Standort_Geometer;
+
+    ASSOCIATION Standort_Kreis =
+      Firma -- {0..*} Firmenstandort;
+      NFKreis (EXTERNAL) -- {1..*} SO_AV_Nachfuehrungskreise_20161126.Nachfuehrungskreise.Nachfuehrungskreis;
+    END Standort_Kreis;
+
+  END Nachfuehrungsgeometer;
+
+END SO_AV_Nachfuehrungskreise_20161126.

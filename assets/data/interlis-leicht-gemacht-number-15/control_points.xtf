@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ili2pg-3.6.1-20170120" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="CoordSys" VERSION="2015-11-24" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="Units" VERSION="2012-02-20" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="GeometryCHLV03_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV95_V1" VERSION="2015-11-12" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="AVLight" VERSION="2017-02-11" URI="http://sogeo.services"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <AVLight.Control_points BID="AVLight.Control_points">
+      <AVLight.Control_points.Control_point TID="d6553594-b035-4ce2-b7e9-aac9f51ed6ec">
+        <Category>2</Category>
+        <IdentND>CH0300001066</IdentND>
+        <Number>10666040</Number>
+        <Geometry>
+          <COORD>
+            <C1>2597586.096</C1>
+            <C2>1254313.787</C2>
+          </COORD>
+        </Geometry>
+        <Plan_accuracy>1.0</Plan_accuracy>
+        <Geom_alt>10766.470</Geom_alt>
+        <Alt_accuracy>1.5</Alt_accuracy>
+        <Mark>0</Mark>
+        <State_of>2006-05-22T00:00:00.000</State_of>
+        <FOSNr>2619</FOSNr>
+      </AVLight.Control_points.Control_point>
+      <AVLight.Control_points.Control_point TID="25ff5157-00b7-4395-a514-5917e057a253">
+        <Category>2</Category>
+        <IdentND>CH0300001066</IdentND>
+        <Number>10667010</Number>
+        <Geometry>
+          <COORD>
+            <C1>2599645.016</C1>
+            <C2>1260107.977</C2>
+          </COORD>
+        </Geometry>
+        <Plan_accuracy>1.0</Plan_accuracy>
+        <Geom_alt>414.680</Geom_alt>
+        <Alt_accuracy>1.5</Alt_accuracy>
+        <Mark>0</Mark>
+        <State_of>2002-11-30T00:00:00.000</State_of>
+        <FOSNr>2479</FOSNr>
+      </AVLight.Control_points.Control_point>
+      <AVLight.Control_points.Control_point TID="def3a9bc-1f0d-4430-b03d-cf421709f171">
+        <Category>2</Category>
+        <IdentND>CH0300001066</IdentND>
+        <Number>90667020</Number>
+        <Geometry>
+          <COORD>
+            <C1>2600391.96</C1>
+            <C2>1259996.827</C2>
+          </COORD>
+        </Geometry>
+        <Plan_accuracy>1.0</Plan_accuracy>
+        <Geom_alt>401.880</Geom_alt>
+        <Alt_accuracy>1.5</Alt_accuracy>
+        <Mark>0</Mark>
+        <State_of>2002-11-30T00:00:00.000</State_of>
+        <FOSNr>2479</FOSNr>
+      </AVLight.Control_points.Control_point>
+      <AVLight.Control_points.Control_point TID="a01868e1-11fd-4c7c-a109-341b778b4d44">
+        <Category>2</Category>
+        <IdentND>CH0300001066</IdentND>
+        <Number>1066703099</Number>
+        <Geometry>
+          <COORD>
+            <C1>2599527.609</C1>
+            <C2>1259507.574</C2>
+          </COORD>
+        </Geometry>
+        <Plan_accuracy>1.0</Plan_accuracy>
+        <Geom_alt>387.020</Geom_alt>
+        <Alt_accuracy>1.5</Alt_accuracy>
+        <Mark>0</Mark>
+        <State_of>2002-11-30T00:00:00.000</State_of>
+        <FOSNr>2479</FOSNr>
+      </AVLight.Control_points.Control_point>
+      <AVLight.Control_points.Control_point TID="2d8fef45-cc65-4305-a59a-5e046afd2fcb">
+        <Category>2</Category>
+        <IdentND>CH0300001066</IdentND>
+        <Number>10667050</Number>
+        <Geometry>
+          <COORD>
+            <C1>2600137.872</C1>
+            <C2>1258910.51</C2>
+          </COORD>
+        </Geometry>
+        <Plan_accuracy>1.0</Plan_accuracy>
+        <Geom_alt>377.560</Geom_alt>
+        <Alt_accuracy>1.5</Alt_accuracy>
+        <Mark>0</Mark>
+        <State_of>2002-11-30T00:00:00.000</State_of>
+        <FOSNr>4479</FOSNr>
+      </AVLight.Control_points.Control_point>
+    </AVLight.Control_points>            
+  </DATASECTION>
+</TRANSFER>

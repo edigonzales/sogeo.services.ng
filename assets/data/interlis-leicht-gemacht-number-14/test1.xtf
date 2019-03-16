@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ili2pg-3.6.1-20170120" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="FunctionsExt23" VERSION="2016-11-09" URI="mailto:ce@eisenhutinformatik.ch"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <FunctionsExt23.Topic BID="FunctionsExt23.Topic">
+      <FunctionsExt23.Topic.ClassA TID="1">
+        <text>0123456789</text>
+        <from>2</from>
+        <to>8</to>
+        <attr2>234567</attr2>
+      </FunctionsExt23.Topic.ClassA>
+      <FunctionsExt23.Topic.ClassA TID="2">
+        <text>Silence like a cancer grows</text>
+        <from>0</from>
+        <to>7</to>
+        <attr2>Silence</attr2>
+      </FunctionsExt23.Topic.ClassA>
+    </FunctionsExt23.Topic>
+  </DATASECTION>
+</TRANSFER>

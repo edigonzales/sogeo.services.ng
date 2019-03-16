@@ -1,0 +1,60 @@
+= QGIS Server vs. MapServer
+Stefan Ziegler
+2016-06-20
+:jbake-type: post
+:jbake-status: published
+:jbake-tags: QGIS,QGIS-Server,WMS,Benchmark,MapServer
+:idprefix:
+
+Bei http://www.agi.so.ch[uns] steht ein grösser Umbau der GIS-Infrastruktur im Web an. Da darf natürlich auch die Diskussion über den zukünftigen Kartenserver nicht fehlen. Zurzeit - &laquo;historisch gewachsen&raquo; - setzen wir drei (3) WMS-Server ein: _MapServer_, _GeoServer_ und _QGIS Server_. Nach dem Umbau soll es nur einer sein. _GeoServer_ scheidet als erstes aus. Wir haben damit einfach am wenigsten Erfahrung. Bleiben noch _MapServer_ und _QGIS Server_. _MapServer_ setzen wir seit Tag 1 ein, haben also reichlich Erfahrung. Bei _QGIS Server_ schätzen wir z.B. die umfangreichen Funktionen in verschiedenen Bereichen, die allesamt direkt auch im Web verwendbar und vor allem sichtbar werden.
+
+Als eine kleine Hilfe bei der Entscheidungsfindung habe ich kurzerhand ein WMS-Shootout gemacht. 
+
+Disclaimer: Bis vor vier Tagen habe ich noch nie irgendetwas mit _MapServer_ gemacht. _QGIS_ verwende ich seit circa Version 0.7.
+
+Das Benchmarking-Setup sah wie folgt aus:
+
+* Server bei server4you.de (i5-4xxx irgendwas) mit SSD.
+* Daten und WMS-Server auf dem gleichen Server.
+* Benchmarking-Tool: _jmeter_.
+* Drei Benchmarks:
+ - AVWMS (bestehend aus Bodenbedeckung, Liegenschaften und Liegenschaftsnummern).
+ - Orthofoto (Kantone BL, BS und nördlicher Teil von Kanton SO). Resampling &laquo;nearest neighbour&raquo;. 
+ - Orthofoto (dito). Resampling &laquo;average&raquo;. 
+* Pro Benchmarks jeweils 1, 2, 4, 8, 16, 32 und 64 parallele Requests.
+* Bei allen Tests jeweils drei Durchgänge.
+* _MapServer_ (7.0.1) bewusst nur als CGI.
+* _QGIS Server_ (master) als FCGI (`FcgidMaxProcesses 10`, `FcgidMaxProcessesPerClass 10`).
+* Alle Einstellungen möglichst out-of-the-box.
+
+Die Resultate habe ich jeweils in zwei Charts gepackt: Einmal den Throughput (Requests pro Sekunde) und einmal die maximale Antwortzeit.
+
+*AVWMS:*
+
+image::../../../../../images/qgisserver_vs_mapserver/avwms_req_per_sec.png[alt="AVWMS requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver/avwms_max_resp_time.png[alt="AVWMS max response", align="center"]
+
+_QGIS Server_ ist in diesem Vergleich schneller. Auffallend ist aber das Hochschnellen der maximalen Antwortzeit wenn mehr als zehn gleichzeitige Requests gemacht werden. Als FCGI-Laie klingt das jetzt noch plausibel, da wir ja in den FCGI-Einstellungen eben nur maximal zehn Prozesse zulassen.
+
+*Orthofoto (&laquo;nearest neighbour&raquo;):*
+
+image::../../../../../images/qgisserver_vs_mapserver/ortho_req_per_sec.png[alt="Orthofoto (nearest neighour) requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver/ortho_max_resp_time.png[alt="Orthofoto (nearest neighour) max response", align="center"]
+
+_MapServer_ ist hier deutlich vor _QGIS Server_. Und auch hier wieder die relativ hohen maximalen Antwortzeiten von _QGIS Server_.
+
+*Orthofoto (&laquo;average&raquo;):*
+
+image::../../../../../images/qgisserver_vs_mapserver/ortho_resampling_req_per_sec.png[alt="Orthofoto (average) requests per second", align="center"]
+
+image::../../../../../images/qgisserver_vs_mapserver/ortho_resampling_max_resp_time.png[alt="Orthofoto (average) max response", align="center"]
+
+Überraschung, Überraschung: _QGIS Server_ liegt hier plötzlich vor _MapServer_. Diesen Sachverhalt haben wir früher bereits mal - ohne Benchmarking - festgestellt. Ebenso hat _MapServer_ hier auch Probleme mit langen Antwortzeiten.
+
+Einen klaren Gewinner gibt es mit diesem eher simplen Benchmarking nicht. Neben der puren Geschwindigkeit ist für uns auch wichtig, wie pflegeleicht die Software ist. Und da ist (für uns jedenfalls) _MapServer_, der auch als purer CGI-Prozess gute Performance liefert, einfacher zu handhaben (&laquo;fire and forget&raquo;). Bei _QGIS Server_ haben wir bezüglich FCGI unsere Bedenken. Nicht, dass das per se schlecht wäre, nur haben wir da weniger (= kein) Know-How.
+
+Weitere Faktoren sind z.B. die kartografischen Möglichkeiten. Da hinkt _MapServer_ gefühlt Lichtjahre hinterher. Einfache Sachen sind anscheinend http://lists.osgeo.org/pipermail/mapserver-users/2016-June/079079.html[nicht möglich]. Dass _QGIS_ nativ auch die Ankerpunkte gemäss INTERLIS (&laquo;hali&raquo; und &laquo;vali&raquo;) unterstützt und _MapServer_ nicht, ist nur noch ein kleines Detail. Handkehrum kann man mit _MapServer_ garantiert 99% sämtlicher Kartendarstellungen mehr als befriedigend lösen.
+
+Entscheide sind noch keine gefallen. Sollten aber bald.

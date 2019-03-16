@@ -1,0 +1,56 @@
+INTERLIS 2.3;
+
+CONTRACTED MODEL FunctionTests (en) AT "http://sogeo.services"
+  VERSION "2017-02-11" =
+
+  IMPORTS UNQUALIFIED INTERLIS;
+  IMPORTS UNQUALIFIED GeometryCHLV95_V1;
+
+  !!@ilivalid.impl.java=org.catais.ilivalidator.ext.MySubText
+  FUNCTION subText (text: TEXT; from: NUMERIC; to: NUMERIC): TEXT;
+
+  !!@ilivalid.impl.java=org.catais.ilivalidator.ext.IdentND
+  FUNCTION identND (number: TEXT): TEXT;
+
+  !!@ilivalid.impl.java=org.catais.ilivalidator.ext.IsInteger
+  FUNCTION IsInteger (number: NUMERIC): BOOLEAN;
+
+    UNIT
+      Grads = 200.0 / PI [rad];
+      SquareMeters [m2] = (m * m);
+
+    DOMAIN
+
+      Altitude = -200.000 .. 5000.000 [m];
+
+      Rotation = 0.0 .. 399.9 [Grads];
+
+      Accuracy = 0.0 .. 700.0;
+
+   TOPIC Control_points =
+      OID AS INTERLIS.UUIDOID;
+
+      CLASS Control_point =
+        Category : MANDATORY 0..5; 
+        IdentND : MANDATORY TEXT*12;
+        Number : MANDATORY TEXT*12;
+        Geometry : MANDATORY Coord2;
+        Plan_accuracy : Accuracy;
+        Geom_alt : Altitude;
+        Alt_accuracy : Accuracy;
+        Mark : MANDATORY 0..8; 
+        State_of : XMLDateTime;
+        FOSNr : 0 .. 9999;
+      UNIQUE IdentND, Number;
+      MANDATORY CONSTRAINT (INTERLIS.len (Number)) == 8;
+      MANDATORY CONSTRAINT (INTERLIS.len (IdentND)) == 12;
+      MANDATORY CONSTRAINT subText(IdentND,"0","8") == "CH030000";
+      MANDATORY CONSTRAINT identND(Number) == IdentND;
+      MANDATORY CONSTRAINT IsInteger(Plan_accuracy);
+      END Control_point;
+
+    END Control_points;
+
+
+
+  END FunctionTests.

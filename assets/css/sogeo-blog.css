@@ -1,0 +1,165 @@
+h1 {
+    font-family: 'IBM Plex Serif', 'serif';
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 32px;
+  }
+  
+h1 a {
+    color:#000000;
+    text-decoration: none;
+    -webkit-transition: 0.3s ease-in-out;
+    -moz-transition: 0.3s ease-in-out;
+    -ms-transition: 0.3s ease-in-out;
+    -o-transition: 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
+}
+
+h1 a:hover {
+    color:#0181eb;
+    text-decoration: none;
+}
+
+
+.container {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    /*font-size: 16px;*/
+    max-width: 800px;
+}
+
+.container p.credit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+}
+
+.paragraph {
+    /*font-size: 20px;*/
+    font-size: 19px;
+    line-height: 1.7;
+}
+
+p {
+    margin-top: 25px;
+    margin-bottom: 0px;
+    text-align: justify;
+}
+
+li p {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.content img {
+    border-radius: 0.3em;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+    border: 0.5em solid #FFF;
+}
+  
+.imageblock {
+    margin-top: 25px;
+    margin-bottom: 0px;
+}
+
+.navbar-default {
+    background-color: #fff;
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.navbar-default .navbar-brand {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.navbar-default .navbar-nav>li>a {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+ul, ol, dl {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.date {
+    font-size: 18px;
+    color: #aaa;
+    text-transform: uppercase;
+    font-style: italic;
+}
+  
+#footer {
+    border-top-width: 0px;
+    border-top-style: solid;
+    border-top-color: rgb(231, 231, 231);
+    background-color: #fff;
+}
+
+/* syntax highlighting */
+.listingblock {
+    margin-top: 25px;
+    margin-bottom: 0px;
+}
+
+*:not(pre) > code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-style: italic;
+    color: black;
+    font-size: 18px;
+    border-width: 0px;
+    background-color: white;
+
+}
+
+pre.prettyprint {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: rgb(255,255,255);
+    border-width: 0px;
+    overflow-x: auto;
+    padding-bottom: initial;
+}
+
+pre code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 18px;
+}
+
+
+
+
+.listingblock ol.linenums {
+    font-style: normal;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #ccc;
+    margin-left: 10px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+li code {
+    font-style: normal;
+    border-width: 0px;
+    background-color: #fff;
+    white-space: pre;
+    word-break: keep-all;
+    word-wrap: normal;
+}
+
+li p code {
+    font-style: normal;
+    background-color: #f2f2f2;
+}
+
+li.L1, li.L3, li.L5, li.L7, li.L9 {
+    font-style: normal;
+    background-color: #fff;
+    font-size: 18px;
+}
+
+li.L2, li.L4, li.L6, li.L8, li.L0 {
+    font-style: normal;
+    font-size: 18px;
+}
