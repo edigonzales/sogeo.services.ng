@@ -1,3 +1,7 @@
+body {
+    color: black;
+}
+
 h1 {
     /*font-family: 'IBM Plex Serif', 'serif';*/
     font-family: 'Fira Sans', sans-serif;
@@ -39,7 +43,7 @@ h1 a:hover {
 
 .paragraph {
     /*font-size: 20px;*/
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1.7;
 }
 
@@ -89,6 +93,10 @@ ul, ol, dl {
     margin-bottom: 0px;
 }
 
+ol.linenums li {
+    font-size: 17px;
+}
+
 .date {
     font-size: 18px;
     color: #aaa;
@@ -135,7 +143,7 @@ pre code {
     /*font-family: 'IBM Plex Mono', monospace;*/
     /*font-family: 'Inconsolata', monospace;*/
     font-family: 'Fira Code', monospace;
-    font-size: 18px;
+    font-size: 17px;
 }
 
 .listingblock ol.linenums {
