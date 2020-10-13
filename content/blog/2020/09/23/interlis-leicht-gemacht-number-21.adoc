@@ -6,181 +6,219 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ilivalidator,Jaxb,ili2db
 :idprefix:
 
-Die Daten der Nutzungsplanung nehmen beim ÖREB-Kataster eine sehr wichtige Rolle ein. Das setzt eine hohe inhaltliche, aber auch strukturelle Qualität der digitalen Daten voraus. Die Daten werden in einem kantonalen http://geo.so.ch/models/ARP/SO_Nutzungsplanung_20171118.ili[Datenmodell] erfasst, das sowohl http://models.geo.admin.ch/ARE/Nutzungsplanung_V1_1.ili[MGDM] wie auch http://models.geo.admin.ch/V_D/OeREB/OeREBKRMtrsfr_V1_1.ili[ÖREB-Rahmenmodell] kompatibel ist. Die Daten werden durch externe Planungs- und Ingenieurbüros im Auftrag der Gemeinde erfasst. So weit, so gut.
+Die Dienststelle muss einige seiner in die Jahre gekommenen Fachanwendungen ablösen und wählt dafür eine &laquo;Plattform&raquo; eines Anbieters aus. Die Idee dahinter ist, dass dank des Plattformgedankens Synergien genützt werden können: technisch aber auch v.a. finanziell. Klingt gut, hat aber auch ein paar gravierende Nachteile. Im konkreten Fall fiel die Wahl auf eine Plattform, die überhaupt nichts mit GIS am Hut hat, aber trotzdem &laquo;GIS machen&raquo; können soll. Das Tragische ist, dass die GIS-Anforderungen eigentlich überschaubar sind: Häufig muss man nur einen Punkt in einer Karte absetzen und ein paar Attribute dazu erfassen. Soweit keine Raketenwissenschaft. 
 
-Wo gearbeitet wird, passieren auch Fehler. Insbesondere schmerzen diese in der Weiterverarbeitung der Daten, wie jetzt bei der Integration in den ÖREB-Kataster. Damit diese möglichst frühzeitg entdeckt werden, drängt sich natürlich die maschinelle Prüfung mit https://github.com/claeis/ilivalidator[_ilivalidator_] auf. Das wird zwar von Beginn an gemacht, wie sich aber jetzt herausstellt, reicht die pure Modellprüfung nicht, damit eine robuste und transparente Weiterverarbeitung sichergestellt ist. Dank den Möglichkeiten von _ilivalidator_ kann die Prüfung an notwendigen Stellen verschärft werden. Bei einigen Veschärfungen ist mir - Stand heute - schlichtweg nicht klar, warum man damals nicht das Modell bereits so modelliert hat...
+Für das Verheiraten von GIS-freien Webanwendungen und unserem Web GIS Client haben wir eine https://so.ch/verwaltung/bau-und-justizdepartement/amt-fuer-geoinformation/geoportal/geodienste/ccc-schnittstelle/[Schnittstelle] auf Basis Websocket eingeführt. Damit können sich die beiden Awendungen koppeln und Daten austauschen. Die Fachanwendung muss also nicht &laquo;GIS können&raquo;, sondern nur Websocket und bisschen JSON rumschicken. Im aktuellsten Fall gibt es nun zusätzlich die Anforderung, dass die Geometrien nicht nur Punkte sind, sondern Polygone. Die Polygone müssen zudem sauber, d.h. überlappungsfrei erfasst werden können. Natürlich kann man sowas auch in einem Web GIS Client umsetzen. Das Kosten/Nutzen-Verhältnis muss aber berücksichtigt werden. Vor allem wenn es Werkzeuge wie https://qgis.org[_QGIS_] gibt, die sehr gute Digitalisierungswerkzeuge mitbringen.
 
-**Multiplicity**
+Wie verheiraten wir aber jetzt _QGIS_ mit der Fachanwendung, die im Browser läuft? Einerseits sollen zu einem Geschäftsfall in der Fachanwendung Geometrien erfasst werden und andererseits sollen die gemeinsamen Daten (also Geometrie und Sachattribute aus der Fachanwendung) regelmässig für Interessierte im Web GIS Client aktualisiert und dargestellt werden. Was wir nicht machen wollen, ist für _QGIS_ einen Websocket-Provider entwickeln lassen. Was machen? Back to the roots: Datenaustausch mit Dateien und bisschen Copy/Paste. Grundidee ist etwa folgende:
 
-Das Boolean-Attribut `Rechtsvorschrift` in der Klasse `Dokument` ist _nicht_ mandatory. Für die Weiterverarbeitung müssen wir aber wissen, ob ein Dokument eine Rechtsvorschrift ist oder eben nicht. Um das Datenmodell nicht ändern zu müssen, kann man in einem https://github.com/edigonzales/ilivalidator-web-service-nplso/blob/master/src/main/resources/ili/SO_Nutzungsplanung_20171118_Validierung_20190129_UTF8.ili[&laquo;Valididierungsmodell&raquo;] einen zusätzlichen Constraint definieren. Dazu muss man eine View der Dokumentenklasse erstellen und in dieser View den Constraint definieren:
+Der Anwender beginnt mit der Erfassung des Polygons / Multipolygons in _QGIS_. Diese Geometrie erhält einen fixen Identifikator. Diesen Identifikator muss man in die Fachanwendung übertragen und dort können die weiteren Informationen zum Geschäftsfall erfasst werden. Dieses Vorgehen öffnet natürlich Tür und Tor für Fehler. Wie damit umgehen? Wie verhindern? INTERLIS.
 
-[source,xml,linenums]
-----
-CONTRACTED MODEL SO_Nutzungsplanung_20171118_Validierung_20190129 (de)
-AT "http://www.geo.so.ch"
-VERSION "2019-01-29"  =
-  IMPORTS SO_Nutzungsplanung_20171118;
-  
-  VIEW TOPIC Rechtsvorschriften_Validierung = 
-  DEPENDS ON SO_Nutzungsplanung_20171118.Rechtsvorschriften;
-  
-	VIEW v_Dokument
-    	PROJECTION OF SO_Nutzungsplanung_20171118.Rechtsvorschriften.Dokument;
-    =
-        ALL OF Dokument;
-        !!@ ilivalid.msg = "Attribut 'Rechtsvorschrift' muss definiert sein."
-        MANDATORY CONSTRAINT DEFINED(Rechtsvorschrift);
-    END v_Dokument;
-    
-  END Rechtsvorschriften_Validierung;
-
-END SO_Nutzungsplanung_20171118_Validierung_20190129.
-----
-
-Das Validierungsmodell muss in der Config-Toml-Datei referenziert werden:
+Wir müssen nur ein Datenmodell erstellen, das die Geometrie von den Sachdaten in zwei Klassen aufteilt und eine Beziehung zwischen den Klassen herstellen. Die Beziehung muss jedoch so definiert werden (Zauberwort `EXTERNAL`), dass Bezüge zwischen Objekten in unterschiedlichen Behältern zugelassen werden.
 
 [source,xml,linenums]
 ----
-["PARAMETER"]
-additionalModels="SO_Nutzungsplanung_20171118_Validierung_20190129"
+MODEL SO_AFU_Abbaustellen_20200918 (de)
+AT "http://afu.so.ch"
+VERSION "2020-09-18"  =
+  IMPORTS GeometryCHLV95_V1;
+
+  TOPIC Abbaustellen =
+    OID AS INTERLIS.UUIDOID;
+
+    /** Abbaustelle (aus Fachanwendung ohne Geometrie)
+     */
+    CLASS Abbaustelle =
+      Nummer : MANDATORY TEXT*1024;
+      Name : MANDATORY TEXT*1024;
+      Bemerkungen : MTEXT*1024;
+    END Abbaustelle;
+
+    /** Geometrie zu einer Abbaustelle. Getrennte Erfassung (Fachanwendung - Desktop-GIS)
+     */
+    CLASS Geometrie =
+      Geometrie : MANDATORY GeometryCHLV95_V1.SurfaceWithOverlaps2mm;
+    END Geometrie;
+
+    /** Verknüpfung zwischen genau einer Abbaustelle und einer Geometrie. 
+     * 
+     * In welcher Tabellen wird der Fremdschlüssel in der Datenbank angelegt? In welcher Klasse wird die Beziehung im XTF eingebettet?
+     * 
+     * Falls bei beiden (Basis-)Rollen die maximale Kardinalität kleiner gleich 1 ist, wird bei der Ziel-Klasse der zweiten  Rolle eingebettet. (Kap. 3.3.9 (und 3.3.7)).
+     */
+    ASSOCIATION Abbaustelle_Geometrie =
+      Geometrie (EXTERNAL) -- {1} Geometrie;
+      Abbaustelle -- {1} Abbaustelle;
+    END Abbaustelle_Geometrie;
+
+  END Abbaustellen;
+
+END SO_AFU_Abbaustellen_20200918.
 ----
 
-Der Programmaufruf ist wie folgt:
+Die Fachanwendung schickt uns für die Integration in die GDI (zur Publikation im Web GIS Client) nur eine INTERLIS-Transferdatei mit Objekten der Klasse `Abbaustelle`:
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ili2pg-4.4.2-7b1d50437cd6970a801b16d177c4e27151414569" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="CoordSys" VERSION="2015-11-24" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="Units" VERSION="2012-02-20" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="GeometryCHLV03_V1" VERSION="2017-12-04" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV95_V1" VERSION="2017-12-04" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="SO_AFU_Abbaustellen_20200918" VERSION="2020-09-18" URI="http://afu.so.ch"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <SO_AFU_Abbaustellen_20200918.Abbaustellen BID="bX">
+      <SO_AFU_Abbaustellen_20200918.Abbaustellen.Abbaustelle TID="5c6be6dd-7111-42fd-9eae-bd46fefa3c93">
+        <Nummer>5432</Nummer>
+        <Name>Hellstätt</Name>
+        <Bemerkungen>Fubar</Bemerkungen>
+        <Geometrie REF="5e5bb99e-2f68-499e-aebe-d01f05b9ea88"/>
+      </SO_AFU_Abbaustellen_20200918.Abbaustellen.Abbaustelle>
+    </SO_AFU_Abbaustellen_20200918.Abbaustellen>
+  </DATASECTION>
+</TRANSFER>
+----
+
+Das Attribut `REF` im Element `Geometrie` enthält den fixen Identifikator der Geometrie. Der GIS-Teil sieht in INTERLIS so aus (siehe `TID`):
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+  <HEADERSECTION SENDER="ili2pg-4.4.2-7b1d50437cd6970a801b16d177c4e27151414569" VERSION="2.3">
+    <MODELS>
+      <MODEL NAME="CoordSys" VERSION="2015-11-24" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="Units" VERSION="2012-02-20" URI="http://www.interlis.ch/models"/>
+      <MODEL NAME="GeometryCHLV03_V1" VERSION="2017-12-04" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="GeometryCHLV95_V1" VERSION="2017-12-04" URI="http://www.geo.admin.ch"/>
+      <MODEL NAME="SO_AFU_Abbaustellen_20200918" VERSION="2020-09-18" URI="http://afu.so.ch"/>
+    </MODELS>
+  </HEADERSECTION>
+  <DATASECTION>
+    <SO_AFU_Abbaustellen_20200918.Abbaustellen BID="b1">
+      <SO_AFU_Abbaustellen_20200918.Abbaustellen.Geometrie TID="5e5bb99e-2f68-499e-aebe-d01f05b9ea88">
+        <Geometrie>
+          <SURFACE>
+            <BOUNDARY>
+              <POLYLINE>
+                <COORD>
+                  <C1>2629140.305</C1>
+                  <C2>1245681.759</C2>
+                </COORD>
+                <COORD>
+                  <C1>2629143.746</C1>
+                  <C2>1245586.181</C2>
+                </COORD>
+                <COORD>
+                  <C1>2629227.280</C1>
+                  <C2>1245582.550</C2>
+                </COORD>
+                <COORD>
+                  <C1>2629240.470</C1>
+                  <C2>1245648.689</C2>
+                </COORD>
+                <COORD>
+                  <C1>2629196.696</C1>
+                  <C2>1245685.773</C2>
+                </COORD>
+                <COORD>
+                  <C1>2629140.305</C1>
+                  <C2>1245681.759</C2>
+                </COORD>
+              </POLYLINE>
+            </BOUNDARY>
+          </SURFACE>
+        </Geometrie>
+      </SO_AFU_Abbaustellen_20200918.Abbaustellen.Geometrie>
+    </SO_AFU_Abbaustellen_20200918.Abbaustellen>
+  </DATASECTION>
+</TRANSFER>
+----
+
+Liegen sowohl die Daten aus der Fachanwendung wie auch die Geometrien als INTERLIS-Transferdatei vor, kann https://github.com/claeis/ilivalidator[_ilivalidator_] die Daten prüfen:
 
 ```
-java -jar ilivalidator.jar --config myconfig.toml 2502.xtf
+java -jar ilivalidator-1.11.6.jar --allObjectsAccessible abbaustellen_geometrie.xtf abbaustellen_fachanwendung.xtf
 ```
 
+Wobei es hier noch einen Bug gibt: https://github.com/claeis/ilivalidator/issues/276[https://github.com/claeis/ilivalidator/issues/276].
 
-**Falsche Dokumentenlinks**
+Man muss aber die Geometrien gar nicht nach INTERLIS exportieren, um die Konsistenz zwischen Fachanwendungsdaten und Geometriedaten zu prüfen. Der Versuch eines Importes der Fachanwendungsdaten in die Datenbank reicht für den Fall von Sachobjekten, die ins Nirvana zeigen. In diesem Fall können die Daten gar nicht importiert werden, weil der Primary Key (zum Fremdschlüssel) fehlt (&laquo;dangling reference&raquo;).
 
-Dabei geht es nicht um falsche Links im INTERLIS-Sinn (das prüft _ilivalidator_ von sich aus), sondern um Links, die nicht auf eine vorhandene HTTP-Ressource zeigen. Dazu macht man sich die Möglichkeit zu Nutze _ilivalidator_ mit eigenen in Java geschriebenen Funktionen zu erweitern. Im Prinzip müsste die Funktion nur den Status Code eines `HEAD`-Befehls überprüfen. Das mit `HEAD` ist aber tricky, da der Befehl aufgrund von Firewalls resp. falsch konfigurierten Webservern nicht immer etwas sinnvolles oder richtiges zurückliefert. Daher muss man wohl oder übel trotzdem einen `GET`-Request absetzen. Bei mir sind jetzt alle Status Codes https://github.com/sogis/ilivalidator-extension-functions/blob/master/src/main/java/ch/so/agi/ilivalidator/ext/CheckHttpRessourceIoxPlugin.java[grösser 200 und kleiner 400] in Ordnung. Alles andere führt zu einem Fehler.
+Wie überzeugt man aber die Firma, die kein GIS machen will, von INTERLIS? Gar nicht. Man sagt einfach, dass sie einfachstes XML herstellen müssen:
 
-Die kompilierte Java-Klasse muss beim Aufruf _ilivalidator_ bekannt gemacht werden indem man ein Plugins-Verzeichnis angibt (`--plugins /path/to/plugin/dir/`). Es reicht nicht, sie einfach im Classpath vorzuhalten. Dies ist vor allem dann nicht immer ideal, wenn man _ilivalidator_ nicht bloss auf der Kommandozeile aufruft, sondern z.B. als Web Service.
+**Variante 1: Jaxb**
 
-Damit die Funktion in einem Constraint verwendet werden kann, muss sie vorgängig in einem Modell deklariert werden. Entweder macht man das im oben erwähnten Validierungsmodell oder man macht ein https://github.com/edigonzales/ilivalidator-web-service-nplso/blob/master/src/main/resources/ili/SO_FunctionsExt.ili[weiteres Modell], damit die Funktion mittels `IMPORTS` auch in weiteren Modellen verwendet werden kann.
+Eine Möglichkeit ist der Weg über das automatische Erzeugen von Java-Klassen aus dem XSD, welches aus dem INTERLIS-Datenmodell einmalig automatisch erstellt werden muss. Diese Java-Klassen muss ich dann nur noch mit Inhalt befüllen und kann sie nach XML (also XTF) serialisieren. Dieses Serialisieren übernimmt ebenfalls die Programmierbibliothek. D.h. ich muss mich nicht um XML-Formatierungen etc. kümmern, sondern nur um den Inhalt.
 
-Das Validierungsmodell muss dann zusätzlich zu `SO_Nutzungsplanung_20171118` auch das neue Modell importieren. Anschliessend kann der Constraint definiert werden:
+Ein Abbaustellen-Element wird z.B. wie folgt erstellt:
 
-[source,xml,linenums]
+[source,java,linenums]
 ----
-!!@ ilivalid.msg = "Dokument 'https://geo.so.ch/docs/ch.so.arp.zonenplaene/Zonenplaene_pdf/{TextImWeb}' wurde nicht gefunden."
-MANDATORY CONSTRAINT SO_FunctionsExt.checkHttpRessource(TextImWeb, "https://geo.so.ch/docs/ch.so.arp.zonenplaene/Zonenplaene_pdf/");
-----
-
-
-**Falsch verknüpfte Dokumente in HinweisWeitereDokumente**
-
-Zusätzlich zu den Rechtsvorschriften _müssen_ die gesetzlichen Grundlagen und _können_ weitere Informationen und Hinweise im ÖREB-Kataster erfasst werden. Entsprechend wurde das Rahmenmodell modelliert:
-
-image::../../../../../images/interlis_leicht_gemacht_p20/hinweisweiteredokumente_uml.png[alt="HinweisWeitereDokumente UML", align="center"]
-
-[source,xml,linenums]
-----
-ASSOCIATION HinweisWeitereDokumente =
-    Ursprung -- {0..*} Dokument;
-    Hinweis (EXTERNAL) -- {0..*} Dokument;
-    /** Hinweis auf spezifische Artikel.
-    */
-    ArtikelNr : BAG {0..*} OF OeREBKRM_V1_1.ArtikelNummer_;
-END HinweisWeitereDokumente;
+SOAFUAbbaustellen20200918AbbaustellenAbbaustelle abbaustelle = new SOAFUAbbaustellen20200918AbbaustellenAbbaustelle();
+abbaustelle.setTID(abbauObj.getTid());
+abbaustelle.setNummer(abbauObj.getNummer());
+abbaustelle.setName(abbauObj.getName());
+abbaustelle.setBemerkungen(abbauObj.getBemerkungen());
 ----
 
-Das sieht auf den ersten Blick relativ harmlos aus. Zur Nemesis wird es aber beim Prozessieren in einer Datenbank. Abgebildet wird die Assoziation klassisch in einer Cross-Reference-Table. Theoretisch kann diese Spirale unendlich sein. D.h. um alle Dokumente zu einem ÖREB zu erhalten, muss die https://www.postgresql.org/docs/11/queries-with.html[SQL-Query rekursiv] sein. Rekursion bedeutet aber immer auch: &laquo;Kann gnadenlos in die Hosen gehen.&raquo; Nämlich dann, wenn kein geeignetes Abbruchkriterium definiert wurde. Das lernt man auf die schmerzhafte Weise: Zum Beispiel dann, wenn der DB-Server nur noch abgeschossen werden kann. Mit blindlings in guten Treu und Glaube die Query rattern lassen, ist somit nicht. 
+Ein komplettes Minimalbeispiel gibt es https://github.com/edigonzales/afu_abbaustellen_jaxb/blob/master/src/main/java/ch/so/agi/XtfWriter.java[hier].
 
-Es gibt verschiedene Hebel:
+**Variante 2: Templating**
 
-- Die Query so schreiben, dass nur bis zu einer Tiefe von z.B. zehn Iterationen Dokumente gesucht werden. Viel mehr ist wohl kaum sinnvoll und auch kaum so erfasst.
-- Auf Datenbankseite die Executiontime einschränken oder die Grösse der Logfiles beschränken.
-- Die Daten vor dem Import in die Datenbank sauber prüfen, weil hier die Ursache der Probleme liegt.
+Eine zweite Variante ist die Verwendung einer Templating-Engine. Templating klingt zuerst immer einfach und effizient, hat aber meines Erachtens den Nachteil wenn es um Fehlersuche geht und/oder wenn es komplizierter wird. In diesem Fall ist es natürlich sehr einfach. Ein wenig Groovy-Magie:
 
-Der erste aufgetretene Problemfall war, dass ein Dokument A auf sich selber zeigt. Das kann man mit einem `MANDATORY CONSTRAINT` in der Assoziation prüfen. Kniffliger wurden folgende Fälle: Dokument A &rarr; Dokument B &rarr; Dokument C &rarr; Dokument A. Dass ich eine eigene Java-Funktion schreiben musste, war mir schnell klar. Der erste Gedanken war zudem auch: kleine Sache. Überlegt man sich das aber ein wenig, merkt man schnell, dass so einfach die Sache nicht ist. Der dritte Gedanken war dann: Das Problem hat sicher schon jemand anderes gelöst und in letzer Konsequenz ist diese ganze Verschachtelung/Verknüpfung bloss ein Graph. Der Graph ist gerichtet und es dürfen https://jgrapht.org/guide/UserOverview#graph-structures[keine Self-Loops und Kanten dürfen nicht mehrfach vorkommen]. Bibliotheken dazu gibt es mehr als genug. Ich habe mich für https://jgrapht.org[_jgrapht_] entschieden. Die ganze herausfordernde Arbeit - zu prüfen, https://github.com/sogis/ilivalidator-extension-functions/blob/master/src/main/java/ch/so/agi/ilivalidator/ext/oereb/LinkGraphCache.java[ob falsche Verknüpfungen vorliegen] - nimmt mir die Bibliothek ab und ich muss mich nur noch um das https://github.com/sogis/ilivalidator-extension-functions/blob/master/src/main/java/ch/so/agi/ilivalidator/ext/oereb/DocumentsCycleCheckIoxPlugin.java[Integrieren] in die _ilivalidator_-Welt bemühen.
-
-Hier wird die Integration der Zusatzfunktion für den Betrieb noch ein wenig komplizierter, da wir eine Drittbibliothek verwenden müssen. Für den Aufruf auf der Konsole ist es - soweit ich mich erinnere - noch mühsamer. _Ilivalidator_ findet auf Anhieb die Drittbibliothek nicht und mann muss den Befehl http://blog.sogeo.services/blog/2017/02/13/interlis-leicht-gemacht-number-14.html[anders formulieren]. Wenn man die Zusatzfunktion in einem Web Service einsetzen will, ist es wieder einfacher, da man sowieso ein Buildtool verwendet, das sich um die Abhängigkeiten kümmert.
-
-Nichtsdestotrotz muss sinnvollerweise zusätzlich auch an den ersten beiden Hebeln angesetzt werden.
-
-**Typen müssen zwingend mit einem Dokument verknüpft sein**
-
-Im kantonalen Nutzungsplanungsmodell ist die Assoziation zwischen den Typen (= Eigentumsbeschränkungen) und den Dokumenten sehr lasch. Ein Typ kann keines oder mehrere Dokumente haben und ein Dokument kann keinem oder mehreren Typen zugeordnet sein. Im ÖREB-Kataster muss jede Eigentumsbeschränkung mindestens ein Dokument haben. D.h. wir müssen für verschiedene Typen zwingend prüfen, ob sie mit einem Dokument verknüpft sind.
-
-Der erste Teil geht sehr elegant:
-
-[source,xml,linenums]
+[source,java,linenums]
 ----
-CONSTRAINTS OF Typ_Grundnutzung = 
-    !!@ ilivalid.msg = "Typ '{Typ_Kt}' (Typ_Grundnutzung) ist mit keinem Dokument verknüpft."
-    MANDATORY CONSTRAINT INTERLIS.objectCount(Dokument)>=1 
-END;
-----
+import groovy.text.markup.MarkupTemplateEngine
+import groovy.text.markup.TemplateConfiguration
 
-Dieser Constraint muss im Modell _nach_ der Assoziation stehen. Er prüft ob die Summe der verknüpften Dokumente zu einem Objekt `Typ_Grundnutzung` grösser gleich 1 ist. Das gilt bei uns nicht für alle Typen der Grundnutzung, sondern nur für ein Subset. Ob es kürzer und schöner geht, weiss ich nicht. Bei mir sieht das Filtering der Typen so aus:
+class Abbaustelle {
+    String tid
+    String nummer
+    String name
+    String bemerkungen
+    String geomRef
+}
 
-[source,xml,linenums]
-----
-CONSTRAINTS OF Typ_Grundnutzung = 
-    !!@ ilivalid.msg = "Typ '{Typ_Kt}' (Typ_Grundnutzung) ist mit keinem Dokument verknüpft."
-    MANDATORY CONSTRAINT 
-        (
-            INTERLIS.objectCount(Dokument)>=1 
-            AND 
-            (
-                Typ_Kt == #N110_Wohnzone_1_G
-                OR
-                Typ_Kt == #N111_Wohnzone_2_G
-                OR
-                .... viele mehr
-            )
-        ) 
-        OR 
-        (
-            Typ_Kt == #N180_Verkehrszone_Strasse
-            OR
-            Typ_Kt == #N181_Verkehrszone_Bahnareal
-            OR
-            ... viele mehr
-        ); 
-END;
+def model = [abbaustellen: [new Abbaustelle(tid: "5c6be6dd-7111-42fd-9eae-bd46fefa3c93", nummer: "5432", name: "Hellstätt", bemerkungen: "Fubar", geomRef: "5e5bb99e-2f68-499e-aebe-d01f05b9ea88")]]
+
+def template = """
+xmlDeclaration()
+TRANSFER(xmlns: "http://www.interlis.ch/INTERLIS2.3") {
+    HEADERSECTION(SENDER: "some-groovy-fairy-dust", VERSION: "2.3") {
+        MODELS {
+            MODEL(NAME: "CoordSys", VERSION: "2015-11-24", URI: "http://www.interlis.ch/models")
+            MODEL(NAME: "GeometryCHLV03_V1", VERSION: "2017-12-04", URI: "http://www.geo.admin.ch")
+            MODEL(NAME: "GeometryCHLV95_V1", VERSION: "2017-12-04", URI: "http://www.geo.admin.ch")
+            MODEL(NAME: "SO_AFU_Abbaustellen_20200918", VERSION: "2020-09-18", URI: "http://afu.so.ch")
+        }
+    }
+    DATASECTION {
+        'SO_AFU_Abbaustellen_20200918.Abbaustellen'(BID: "bX") {
+            abbaustellen.each { abbauObj -> 
+                'SO_AFU_Abbaustellen_20200918.Abbaustellen.Abbaustelle'(TID: abbauObj.tid) {
+                    Nummer(abbauObj.nummer)
+                    Name(abbauObj.name)
+                    Bemerkung(abbauObj.bemerkungen)
+                    Geometrie(REF: abbauObj.geomRef)
+                }
+            }
+        }
+    }
+}
+"""
+TemplateConfiguration config = new TemplateConfiguration();         
+config.setAutoIndent(true)
+config.setAutoNewLine(true)
+def abbaustellenXml = new MarkupTemplateEngine(config).createTemplate(template).make(model)
+
+println abbaustellenXml
 ----
 
-
-**Subset von verknüpften Objekten bilden eine AREA**
-
-Die Objekte der Lärmempfindlichkeitstufen werden im kantonalen Modell bei den überlagernden Flächen der Nutzungsplanung erfasst. Die Geometrien der Lärmempfindlichkeitsstufen alleine betrachtet, müssen eine AREA bilden, d.h. sie dürfen sich nicht überlappen. Da die Geometrien und die Typen aber in zwei verschiedenen Klassen verwaltet werden, muss ähnlich vorgegangen werden wie beim vorangegangenen Beispiel, nur dass dieses Mal ein `SET CONSTRAINT` verwendet werden muss:
-
-[source,xml,linenums]
-----
-CONSTRAINTS OF Ueberlagernd_Flaeche = 
-    !!@ name = laermempfindlichkeitsAreaCheck
-    !! !!@ ilivalid.msg = "Lärmempfindlichkeitstypen überlappen sich."
-    SET CONSTRAINT 
-        WHERE 
-        (
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N680_Empfindlichkeitsstufe_I 
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N681_Empfindlichkeitsstufe_II				
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N682_Empfindlichkeitsstufe_II_aufgestuft				
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N683_Empfindlichkeitsstufe_III
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N684_Empfindlichkeitsstufe_III_aufgestuft			
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N685_Empfindlichkeitsstufe_IV				
-            OR 
-            Typ_Ueberlagernd_Flaeche->Typ_Kt==#N686_keine_Empfindlichkeitsstufe								
-        ) : INTERLIS.areAreas(ALL, UNDEFINED, >> Geometrie);
-END;       
-----
-
-**Bugs**
-
-Es sind bei der Erarbeitung dieser zusätzlichen aber notwendigen Validierungen einige Bugs in _ilivalidator_ entdeckt worden:
-
-- https://github.com/claeis/ilivalidator/issues/180
-- https://github.com/claeis/ilivalidator/issues/196
-- https://github.com/claeis/ilivalidator/issues/203
-- https://github.com/claeis/ilivalidator/issues/204
-- https://github.com/claeis/ilivalidator/issues/205
-
-Für die meisten konnte ich einen, teilweise sehr unschönen, Workaround finden. Aber das Bugfixing müssen wir zügig angehen.
+INTERLIS ohne INTERLIS für Fachanwendungen, die GIS machen müssen aber kein GIS machen können und kein GIS machen wollen.
