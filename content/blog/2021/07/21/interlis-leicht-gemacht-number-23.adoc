@@ -47,9 +47,7 @@ liefert mir: `java.base,java.desktop,java.management,java.sql`. Mit dieser Infor
 
 Der jpackage-Befehl wird um den Parameter `--runtime-image umleditor-jre` erweitert. Das Paket ist nun nur noch 40MB gross.
 
-Weil dank https://www.geowerkstatt.ch/[Geowerkstatt] https://github.com/claeis/ilivalidator/pull/315[momentan] https://github.com/claeis/ilivalidator/pull/313[richtig] https://github.com/claeis/ilivalidator/pull/312[Schwung] in der GUI-Programmierung von _ilivalidator_ ist, habe ich für die Anwendungen _ilivalidator_, _ili2gpkg_, _ili2c_ und _INTERLIS-UML-Editor_ solche Pakete für Ubuntu, Windows und macOS erstellt:
-
-- 
+Weil dank https://www.geowerkstatt.ch/[Geowerkstatt] https://github.com/claeis/ilivalidator/pull/315[momentan] https://github.com/claeis/ilivalidator/pull/313[richtig] https://github.com/claeis/ilivalidator/pull/312[Schwung] in der GUI-Programmierung von _ilivalidator_ ist, habe ich für die Anwendungen _ilivalidator_, _ili2gpkg_, _ili2c_ und _INTERLIS-UML-Editor_ solche Pakete für Ubuntu, Windows und macOS erstellt: https://ilitools.sogeo.services[ilitools.sogeo.services].
 
 Die Pakete werden mit einer https://github.com/edigonzales/ilitools-packager[Github Action] erstellt. Dabei musste ich feststellen, dass die DMG-Dateien bei mir nicht funktionieren. Aus diesem Grund bin ich auf PKG umgeschwenkt. MacOS bemängelt natürlich immer noch, dass die Pakete nicht signiert sind. Dies wäre technich aber möglich. Die anderen beiden Varianten konnte ich mangels fehlendem Betriebssystem nicht testen.
 
