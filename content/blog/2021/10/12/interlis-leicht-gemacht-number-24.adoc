@@ -6,6 +6,29 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ilivalidator,Graal,GraalVM,QGIS
 :idprefix:
 
+Wer kennt es nicht? Daten in QGIS nachgeführt und https://github.com/claeis/ilivalidator[_ilivalidator_] meldet Fehler:
+
+[source,xml,linenums]
+----
+Error: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaechen.Biotopflaeche.Geometrie: Intersection coord1 (2610894.968, 1249766.404), tids 4b76926f-cef2-4b9e-8750-f3aef21385eb, 4b76926f-cef2-4b9e-8750-f3aef21385eb
+Error: line 22: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaechen.Biotopflaeche: tid dc58062e-4251-433b-b124-835356dc873e: duplicate coord at (2621389.108, 1244991.863, NaN)
+Error: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaechen.Biotopflaeche.Geometrie: Overlay coord1 (2617574.166, 1240369.683), coord2 (2617621.209, 1240261.671), tids 8ed21983-6692-4f99-b306-f084a364440f, 8ed21983-6692-4f99-b306-f084a364440f
+Error: line 36: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaechen.Biotopflaeche: tid 01857f02-9fca-4e18-83af-f97de8744ecd: duplicate coord at (2635087.966, 1247870.588, NaN)
+----
+
+Entweder wieder mal einen doppelten Vertexpunkt (`duplicate coords`) oder eine minimalste Überlappung (`Intersection`, `Overlay`) entdeckt. Es gibt in https://qgis.org[_QGIS_] verschiedene Mittel, damit diese Fehler schon gar nicht gemacht werden können und auch Werkzeuge, die solche Fehler aufdecken. Warum aber nicht den Prüfalgorithmus von _ilivalidator_ näher zu _QGIS_ bringen? Damit sichergestellt ist, dass die Geometrien nach einem Export auch tatsächlich valide INTERLIS-Geometrien sind.
+
+Aber wie soll das gehen? _Ilivalidator_ ist in Java geschrieben und QGIS will entweder C++ oder Python. Des Rätsels Lösung habe ich http://blog.sogeo.services/blog/2021/02/02/interlis-leicht-gemacht-number-22.html[hier] im zweiten Teil beschrieben. Ich will für diese zusätzliche Geometrieprüfung in _QGIS_ keine Java-Runtime installiert haben, sondern im Ideafall maximal nur ein Python-Plugin herunterladen und gut ist. Mit https://www.graalvm.org/[_GraalVM_] können einzelne https://www.graalvm.org/reference-manual/native-image/ImplementingNativeMethodsInJavaWithSVM/[Java-Methoden zu shared libraries] (*.so, *.dylib, *.dll) kompiliert werden. Diese wiederum können relativ einfach in Python verwendet werden.
+
+
+Viel Copy/paste weil Geoemtrieprüfung nicht Teil einer öffentliche API von ilivalidator ist und einige benötigte Parameter so nicht vorhanden sind. (z.B. Werte für erlaubte Overlaps (steckt im Modell))
+
+
+- Geometrische Auflösung als Parameter resp. für uns in der Regel Millimeter.
+
+
+
+
 Etwas nervte mich seit langem an http://www.umleditor.org/[_INTERLIS-UML-Editor_] auf macOS: Eine Java-Anwendung kann man nicht einfach ins Dock ziehen und gut ist. 
 
 Früher gab es für JavaFX das Tool _javapackager_, das JavaFX-Anwendungen und alle anderen Java-Anwendungen betriebssystemabhängig zu einem Paket inkl. Java-Runtime schnürt. Dieses konnte dann wie jede andere Anwendung auf Linux, Windows oder macOS installiert werden. Praktisch war auch, dass man sich nicht um eine Java-Installation zu kümmern brauchte, weil die Runtime eben mitgeliefert wurde. Leider flog das Tool mit JavaFX aus dem JDK.
