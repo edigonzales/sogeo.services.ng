@@ -20,8 +20,13 @@ Entweder wieder mal einen doppelten Vertexpunkt (`duplicate coords`) oder eine m
 
 Aber wie soll das gehen? _Ilivalidator_ ist in Java geschrieben und QGIS will entweder C++ oder Python. Des Rätsels Lösung habe ich http://blog.sogeo.services/blog/2021/02/02/interlis-leicht-gemacht-number-22.html[hier] im zweiten Teil beschrieben. Ich will für diese zusätzliche Geometrieprüfung in _QGIS_ keine Java-Runtime installiert haben, sondern im Ideafall maximal nur ein Python-Plugin herunterladen und gut ist. Mit https://www.graalvm.org/[_GraalVM_] können einzelne https://www.graalvm.org/reference-manual/native-image/ImplementingNativeMethodsInJavaWithSVM/[Java-Methoden zu shared libraries] (*.so, *.dylib, *.dll) kompiliert werden. Diese wiederum können relativ einfach in Python verwendet werden.
 
+Die Java-Methode gibt es hier in einem https://github.com/edigonzales/geomvalidator-libnative[Github-Repo]. Es ist im Prinzip sehr viel Copy/Paste aus der https://github.com/claeis/iox-ili[iox-ili-Bibliothek], welche die eigentliche INTERLIS-Validierung für _ilivalidator_ durchführt. Copy/Paste darum, weil die Methode nicht zum öffentlichen API gehört und für den vorliegenden Anwendungsfall Informationen fehlen, welche die Originalmethoden benötigen, z.B. den Wert für erlaubte Overlaps. Dieser steckt im Datenmodell, welches mir nicht zur Verfügung steht. Auch fehlt mir die Auflösung der Geometrien. In der Regel ist das bei uns ein Millimeter.
 
-Viel Copy/paste weil Geoemtrieprüfung nicht Teil einer öffentliche API von ilivalidator ist und einige benötigte Parameter so nicht vorhanden sind. (z.B. Werte für erlaubte Overlaps (steckt im Modell))
+Unklar ist mir zudem, wie ich die Java-Methode testen kann.
+
+
+
+
 
 
 - Geometrische Auflösung als Parameter resp. für uns in der Regel Millimeter.
