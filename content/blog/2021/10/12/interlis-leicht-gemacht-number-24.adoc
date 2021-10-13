@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ilivalidator,Graal,GraalVM,QGIS
 :idprefix:
 
-Wer kennt es nicht? Daten in QGIS nachgeführt und https://github.com/claeis/ilivalidator[_ilivalidator_] meldet Fehler:
+Wer kennt es nicht? Daten in QGIS nachgeführt, mit https://github.com/claeis/ili2pg[_ili2pg_] exportiert und https://github.com/claeis/ilivalidator[_ilivalidator_] meldet Fehler:
 
 [source,xml,linenums]
 ----
@@ -16,67 +16,108 @@ Error: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaeche
 Error: line 36: SO_AWJF_Foerderprogramm_Biodiversitaet_Publikation_20200519.Biotopflaechen.Biotopflaeche: tid 01857f02-9fca-4e18-83af-f97de8744ecd: duplicate coord at (2635087.966, 1247870.588, NaN)
 ----
 
-Entweder wieder mal einen doppelten Vertexpunkt (`duplicate coords`) oder eine minimalste Überlappung (`Intersection`, `Overlay`) entdeckt. Es gibt in https://qgis.org[_QGIS_] verschiedene Mittel, damit diese Fehler schon gar nicht gemacht werden können und auch Werkzeuge, die solche Fehler aufdecken. Warum aber nicht den Prüfalgorithmus von _ilivalidator_ näher zu _QGIS_ bringen? Damit sichergestellt ist, dass die Geometrien nach einem Export auch tatsächlich valide INTERLIS-Geometrien sind.
+Entweder wieder doppelte Vertexpunkte (`duplicate coords`) oder minimalste Überlappungen (`Intersection`, `Overlay`) werden schonungslos aufgedeckt. Es gibt in https://qgis.org[_QGIS_] verschiedene Mittel, damit diese Fehler schon gar nicht gemacht werden können und auch Werkzeuge, die solche Fehler nachträglich aufdecken. Warum aber nicht den Prüfalgorithmus von _ilivalidator_ näher zu _QGIS_ bringen? Damit ist sichergestellt, dass die Geometrien nach einem Export auch tatsächlich valide INTERLIS-Geometrien sind.
 
-Aber wie soll das gehen? _Ilivalidator_ ist in Java geschrieben und QGIS will entweder C++ oder Python. Des Rätsels Lösung habe ich http://blog.sogeo.services/blog/2021/02/02/interlis-leicht-gemacht-number-22.html[hier] im zweiten Teil beschrieben. Ich will für diese zusätzliche Geometrieprüfung in _QGIS_ keine Java-Runtime installiert haben, sondern im Ideafall maximal nur ein Python-Plugin herunterladen und gut ist. Mit https://www.graalvm.org/[_GraalVM_] können einzelne https://www.graalvm.org/reference-manual/native-image/ImplementingNativeMethodsInJavaWithSVM/[Java-Methoden zu shared libraries] (*.so, *.dylib, *.dll) kompiliert werden. Diese wiederum können relativ einfach in Python verwendet werden.
+Aber wie soll das gehen? _Ilivalidator_ ist in Java geschrieben und QGIS will entweder C++ oder Python. Des Rätsels Lösung habe ich http://blog.sogeo.services/blog/2021/02/02/interlis-leicht-gemacht-number-22.html[hier] (im unteren Teil) beschrieben. Ich will für diese zusätzliche Geometrieprüfung in _QGIS_ keine Java-Runtime installiert haben, sondern im Idealfall maximal nur ein Python-Plugin herunterladen und gut ist. Mit https://www.graalvm.org/[_GraalVM_] können einzelne https://www.graalvm.org/reference-manual/native-image/ImplementingNativeMethodsInJavaWithSVM/[Java-Methoden zu shared libraries] (*.so, *.dylib, *.dll) kompiliert werden. Diese wiederum können relativ einfach in Python verwendet werden.
 
-Die Java-Methode gibt es hier in einem https://github.com/edigonzales/geomvalidator-libnative[Github-Repo]. Es ist im Prinzip sehr viel Copy/Paste aus der https://github.com/claeis/iox-ili[iox-ili-Bibliothek], welche die eigentliche INTERLIS-Validierung für _ilivalidator_ durchführt. Copy/Paste darum, weil die Methode nicht zum öffentlichen API gehört und für den vorliegenden Anwendungsfall Informationen fehlen, welche die Originalmethoden benötigen, z.B. den Wert für erlaubte Overlaps. Dieser steckt im Datenmodell, welches mir nicht zur Verfügung steht. Auch fehlt mir die Auflösung der Geometrien. In der Regel ist das bei uns ein Millimeter.
+Die Java-Methode, welche Geometrien nach INTERLIS-Spezifikation validiert, gibt es hier in einem https://github.com/edigonzales/geomvalidator-libnative[Github-Repo]. Es ist im Prinzip sehr viel Copy/Paste aus der https://github.com/claeis/iox-ili[iox-ili-Bibliothek], welche die eigentliche INTERLIS-Validierung für _ilivalidator_ durchführt. Copy/Paste darum, weil die Geometrievalidierungs-Methoden nicht zum öffentlichen API gehören und auch weil für den vorliegenden Anwendungsfall Informationen fehlen, welche die Originalmethoden benötigen, z.B. den Wert für erlaubte Overlaps. Dieser steckt im Datenmodell, welches mir beim Datenerfassen in QGIS nicht zur Verfügung steht. Auch fehlt mir die Auflösung der Geometrien. In der Regel ist das bei uns ein Millimeter. Darum werden diese Werte resp. daraus abgeleitet Werte in meiner Copy/Paste-Methode hardcodiert.
 
-Unklar ist mir zudem, wie ich die Java-Methode testen kann.
+Ein grosser Teil der Magie der Geometrievalidierung von z.B. Flächengeometrien (im Sinne der Surfacetopologie) steckt in der Methode https://github.com/claeis/iox-ili/blob/master/src/main/java/ch/interlis/iom_j/itf/impl/ItfSurfaceLinetable2Polygon.java#L263[`validatePolygon`] (ff.) der Klasse `ItfSurfaceLinetable2Polygon`.
 
+Unter Linux lässt sich die Copy/Paste-Java-Methode dann wie folgt zu einer shared library kompilieren:
 
+```
+./gradlew clean lib:build shadowJar && \
+native-image --no-fallback --no-server -cp lib/build/libs/lib-all.jar --shared -H:Name=libgeomvalidator 
+```
 
+Unter Ubuntu 20.04 musste ich noch ein paar Pakete installieren:
 
+```
+sudo apt-get install build-essential
+sudo apt install libstdc++-8-dev
+sudo apt-get install zlib1g-dev 
+```
 
+Wobei das letzte Paket nur unter Ubuntu 20.04 auf einem Apple Silicon Rechner (also einem ARM-Prozessor) notwendig war. Ubuntu (die ARM-Variante) läuft hier als virtuelle Maschine in https://mac.getutm.app/[UTM] inkl. QGIS ganz passabel.
 
-- Geometrische Auflösung als Parameter resp. für uns in der Regel Millimeter.
+Der `native-image`-Befehl erzeugt aus der Jar-Datei die verschiedenen Header-Dateien und die shared library (*.so-Datei). Mit einem Dummy-C-Programm prüfe ich, ob das ganze auch funktioniert:
 
-
-
-
-Etwas nervte mich seit langem an http://www.umleditor.org/[_INTERLIS-UML-Editor_] auf macOS: Eine Java-Anwendung kann man nicht einfach ins Dock ziehen und gut ist. 
-
-Früher gab es für JavaFX das Tool _javapackager_, das JavaFX-Anwendungen und alle anderen Java-Anwendungen betriebssystemabhängig zu einem Paket inkl. Java-Runtime schnürt. Dieses konnte dann wie jede andere Anwendung auf Linux, Windows oder macOS installiert werden. Praktisch war auch, dass man sich nicht um eine Java-Installation zu kümmern brauchte, weil die Runtime eben mitgeliefert wurde. Leider flog das Tool mit JavaFX aus dem JDK.
-
-Ein paar Jahre (Java 16) später taucht es unter dem Namen https://openjdk.java.net/jeps/392[_jpackage_] in einer sehr ähnlichen Form wieder auf. Einige Features sind nicht mehr vorhanden, so z.B. JavaFX-spezifische Features. Das Wichtigste ist aber immer noch möglich: betriebssystemabhängige Installationspakete für Java-Anwendungen inkl. Runtime erstellen.
-
-Im einfachsten Fall sieht ein Befehl so aus:
-
-[source,xml,linenums]
+[source,c,linenums]
 ----
-jpackage --icon icon-umleditor-128x128.icns --name umleditor --type dmg --input libs --main-jar umleditor-3.7.6.jar --app-version 3.7.6 -d output 
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <libgeomvalidator.h>
+
+int main(int argc, char **argv) {
+    graal_isolate_t *isolate = NULL;
+    graal_isolatethread_t *thread = NULL;
+
+    if (graal_create_isolate(NULL, &isolate, &thread) != 0) {
+        fprintf(stderr, "graal_create_isolate error\n");
+        return 1;
+    }
+
+    char * layername = "my_layer_name";
+    char * fid = "afid";
+    char * wktGeom = "POLYGON ((2609000 1236700, 2609200 1236700, 2609200 1236700, 2609200 1236600, 2609000 1236600, 2609000 1236700))";
+    printf("%d\n", geomvalidator(thread, layername, fid, wktGeom));
+
+    if (graal_detach_thread(thread) != 0) {
+        fprintf(stderr, "graal_detach_thread error\n");
+        return 1;
+    }
+
+    return 0;
+}
 ----
 
-- --icon: Das Icon für die Anwendung. Dateiformat ist leider je nach Betriebssystem unterschiedlich.
-- --name: Name der Anwendung
-- --type: `dmg` und `pkg` für macOS, `deb` und `rpm` für Linux, `exe` und `msi` für Windows. &laquo;Cross-Herstellung&raquo; - also rpm-Pakete auf Windows herstellen, geht nicht.
-- --input: Das Verzeichnis mit den Jar-Dateien.
-- --main-jar: Die Jar-Datei mit der Main-Klasse
-- --app-version: Versionsnummer
-- -d: Das Verzeichnis, wo das Paket gespeichert wird.
+Als Parameter werden neben der Geometrie (im WKT-Format), der Layername und eine Feature-Id der Methode übergeben. Dies entspricht beinahe der Signatur der Originalmethode von _ilivalidator_: Die Feature-Id entspricht der TID, der Layername dem qualifizierten Attributnamen. Was in diesem Kontext nicht unerwähnt bleiben darf, ist die Tatsache, dass als Übergabe- und Rückgabeparameter nur Nicht-Objekttypen verwendet werden können. Abhilfe schafft oftmals die Serialisierung in ein geeignetes Format (z.B. JSON).
 
-Der Befehl liefert mir im Verzeichnis `output` die Datei `ilivalidator-1.11.10.dmg`. Diese .dmg-Datei kann ich jetzt wie gewohnt ausführen und die Anwendung installieren:
+Das C-Programm lässt sich kompilieren und ausführen:
 
-image::../../../../../images/interlis_leicht_gemacht_p23/interlis-uml-editor.png[alt="INTERLIS-UML-Editor dmg", align="center"]
+```
+cc  geomvalidator.c -I. -L. -lgeomvalidator -o geomvalidator
+export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH && ./geomvalidator
+```
 
-Mit ein wenig Zusatzeffort kann man das Ganze hinsichtlich der Grösse optimieren. Standardmässig wird einfach die gesamte Java-Runtime reinkopiert. Bei mir ergibt das eine 56MB grosse DMG-Datei. Man kann mit _jlink_ selber eine Java-Runtime herstellen. Damit diese kleiner wird, muss man die von der Anwendung (also vom INTERLIS-UML-Editor) benötigten Module als Parameter angeben. Dieses Information liefert mir _jdeps_. Und hier wird es ein wenig hakelig, vor allem bei nicht-modularen Java-Anwendungen:
+Output in der Konsole entspricht dem zu erwarteten Ergebnis (siehe WKT-String im C-Programm):
+```
+duplicate coord at (2609200.0, 1236700.0, NaN)
+```
 
-[source,xml,linenums]
+Nun können wir einen Schritt weitergehen und versuchen sämtliche Geometrien eines Layers in QGIS mit dem ilivalidator-Algorithmus zu prüfen. Dazu schreiben wir kein Plugin, sondern als Proof-of-Concept reicht die Python-Konsole:
+
+image::../../../../../images/interlis_leicht_gemacht_p24/qgis_python_console01.png[alt="QGIS-Python-Konsole", align="center"]
+
+Das Skript `validate_data.py`, welches die Validierung macht, ist relativ simpel:
+
+[source,python,linenums]
 ----
-jdeps --class-path 'libs/*' --multi-release base -recursive --ignore-missing-deps --print-module-deps umleditor-3.7.6.jar
+from ctypes import *
+dll = CDLL("/home/stefan/sources/geomvalidator-libnative/libgeomvalidator.so")
+isolate = c_void_p()
+isolatethread = c_void_p()
+dll.graal_create_isolate(None, byref(isolate), byref(isolatethread))
+dll.geomvalidator.restype = int
+
+layer = QgsVectorLayer("/home/stefan/sources/geomvalidator-libnative/data/ch.so.awjf.foerderprogramm_biodiversitaet.gpkg|layername=biotopflaechen_biotopflaeche", "biotopflaechen_biotopflaeche", "ogr")
+if not layer.isValid():
+    print ("failed to load layer")
+    
+for f in layer.getFeatures():
+    result = dll.geomvalidator(isolatethread, c_char_p(bytes("biotopflaechen_biotopflaeche", "utf8")), c_char_p(bytes(str(f.id()), "utf8")), c_char_p(bytes(f.geometry().asWkt(), "utf8")))
 ----
 
-liefert mir: `java.base,java.desktop,java.management,java.sql`. Mit dieser Information erzeuge ich mit _jlink_ meine spezifische Java-Runtime:
+Die Zeilen 1 bis 6 dienen dazu die shared library als Python-Binding verfügbar zu machen. Es gibt dazu verschiedene https://realpython.com/python-bindings-overview/[Varianten]. Ich habe mich für die https://realpython.com/python-bindings-overview/#ctypes[ctypes-Variante] entschieden. Ist zwar ziemlich low-level, aber von Vorteil ist für mich vor allem, dass bereits alles in einer Python-Standard-Installation dabei ist.
 
-[source,xml,linenums]
-----
- jlink --add-modules java.base,java.desktop,java.management,java.sql --output umleditor-jre
-----
+Zeile 8 importiert die Tabelle einer Geopackage-Datei als QGIS-Vektorlayer. Die Validierung der Geometrien geschieht in der Schleife über sämtliche Geometrien des Layers in den Zeilen 12 - 13. Das erstmalige Ausführen war ernüchternd: Nichts passierte. Aber die Post ging nicht in der Python-Konsole in QGIS ab, sondern im Terminal aus dem QGIS gestartet wurde:
 
-Der jpackage-Befehl wird um den Parameter `--runtime-image umleditor-jre` erweitert. Das Paket ist nun nur noch 40MB gross.
+image::../../../../../images/interlis_leicht_gemacht_p24/output01.png[alt="QGIS-Output", align="center"]
 
-Weil dank https://www.geowerkstatt.ch/[Geowerkstatt] https://github.com/claeis/ilivalidator/pull/315[momentan] https://github.com/claeis/ilivalidator/pull/313[richtig] https://github.com/claeis/ilivalidator/pull/312[Schwung] in der GUI-Programmierung von _ilivalidator_ ist, habe ich für die Anwendungen _ilivalidator_, _ili2gpkg_, _ili2c_ und _INTERLIS-UML-Editor_ solche Pakete für Ubuntu, Windows und macOS erstellt: https://ilitools.sogeo.services[ilitools.sogeo.services].
+Die shared library loggt nach stderr. Trotzdem hätte ich eigentlich erwartet, dass man den Output in der Python-Konsole sieht. Aber wahrscheinlich ist das Verhalten logisch und ich verstehe es nur nicht. Vergleicht man den Output der Prüfung des QGIS-Layers mittels shared library mit dem ilivalidator-Logfile, kann man mit sich und der Welt zufrieden sein:
 
-Die Pakete werden mit einer https://github.com/edigonzales/ilitools-packager[Github Action] erstellt. Dabei musste ich feststellen, dass die DMG-Dateien bei mir nicht funktionieren. Aus diesem Grund bin ich auf PKG umgeschwenkt. MacOS bemängelt natürlich immer noch, dass die Pakete nicht signiert sind. Dies wäre technich aber möglich. Die anderen beiden Varianten konnte ich mangels fehlendem Betriebssystem nicht testen.
+image::../../../../../images/interlis_leicht_gemacht_p24/output02.png[alt="Ilivalidator-Output", align="center"]
 
-Den beiden Anwendungen _ilivalidator_ und _ili2gpkg_ habe ich mit `--java-option -Xmx2G` zwei Gigabyte Heap zugewiesen. Es gäbe noch einige weitere spannende Optionen, die man ausprobieren könnte. So sind verschiedene Launcher möglich, was aber bei mir nicht wirklich funktioniert hat. Eventuell können diese Launcher dazu verwendet werden, die Anwendung mit einem GUI zu starten oder in der Konsole. Eine gute Übersicht mit Erläuterung der Möglichkeiten gibt es https://docs.oracle.com/en/java/javase/14/jpackage/image-and-runtime-modifications.html[hier].
+Das Ganze ist natürlich bloss eine Spielerei aber zeigt es doch die Fähigkeiten und Möglichkeiten von _GraalVM_ und dass Java sehr flexibel eingesetzt werden kann.
