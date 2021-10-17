@@ -3,8 +3,11 @@ Stefan Ziegler
 2021-10-18
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: INTERLIS,Java,ilivalidator,Graal,GraalVM,QGIS
+:jbake-tags: INTERLIS,Java,ili2db,ili2pg
 :idprefix:
+
+Im Kanton Solothurn können die Geodaten seit 15 Jahren frei bezogen werden. Nun ist es so, dass es trotzdem einige sensible Informationen gibt, die man nicht jedermann zugänglich machen kann. Oftmals sind es personenbezogene Daten wie z.B. eine Telefonnummer des Imkers. Wie gehen wir damit um?  
+
 
 Wer kennt es nicht? Daten in QGIS nachgeführt, mit https://github.com/claeis/ili2pg[_ili2pg_] exportiert und https://github.com/claeis/ilivalidator[_ilivalidator_] meldet Fehler:
 
