@@ -6,9 +6,9 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ili2db,ili2pg
 :idprefix:
 
-Im Kanton Solothurn können die Geodaten seit 15 Jahren frei bezogen werden. Nun ist es so, dass es trotzdem einige sensible Informationen gibt, die man nicht jedermann zugänglich machen kann. Oftmals sind es personenbezogene Daten wie z.B. eine Telefonnummer des Imkers. Wie gehen wir damit um?  
+Im Kanton Solothurn können die Geodaten seit 15 Jahren frei bezogen werden. Nun ist es so, dass es trotzdem einige sensible Informationen gibt, die man nicht jederman zugänglich machen kann. Oftmals sind es personenbezogene Daten wie z.B. eine Telefonnummer des Imkers. Wie gehen wir damit um?  
 
-Für die Publikation der Daten als WMS-Layer resp. als Web GIS Client Layer lösen wir es applikatorisch. D.h. der Layer wird zweimal als WMS publiziert. Einmal als öffentlicher Layer ohne die nicht-öffentlichen Attribute und einmal als passwortgeschützter Layer mit den nicht-öffentlichen Attributen. Eine andere Lösung ist eine View auf der Datenbank und diese View wird anschliessend als WMS-Layer publiziert.
+Für die Publikation der Daten als WMS-Layer resp. als Web GIS Client Layer lösen wir es applikatorisch. D.h. der Layer wird zweimal als WMS publiziert. Einmal als öffentlicher Layer ohne die nicht-öffentlichen Attribute und einmal als passwortgeschützter Layer mit den nicht-öffentlichen Attributen. Eine andere Lösung ist eine View auf der Datenbank und diese View wird anschliessend als WMS-Layer publiziert. Wie gehen wir aber mit der Abgabe von Rohdaten vor? Wie können wir verhindern, dass die nicht-öffentlichen Attribute ebenfalls ohne Authenifizierung und Authorisierung bezogen werden können?
 
 
 Wer kennt es nicht? Daten in QGIS nachgeführt, mit https://github.com/claeis/ili2pg[_ili2pg_] exportiert und https://github.com/claeis/ilivalidator[_ilivalidator_] meldet Fehler:
