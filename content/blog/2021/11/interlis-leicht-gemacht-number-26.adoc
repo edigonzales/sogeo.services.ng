@@ -1,4 +1,4 @@
-= INTERLIS leicht gemacht #26 - Constraints, constraints everywhere
+= INTERLIS leicht gemacht #26 - Runtime parameter
 Stefan Ziegler
 2021-11-01
 :jbake-type: post
