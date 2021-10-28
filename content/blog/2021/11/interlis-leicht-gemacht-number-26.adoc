@@ -8,6 +8,7 @@ Stefan Ziegler
 
 - Syntax (Beispiel pur)
 - Java-Code
+- AVGBS
 
 
 Im Kanton Solothurn können Geodaten seit circa 15 Jahren frei bezogen und genutzt werden. Es gibt jedoch einige sensible Informationen, die man nicht jedermann zugänglich machen kann. Oftmals sind es personenbezogene Daten wie z.B. eine Telefonnummer des Imkers. Wie gehen wir damit um?  
