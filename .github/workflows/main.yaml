@@ -11,7 +11,14 @@ jobs:
         with:
           java-version: 1.8
       - name: Bake 
-        run: docker run --rm -u jbake -v $(pwd):/mnt/site jbake/jbake:2.6.7
+        uses: docker://jbake/jbake:2.6.7
+        with:
+          args: >-                    
+            --rm 
+            -u 
+            jbake
+            -v  $(pwd):/mnt/site
+        #run: docker run --rm -u jbake -v $(pwd):/mnt/site jbake/jbake:2.6.7
         #run: ./gradlew clean build buildDockerImage -x test -x dockerTest
       # - name: Push docker image
       #   run: |
