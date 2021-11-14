@@ -2,10 +2,19 @@ name: Bake and Deploy
 on: [push]
 
 jobs:
-  build:
+  checkout:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+  build:
+    needs: checkout
+    runs-on: ubuntu-latest
+    container:
+      image: jbake/jbake:2.6.7
+      volumes:
+        - ${{ github.workspace }}:/mnt/site
+    steps:
+      #- uses: actions/checkout@v1
       # - name: Set up JDK 1.8
       #   uses: actions/setup-java@v1
       #   with:
@@ -15,7 +24,8 @@ jobs:
         # options: -v $(pwd):/mnt/site 
         # with:
         #   args: jbake                   
-        run: docker run --rm -u jbake -v ${{ github.workspace }}:/mnt/site jbake/jbake:2.6.7
+        run: jbake -b
+        #run: docker run --rm -u jbake -v ${{ github.workspace }}:/mnt/site jbake/jbake:2.6.7
         #run: ./gradlew clean build buildDockerImage -x test -x dockerTest
       # - name: Push docker image
       #   run: |
