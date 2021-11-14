@@ -21,6 +21,7 @@ jobs:
         #   args: jbake                   
         run: |
           curl -s "https://get.sdkman.io" | bash
+          source "/home/runner/.sdkman/bin/sdkman-init.sh"
           sdk install jbake 
           jbake -b
         #run: docker run --rm -u jbake -v ${{ github.workspace }}:/mnt/site jbake/jbake:2.6.7
