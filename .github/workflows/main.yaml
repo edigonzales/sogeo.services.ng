@@ -3,7 +3,6 @@ on: [push]
 
 jobs:
   build:
-    needs: checkout
     runs-on: ubuntu-latest
     container:
       image: jbake/jbake:2.6.7
