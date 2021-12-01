@@ -10,7 +10,7 @@ Java und die JVM entwickeln sich. Momentan sind wir bei Version 17 angelangt. Ze
 
 **Testumgebung**
 
-Weil ich neben unterschiedlichen Versionen der &laquo;normalen&raquo; JVM auch die https://www.graalvm.org/java/[_GraalVM_] testen will, kann ich nicht die Benchmarks nicht direkt auf macOS mit einem Apple Silicon Prozessor ausführen, sondern ich verwende https://multipass.run/[_Multipass_], um die Benchmarks in einer Ubuntu-ARM-VM laufen zu lassen. Das Gute an _Multipass_ ist, dass es einfach ist und im Gegensatz zu z.B. VirtualBox auch auf einem Apple Silicon Rechner läuft. Zudem ist für den ili2db-Benchmark eine PostgreSQL-Datenbank notwendig. Weil unter macOS der I/O unter Docker sehr schlecht ist und damit garantiert der limitierende Faktor des Benchmarks sein würde, kommt mir das Ausweichen auf Linux gerade recht.
+Weil ich neben unterschiedlichen Versionen der &laquo;normalen&raquo; JVM auch die https://www.graalvm.org/java/[_GraalVM_] testen will, kann ich nicht die Benchmarks nicht direkt auf macOS mit einem Apple Silicon Prozessor ausführen, sondern ich verwende https://multipass.run/[_Multipass_], um die Benchmarks in einer Ubuntu-ARM-VM laufen zu lassen. Das Gute an _Multipass_ ist, dass es einfach ist und im Gegensatz zu z.B. VirtualBox auch auf einem Apple Silicon Rechner läuft. Zudem ist für den ili2db-Benchmark eine PostgreSQL-Datenbank notwendig. Weil unter macOS der I/O mit Docker sehr schlecht ist und damit garantiert der limitierende Faktor des Benchmarks sein würde, kommt mir das Ausweichen auf Linux gerade recht.
 
 Die Benchmarks selber sind sehr einfach gehalten. Es sind sowas wie &laquo;Java-Skripte&raquo;. Nämlich eine Java-Klasse, die mit https://www.jbang.dev/[_jbang_] ausgeführt wird.
 
