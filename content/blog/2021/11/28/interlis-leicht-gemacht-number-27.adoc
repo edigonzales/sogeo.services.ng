@@ -6,110 +6,127 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ilivalidator,ili2db,JVM
 :idprefix:
 
-Wer kennt sie nicht? Die INTERLIS-Laufzeitparameter (siehe https://www.interlis.ch/download/interlis2/ili2-refman_2006-04-13_d.pdf[Referenzhandbuch Kapitel 2.11]). Also zum Beispiel ich. Jedenfalls waren sie mir lange nicht bekannt. Sie sind jedoch die Lösung für eine bekannte Herausforderung: Die Nachführungsgeometer schicken die Geschäfte via AVGBS ans Grundbuch. Der Name der Transferdatei muss dabei gewisse Konventionen erfüllen. Ganz einfach formuliert, muss der Name der Datei einem Attributwert innerhalb der Datei entsprechen. In Tat und Wahrheit ist es leicht komplexer aber es geht ums grundlegende Prinzip. Wie kann https://github.com/claeis/ilivalidator[_ilivalidator_] nun prüfen, ob der Namen der zu prüfenden Datei einem Werte eines Attributes der zu prüfenden Daten selbst entspricht? Runtime Parameter to the rescue!
+Java und die JVM entwickeln sich. Momentan sind wir bei Version 17 angelangt. Zeit zu schauen, ob sich die Entwicklung auch auf die Geschwindigkeit von https://github.com/claeis/ilivalidator[_ilivalidator_] und https://github.com/claeis/ili2db[_ili2db_] niederschlägt.
 
-So wie ich das Referenzhandbuch verstehe, ist die Verfügbarkeit von Laufzeitparametern vom System abhängig:
+**Testumgebung**
 
-&laquo;Nebst den eigentlichen Daten und den Metadaten können auch einzelne Datenelemente definiert werden, bei denen erwartet wird, dass sie von einem Bearbeitungs-, Auswerte- oder Darstellungssystem zur Laufzeit bereitgestellt werden. Sie heissen Laufzeitparameter.&raquo;
+Weil ich neben unterschiedlichen Versionen der &laquo;normalen&raquo; JVM auch die https://www.graalvm.org/java/[_GraalVM_] testen will, kann ich nicht die Benchmarks nicht direkt auf macOS mit einem Apple Silicon Prozessor ausführen, sondern ich verwende https://multipass.run/[_Multipass_], um die Benchmarks in einer Ubuntu-ARM-VM laufen zu lassen. Das Gute an _Multipass_ ist, dass es einfach ist und im Gegensatz zu z.B. VirtualBox auch auf einem Apple Silicon Rechner läuft. Zudem ist für den ili2db-Benchmark eine PostgreSQL-Datenbank notwendig. Weil unter macOS der I/O unter Docker sehr schlecht ist und damit garantiert der limitierende Faktor des Benchmarks sein würde, kommt mir das Ausweichen auf Linux gerade recht.
 
-Unser Auswertesystem _ilivalidator_ kennt zum jetzigen Zeitpunkt folgende Laufzeitparameter:
+Die Benchmarks selber sind sehr einfach gehalten. Es sind sowas wie &laquo;Java-Skripte&raquo;. Nämlich eine Java-Klasse, die mit https://www.jbang.dev/[_jbang_] ausgeführt wird.
 
-- `RuntimeSystemName`: Name der Software, z.B. &laquo;ilivalidator&raquo; (ilivalidator)
-- `RuntimeSystemVersion`: Version der Software, z.B. &laquo;1.11.11&raquo; (ilivalidator)
-- `OperatingSystemName`: Betriebssystem, z.B. &laquo;Mac OS X&raquo; (ili2c)
-- `HostName`: Name des Hosts, z.B. &laquo;localhost&raquo; (ili2c)
-- `CurrentUserName`: Name des Users, der den Prozess startet, z.B. &laquo;stefan&raquo; (ili2c)
-- `CurrentDateTime`: Zeitpunkt des Prozesstarts, z.B. &laquo;2017-08-22T15:00:00.000&raquo; (ili2c)
-- `CurrentTransferfile`: Name der zu prüfenden Datei, z.B. &laquo;SO0200002403_1180.xml&raquo; (ilivalidator)
+Den Code gibt es hier: https://github.com/edigonzales/ilivalidator-java-perf-test
 
-Machen wir ein Beispiel anhand eines sehr einfachen Modelles:
+**Benchmark**
 
-[source,xml,linenums]
-----
-INTERLIS 2.3;
-MODEL Testmodel
-  AT "mailto:stefan.ziegler@bd.so.ch" VERSION "2019-01-27" =
-      
-  IMPORTS MinimalRuntimeSystem01;
+- Ubuntu 20.04
+- 4 CPUS / 8 GB 
+- JVM mit -Xmx2048m
+- ilivalidator 1.11.11
+- ili2pg 4.6.1
 
-    TOPIC Topic =
+Es wurde die amtliche Vermessung (ITF) sämtlicher 107 Solothurner Gemeinden, alle vorhandenen Nutzungsplanungsdaten (53 Gemeinden, XTF) und das MOpublic des gesamten Kantons als einzelne XTF-Datei geprüft. Für das Benchmarking von _ili2pg_ wurde nur die amtliche Vermessung sämtlicher Gemeinden und das MOpublic verwendet. Die 53 Gemeinden der Nutzungsplanung waren mengenmässig schlichtweg zu wenig representativ, d.h. der Import (jeweils ohne Validierung) ging zu schnell.
 
-        CLASS ClassA =
-            attr2 : TEXT;     
-            MANDATORY CONSTRAINT attr2==PARAMETER MinimalRuntimeSystem01.CurrentTransferfile;       
-        END ClassA;
-                      
-    END Topic;
-    
-END Testmodel.
-----
+Insbesondere wurden mit Java 17 jeweils zwei unterschiedliche Garbage Collectors getestet. Der seit Java 9 standardmässig verwendete _Garbage First Garbage Collector (G1GC)_ und der _Throughput Collector (ParallelGC)_. Letzterer war in Java 8 der Standard-GC und noch immer verfügbar in neueren Java-Versionen.
 
-Das Modell muss das MinimalRuntimeSystem01-Datenmodell importieren. Dieses ist Stand heute noch in keiner Modellablage vorhanden, muss also lokal vorliegen. Die Klasse hat genau ein Attribut `attr2` und einen `MANDATORY CONSTRAINT`, der die gewünschte Prüfung übernimmt. 
+Es wurden jeweils drei Durchläufe gemacht und die Zeit gemittelt.
 
-Der Inhalt der Datei SO0200002403_1180.xtf sieht wie folgt aus:
+**Resultate**
 
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <HEADERSECTION SENDER="sogis" VERSION="2.3">
-  </HEADERSECTION>
-  <DATASECTION>
-    <Testmodel.Topic BID="b1">
-      <Testmodel.Topic.ClassA TID="o1">
-        <attr2>SO0200002403_1180.xtf</attr2>
-      </Testmodel.Topic.ClassA>
-    </Testmodel.Topic>
-  </DATASECTION>
-</TRANSFER>       
-----
+Für _ilivalidator_ ergeben sich folgende Resultate:
 
-Ich kann _ilivalidator_ wie gewohnt starten und erhalte das Resultat der Prüfung.
+.Amtliche Vermessung (107 Gemeinden) - INTERLIS 1
+[cols="1,1"]
+|===
+|Java Version |Avg. Time (mins:secs)
 
-```
-java -jar ilivalidator-1.11.11.jar SO0200002403_1180.xtf
-```
+|Java 8 (temurin)
+|10:21
+|Java 17 (temurin + G1GC)
+|10:06
+|Java 17 (temurin + ParallelGC)
+|9:39
+|Java 17 (graalvm + G1GC)
+|11:25
+|Java 17 (graalvm + ParallelGC)
+|11:07
+|===
 
-Ändere ich entweder den Namen der Datei oder den Wert des Attributes `attr2`, erscheint eine Fehlermeldung:
+.Nutzungsplanung Kanton SO (53 files) - INTERLIS 2
+[cols="1,1"]
+|===
+|Java Version |Avg. Time (mins:secs)
 
-```
-Error: line 7: Testmodel.Topic.ClassA: tid o1: Mandatory Constraint Testmodel.Topic.ClassA.Constraint1 is not true.
-```
+|Java 8 (temurin)
+|8:02
+|Java 17 (temurin + G1GC)
+|7:44
+|Java 17 (temurin + ParallelGC)
+|7:12
+|Java 17 (graalvm + G1GC)
+|7:39
+|Java 17 (graalvm + ParallelGC)
+|7:08
+|===
 
-Die Fehlermeldung kann man mit einem Metaattribut gehaltvoller machen:
+.MOpublic Kanton Solothurn (1 file, 2.4 GB) - INTERLIS 2
+[cols="1,1"]
+|===
+|Java Version |Avg. Time (mins:secs)
 
-[source,xml,linenums]
-----
-!!@ ilivalid.msg = "attr2 = {attr2} entspricht Dateinamen."
-MANDATORY CONSTRAINT attr2==PARAMETER MinimalRuntimeSystem01.CurrentTransferfile;    
-----
+|Java 8 (temurin)
+|7:47
+|Java 17 (temurin + G1GC)
+|7:59
+|Java 17 (temurin + ParallelGC)
+|7:22
+|Java 17 (graalvm + G1GC)
+|8:03
+|Java 17 (graalvm + ParallelGC)
+|7:21
+|===
 
-_Ilivalidator_ kennt noch eine weitere Syntax für die Verwendung der Laufzeitparameter in Constraints:
+Für _ili2pg_ ergeben sich folgende Resultate:
 
-[source,xml,linenums]
-----
-MANDATORY CONSTRAINT attr2==MinimalRuntimeSystem01.getParameterValue("MinimalRuntimeSystem01.CurrentTransferfile");    
-----
+.Amtliche Vermessung (107 Gemeinden) - INTERLIS 1
+[cols="1,1"]
+|===
+|Java Version |Avg. Time (mins:secs)
 
-Muss man für die Validierung eine eigene https://github.com/claeis/ilivalidator/blob/master/demoplugin/src/org/interlis2/validator/demo/CheckGebaeudeVersicherungsSystemIoxPlugin.java[`InterlisFunction`] implementieren und benötigt Laufzeitparameter, können diese via `TransferDescription` ausgelesen werden. Die benötigen Methoden sind `getActualRuntimeParameters()` resp. `getActualRuntimeParameter(...)`. In Unit-Tests muss z.B. der `CurrentTransferfile`-Parameter explizit selber gesetzt werden, weil es ja keine Datei gibt, die geprüft wird, sondern nur Objekte:
+|Java 8 (temurin)
+|25:45
+|Java 17 (temurin + G1GC)
+|25:12
+|Java 17 (temurin + ParallelGC)
+|24:53
+|Java 17 (graalvm + G1GC)
+|25:37
+|Java 17 (graalvm + ParallelGC)
+|25:00
+|===
 
-[source,java,linenums]
-----
-Iom_jObject iomObjA = new Iom_jObject(ILI_CLASSA, OBJ_OID1);
-iomObjA.setattrvalue("attr2", "SO0200002601_3396.xml");
-ValidationConfig modelConfig = new ValidationConfig();
-modelConfig.mergeIliMetaAttrs(td);
-LogCollector logger = new LogCollector();
-LogEventFactory errFactory = new LogEventFactory();
-Settings settings = new Settings();
-Map<String,Class> newFunctions = new HashMap<String,Class>();
-newFunctions.put("SO_FunctionsExt.RuntimeDummy", RuntimeDummyIoxPlugin.class);
-settings.setTransientObject(Validator.CONFIG_CUSTOM_FUNCTIONS, newFunctions);
-td.setActualRuntimeParameter(ch.interlis.ili2c.metamodel.RuntimeParameters.MINIMAL_RUNTIME_SYSTEM01_CURRENT_TRANSFERFILE, "SO0200002601_3396.xml");
-Validator validator=new Validator(td, modelConfig, logger, errFactory, new PipelinePool(), settings);
-validator.validate(new StartTransferEvent());
-validator.validate(new StartBasketEvent(ILI_TOPIC,BID1));
-validator.validate(new ObjectEvent(iomObjA));
-validator.validate(new EndBasketEvent());
-validator.validate(new EndTransferEvent());
-----
+.MOpublic Kanton Solothurn (1 file, 2.4 GB) - INTERLIS 2
+[cols="1,1"]
+|===
+|Java Version |Avg. Time (mins:secs)
+
+|Java 8 (temurin)
+|12:26
+|Java 17 (temurin + G1GC)
+|12:36
+|Java 17 (temurin + ParallelGC)
+|11:48
+|Java 17 (graalvm + G1GC)
+|12:37
+|Java 17 (graalvm + ParallelGC)
+|11:47
+|===
+
+**Fazit**
+
+- Java 17 mit ParallelGC ist die schnellste Variante.
+- GraalVM bringt für diesen Anwendungsfalls nichts resp. ist eventuell sogar kontraproduktiv.
+- ili2db-Benchmarks sind nicht sehr aussagekräftig, da wohl sehr viel vom Lesen/Schreiben von/in die Datenbank abhängig ist.
+
+Interessant ist ein Vergleich mit meinem 2016er-MacBookPro. Die Validierung der amtlichen Vermessung aller 107 Gemeinden dauerte circa 25 Minuten. Also 2.5 Mal so lange wie mit dem MacBook Air mit Apple Silicon, das lüfterlos knapp handwarm wird.
+
+Für die Praxis fast noch interessanter ist der Vergleich mit https://geodienste.ch[geodienste.ch]. Dort dauert die Validierung der amtlichen Vermessung circa eine Stunde. Ich muss noch abklären, ob das gleiche gemacht wird. Aber falls ja, müssten sie sich besser ein paar Mac minis ins Rechenzentrum schieben...

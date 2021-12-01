@@ -181,3 +181,36 @@ li.L2, li.L4, li.L6, li.L8, li.L0 {
     font-style: normal;
     font-size: 18px;
 }
+
+table {
+    border: none !important;
+    border-collapse: collapse !important;
+}
+
+.tableblock > caption {
+    font-size: 18px;
+    color: rgba(0, 0, 0, 0.8) !important;
+    font-weight: 400 !important;
+    font-style: italic !important;
+    padding-top: 20px;
+}
+
+td, th {
+    border-bottom: 1px solid #ccc !important;
+}
+
+th.tableblock {
+    font-weight: 400 !important;
+    font-size: 18px !important;
+    background-color: #dfdfdf !important;
+    padding: 10px 10px 10px 10px !important;
+}
+
+td.tableblock {
+    padding: 10px 10px 10px 10px !important;
+}
+
+p.tableblock {
+    font-size: 18px !important;
+    margin-top: 0px !important;
+}
