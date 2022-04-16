@@ -1,6 +1,6 @@
 = ÖREB-Kataster richtig gemacht #1 - Übersicht
 Stefan Ziegler
-2022-04-14
+2022-04-17
 :jbake-type: post
 :jbake-status: published
 :jbake-tags: ÖREB,ÖREB-Kataster,INTERLIS,Gretl,Gradle,ili2pg,ili2db,ilivalidator
@@ -9,6 +9,50 @@ Stefan Ziegler
 Ich habe bereits während der Realisierung der ersten Version des ÖREB-Katasters über unsere http://blog.sogeo.services/blog/2018/10/21/oereb-kataster-1-as-a-gradle-script.html[Architektur] http://blog.sogeo.services/blog/2018/12/31/xslt-xslfo-2-pdf4oereb.html[geschrieben]. Diese Lösung hat sich sehr bewährt. Wir hatten damals zwei bestehende Softwarelösungen angeschaut und uns trotzdem für etwas Eigenes entschieden. Eine der  bestehenden Lösung kann meines Erachtens zu viel, die andere habe ich irgendwie nie ganz verstanden.
 
 Im Rahmen unserer Realisierung zweiten Version des ÖREB-Katasters möchte ich detailliertere Einblicke in unser System geben und auch ein paar Skripte und Docker-Images bereitstellen, damit man das ausprobieren kann. Und ich gebe die Hoffnung nicht auf, dass auch Swisstopo bei passender Gelegenheit die ganze Sache durchspielt und sieht, was es zu tun gibt und damit ein vertiefteres technisches Verständnis für die Materie bekommt.
+
+Die https://www.cadastre.ch/de/manual-oereb/publication/instruction.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Rahmenmodell-de.pdf.html[Erläuterungen] zum Rahmenmodell des ÖREB-Katasters zeigen im Kapitel 4 &laquo;Organisatorischer Rahmen&raquo; folgende Abbildung:
+
+image::../../../../../images/oerebk_richtig_gemacht_p01/rahmenmodell_organisation.png[alt="rahmenmodell_organisation", align="center"]
+
+In der Mitte die die Katasterverantwortliche Stelle (KVS), welche in irgendeiner Ausprägung den ÖREB-Kataster betreibt. Die Pfeile deuten die Datenflüsse resp. die Schnittstellen an:
+
+- Gemeinden, Staatskanzlei und die Bundeskanzlei liefern die Gesetzlichen Grundlagen
+- Die zuständigen Stellen liefern die Geobasisdaten inkl. der Rechtsvorschriften.
+- Aus der amtlichen Vermessung kommen die Liegenschaften und die PLZ/Ortschaften.
+
+Aus dieser Organisation ergeben sich die Anforderungen an das https://models.geo.admin.ch/V_D/OeREB/[ÖREB-Rahmenmodell]. Es gibt somit INTERLIS-Modelle, welche den ganzen Kataster und die Organisation dazu beschreibt. D.h. die Geobasisdaten inkl. der Rechtsvorschriften sind mit INTERLIS beschrieben. Ebenso die gesetzlichen Grundlagen. 
+
+Legen wir den Augenmerk vom eher Organsatorischen auf die technischen Rahmenbedingungen:
+
+- Ein Teil der Themen (die Bundesthemen) inkl. der gesetzlichen Grundlagen des Bundes liegen als INTERLIS-Transferdatei im Rahmenmodell vor.
+- Die Daten der amtlichen Vermessung liegen als INTERLIS-Transferdatei vor.
+- Seit Rahmenmodell V2.0 gibt es ein https://models.geo.admin.ch/V_D/OeREB/OeREBKRMkvs_V2_0.ili[Konfigurations-Teilmodell], welches z.B. die Logos beinhaltet oder die Verfügbarkeit der Gemeinden steuern kann.
+- Es gibt ein elaboriertes Toolset für das Arbeiten mit INTERLIS-Datenmodell und -Transferfiles: https://github.com/claeis/ili2db[_ili2pg_] und https://github.com/claeis/ilivalidator[_ilivalidator_]
+
+Für uns war wichtig, dass sowohl die Realisierung als auch der Betrieb des ÖREB-Katasters möglichst einfach, transparent und effizient verläuft. Zusammen mit den vorhandenen Rahmenbedingungen ergab sich (vereinfacht) folgende Architektur:
+
+
+
+Das heisst wir wollen möglichst nahe
+
+
+
+
+Was gibt es noch für andere technische Rahmenbedingungen:
+
+- 
+Die Daten der amtlichen Vermessung liegen ebenfalls 
+
+- Die Daten der amtliche
+
+
+
+
+Wie schaut es auf der technischen Seite aus?
+
+
+
+
 
 Grundidee... interlis, interlis-werkzeuge, sauberes Rahmenmodell,sql, gretl,sauber schnitte,transparenz.
 
