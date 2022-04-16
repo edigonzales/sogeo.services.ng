@@ -24,143 +24,24 @@ Aus dieser Organisation ergeben sich die Anforderungen an das https://models.geo
 
 Legen wir den Augenmerk vom eher Organsatorischen auf die technischen Rahmenbedingungen:
 
-- Ein Teil der Themen (die Bundesthemen) inkl. der gesetzlichen Grundlagen des Bundes liegen als INTERLIS-Transferdatei im Rahmenmodell vor.
+- Die Bundesthemen inkl. der gesetzlichen Grundlagen, der Logos und der Texte des Bundes liegen als INTERLIS-Transferdatei im Rahmenmodell vor.
+- Ein kantonales Thema wird in einer Fachanwendung bewirtschaftet, welche die Daten im INTERLIS-Rahmenmodell bereitstellt.
 - Die Daten der amtlichen Vermessung liegen als INTERLIS-Transferdatei vor.
-- Seit Rahmenmodell V2.0 gibt es ein https://models.geo.admin.ch/V_D/OeREB/OeREBKRMkvs_V2_0.ili[Konfigurations-Teilmodell], welches z.B. die Logos beinhaltet oder die Verfügbarkeit der Gemeinden steuern kann.
+- Seit Rahmenmodell V2.0 gibt es ein https://models.geo.admin.ch/V_D/OeREB/OeREBKRMkvs_V2_0.ili[Konfigurations-Teilmodell], welches z.B. die Logos und die statischen Texte beinhaltet oder die Verfügbarkeit der Gemeinden steuern kann.
 - Es gibt ein elaboriertes Toolset für das Arbeiten mit INTERLIS-Datenmodell und -Transferfiles: https://github.com/claeis/ili2db[_ili2pg_] und https://github.com/claeis/ilivalidator[_ilivalidator_]
 
-Für uns war wichtig, dass sowohl die Realisierung als auch der Betrieb des ÖREB-Katasters möglichst einfach, transparent und effizient verläuft. Zusammen mit den vorhandenen Rahmenbedingungen ergab sich (vereinfacht) folgende Architektur:
+Für uns war bei der Lösungsfindung wichtig, dass sowohl die Realisierung als auch der Betrieb des ÖREB-Katasters möglichst einfach, transparent und effizient verläuft. Zusammen mit den vorhandenen Rahmenbedingungen ergab sich (vereinfacht) folgende Architektur:
 
+image::../../../../../images/oerebk_richtig_gemacht_p01/oerebkataster_overview.png[alt="oerebkataster_overview", align="center"]
 
+Erläuterung:
 
-Das heisst wir wollen möglichst nahe
+1. Es gibt eine ÖREB-Datenbank mit einem Schema, welches sämtliche Daten (Geobasisdaten, amtliche Vermessung, Konfiguration, ...)
+2. Es braucht einen Webdienst, der den DATA-Extract (aka XML) und den statischen Auszug (das PDF) herstellt. Dieser Dienst muss bloss mit einer Datenbank (der ÖREB-Datenbank) im Sinne einer &laquo;Cookie-Cutter&raquo;-Abfrage kommunizieren. Das Resultat dieser Abfrage muss nach XML umformatiert werden und das XML muss zu einem PDF gemacht werden. Mehr muss diese Anwendung nicht können.
+3. Sämtliche Geobasisdaten müssen im ÖREB-Rahmenmodell vorliegen, damit sie mit den vorhandenen Werkzeugen in die ÖREB-Datenbank importiert und bei einer Nachführung ersetzt werden können. Konsequenz: Einige kantonale Themen müssen vom kantonalen Erfassungsmodell in das ÖREB-Rahmenmodell umgebaut werden. Auch für diesen Schritt können wir auf bewährte Methoden und Werkzeuge zurückgreifen (Stichwort SQL und _ili2pg_).
+4. Konfigurationen (Logos, Themen, Texte, ...) und gesetzliche Grundlagen müssen ebenfalls im dafür vorgesehenen Teilmodell vorliegen.
+5. In der Übersicht fehlt bewusst der dynamische Auszug.
 
+Die Idee war/ist alles was mit Daten und Datenimport/-export zu tun hat mit INTERLIS und den bekannten INTERLIS-Werkzeugen zu machen, also die Reduzierung auf eine einzelne Schnittstelle. Dies liefert uns die Basis für eine grösstmögliche Transparenz (z.B. beim Protokollieren von neuen Publikationen in den Kataster) und eine sehr gute Qualitätskontrolle inkl. sauberer Schnitte zwecks Zuweisung der Verantwortlichkeiten. 
 
-
-
-Was gibt es noch für andere technische Rahmenbedingungen:
-
-- 
-Die Daten der amtlichen Vermessung liegen ebenfalls 
-
-- Die Daten der amtliche
-
-
-
-
-Wie schaut es auf der technischen Seite aus?
-
-
-
-
-
-Grundidee... interlis, interlis-werkzeuge, sauberes Rahmenmodell,sql, gretl,sauber schnitte,transparenz.
-
-
-Wer kennt sie nicht? Die INTERLIS-Laufzeitparameter (siehe https://www.interlis.ch/download/interlis2/ili2-refman_2006-04-13_d.pdf[Referenzhandbuch Kapitel 2.11]). Also zum Beispiel ich. Jedenfalls waren sie mir lange nicht bekannt. Sie sind jedoch die Lösung für eine bekannte Herausforderung: Die Nachführungsgeometer schicken die Geschäfte via AVGBS ans Grundbuch. Der Name der Transferdatei muss dabei gewisse Konventionen erfüllen. Ganz einfach formuliert, muss der Name der Datei einem Attributwert innerhalb der Datei entsprechen. In Tat und Wahrheit ist es leicht komplexer aber es geht ums grundlegende Prinzip. Wie kann https://github.com/claeis/ilivalidator[_ilivalidator_] nun prüfen, ob der Namen der zu prüfenden Datei einem Werte eines Attributes der zu prüfenden Daten selbst entspricht? Runtime Parameter to the rescue!
-
-So wie ich das Referenzhandbuch verstehe, ist die Verfügbarkeit von Laufzeitparametern vom System abhängig:
-
-&laquo;Nebst den eigentlichen Daten und den Metadaten können auch einzelne Datenelemente definiert werden, bei denen erwartet wird, dass sie von einem Bearbeitungs-, Auswerte- oder Darstellungssystem zur Laufzeit bereitgestellt werden. Sie heissen Laufzeitparameter.&raquo;
-
-Unser Auswertesystem _ilivalidator_ kennt zum jetzigen Zeitpunkt folgende Laufzeitparameter:
-
-- `RuntimeSystemName`: Name der Software, z.B. &laquo;ilivalidator&raquo; (ilivalidator)
-- `RuntimeSystemVersion`: Version der Software, z.B. &laquo;1.11.11&raquo; (ilivalidator)
-- `OperatingSystemName`: Betriebssystem, z.B. &laquo;Mac OS X&raquo; (ili2c)
-- `HostName`: Name des Hosts, z.B. &laquo;localhost&raquo; (ili2c)
-- `CurrentUserName`: Name des Users, der den Prozess startet, z.B. &laquo;stefan&raquo; (ili2c)
-- `CurrentDateTime`: Zeitpunkt des Prozesstarts, z.B. &laquo;2017-08-22T15:00:00.000&raquo; (ili2c)
-- `CurrentTransferfile`: Name der zu prüfenden Datei, z.B. &laquo;SO0200002403_1180.xml&raquo; (ilivalidator)
-
-Machen wir ein Beispiel anhand eines sehr einfachen Modelles:
-
-[source,xml,linenums]
-----
-INTERLIS 2.3;
-MODEL Testmodel
-  AT "mailto:stefan.ziegler@bd.so.ch" VERSION "2019-01-27" =
-      
-  IMPORTS MinimalRuntimeSystem01;
-
-    TOPIC Topic =
-
-        CLASS ClassA =
-            attr2 : TEXT;     
-            MANDATORY CONSTRAINT attr2==PARAMETER MinimalRuntimeSystem01.CurrentTransferfile;       
-        END ClassA;
-                      
-    END Topic;
-    
-END Testmodel.
-----
-
-Das Modell muss das MinimalRuntimeSystem01-Datenmodell importieren. Dieses ist Stand heute noch in keiner Modellablage vorhanden, muss also lokal vorliegen. Die Klasse hat genau ein Attribut `attr2` und einen `MANDATORY CONSTRAINT`, der die gewünschte Prüfung übernimmt. 
-
-Der Inhalt der Datei SO0200002403_1180.xtf sieht wie folgt aus:
-
-[source,xml,linenums]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <HEADERSECTION SENDER="sogis" VERSION="2.3">
-  </HEADERSECTION>
-  <DATASECTION>
-    <Testmodel.Topic BID="b1">
-      <Testmodel.Topic.ClassA TID="o1">
-        <attr2>SO0200002403_1180.xtf</attr2>
-      </Testmodel.Topic.ClassA>
-    </Testmodel.Topic>
-  </DATASECTION>
-</TRANSFER>       
-----
-
-Ich kann _ilivalidator_ wie gewohnt starten und erhalte das Resultat der Prüfung.
-
-```
-java -jar ilivalidator-1.11.11.jar SO0200002403_1180.xtf
-```
-
-Ändere ich entweder den Namen der Datei oder den Wert des Attributes `attr2`, erscheint eine Fehlermeldung:
-
-```
-Error: line 7: Testmodel.Topic.ClassA: tid o1: Mandatory Constraint Testmodel.Topic.ClassA.Constraint1 is not true.
-```
-
-Die Fehlermeldung kann man mit einem Metaattribut gehaltvoller machen:
-
-[source,xml,linenums]
-----
-!!@ ilivalid.msg = "attr2 = {attr2} entspricht Dateinamen."
-MANDATORY CONSTRAINT attr2==PARAMETER MinimalRuntimeSystem01.CurrentTransferfile;    
-----
-
-_Ilivalidator_ kennt noch eine weitere Syntax für die Verwendung der Laufzeitparameter in Constraints:
-
-[source,xml,linenums]
-----
-MANDATORY CONSTRAINT attr2==MinimalRuntimeSystem01.getParameterValue("MinimalRuntimeSystem01.CurrentTransferfile");    
-----
-
-Muss man für die Validierung eine eigene https://github.com/claeis/ilivalidator/blob/master/demoplugin/src/org/interlis2/validator/demo/CheckGebaeudeVersicherungsSystemIoxPlugin.java[`InterlisFunction`] implementieren und benötigt Laufzeitparameter, können diese via `TransferDescription` ausgelesen werden. Die benötigen Methoden sind `getActualRuntimeParameters()` resp. `getActualRuntimeParameter(...)`. In Unit-Tests muss z.B. der `CurrentTransferfile`-Parameter explizit selber gesetzt werden, weil es ja keine Datei gibt, die geprüft wird, sondern nur Objekte:
-
-[source,java,linenums]
-----
-Iom_jObject iomObjA = new Iom_jObject(ILI_CLASSA, OBJ_OID1);
-iomObjA.setattrvalue("attr2", "SO0200002601_3396.xml");
-ValidationConfig modelConfig = new ValidationConfig();
-modelConfig.mergeIliMetaAttrs(td);
-LogCollector logger = new LogCollector();
-LogEventFactory errFactory = new LogEventFactory();
-Settings settings = new Settings();
-Map<String,Class> newFunctions = new HashMap<String,Class>();
-newFunctions.put("SO_FunctionsExt.RuntimeDummy", RuntimeDummyIoxPlugin.class);
-settings.setTransientObject(Validator.CONFIG_CUSTOM_FUNCTIONS, newFunctions);
-td.setActualRuntimeParameter(ch.interlis.ili2c.metamodel.RuntimeParameters.MINIMAL_RUNTIME_SYSTEM01_CURRENT_TRANSFERFILE, "SO0200002601_3396.xml");
-Validator validator=new Validator(td, modelConfig, logger, errFactory, new PipelinePool(), settings);
-validator.validate(new StartTransferEvent());
-validator.validate(new StartBasketEvent(ILI_TOPIC,BID1));
-validator.validate(new ObjectEvent(iomObjA));
-validator.validate(new EndBasketEvent());
-validator.validate(new EndTransferEvent());
-----
+Im zweiten Teil gehe ich vertieft auf die Herstellung und Organisation der ÖREB-Datenbank ein und stelle ein Docker-Image inkl. Import-Skripte zur Verfügung.
