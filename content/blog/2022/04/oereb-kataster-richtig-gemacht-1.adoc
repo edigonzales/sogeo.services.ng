@@ -8,7 +8,7 @@ Stefan Ziegler
 
 Ich habe bereits während der Realisierung der ersten Version des ÖREB-Katasters über unsere http://blog.sogeo.services/blog/2018/10/21/oereb-kataster-1-as-a-gradle-script.html[Architektur] http://blog.sogeo.services/blog/2018/12/31/xslt-xslfo-2-pdf4oereb.html[geschrieben]. Diese Lösung hat sich sehr bewährt. Wir hatten damals zwei bestehende Softwarelösungen angeschaut und uns trotzdem für etwas Eigenes entschieden. Eine der  bestehenden Lösung kann meines Erachtens zu viel, die andere habe ich irgendwie nie ganz verstanden.
 
-Im Rahmen unserere Realisierung zweiten Version des ÖREB-Katasters möchte ich detailliertere Einblicke in unser System geben und auch ein paar Skripte und Docker-Images bereitstellen, damit man das ausprobieren kann. Und ich gebe die Hoffnung nicht auf, dass auch Swisstopo die ganze Sache durchspielt und sieht, was es zu tun gibt und ein vertiefteres technisches Verständnis für die Materie bekommt.
+Im Rahmen unserer Realisierung zweiten Version des ÖREB-Katasters möchte ich detailliertere Einblicke in unser System geben und auch ein paar Skripte und Docker-Images bereitstellen, damit man das ausprobieren kann. Und ich gebe die Hoffnung nicht auf, dass auch Swisstopo bei passender Gelegenheit die ganze Sache durchspielt und sieht, was es zu tun gibt und damit ein vertiefteres technisches Verständnis für die Materie bekommt.
 
 Grundidee... interlis, interlis-werkzeuge, sauberes Rahmenmodell,sql, gretl,sauber schnitte,transparenz.
 
