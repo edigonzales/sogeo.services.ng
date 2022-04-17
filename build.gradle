@@ -1,0 +1,29 @@
+import ch.so.agi.gretl.tasks.*
+import ch.so.agi.gretl.api.*
+
+apply plugin: 'ch.so.agi.gretl'
+
+buildscript {
+    repositories {
+        maven { url "http://jars.interlis.ch" }
+        maven { url "http://jars.umleditor.org" }
+        maven { url "https://repo.osgeo.org/repository/release/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'ch.so.agi', name: 'gretl',  version: '2.1.+'
+    }
+}
+
+defaultTasks 'validate'
+
+task uploadDirectory(type: S3Upload) {
+    accessKey = System.getenv('AWS_ACCESS_KEY_ID')
+    secretKey = System.getenv('AWS_SECRET_ACCESS_KEY')
+    sourceDir = file("./output")
+    bucketName = "blog.sogeo.service"
+    endPoint = "https://s3.eu-central-1.amazonaws.com" 
+    region = "eu-central-1"
+    acl = "public-read"
+}

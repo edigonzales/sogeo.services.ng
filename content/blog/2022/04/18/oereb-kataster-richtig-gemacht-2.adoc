@@ -1,52 +1,76 @@
-= ÖREB-Kataster richtig gemacht #1 - ÖREB-Datenbank
+= ÖREB-Kataster richtig gemacht #2 - ÖREB-Datenbank
 Stefan Ziegler
-2022-04-17
+2022-04-18
 :jbake-type: post
 :jbake-status: published
 :jbake-tags: ÖREB,ÖREB-Kataster,PostgreSQL,PostGIS,INTERLIS,Gretl,Gradle,ili2pg,ili2db,ilivalidator
 :idprefix:
 
+Wie im http://blog.sogeo.services/blog/2022/04/17/oereb-kataster-richtig-gemacht-1.html[ersten Teil] der &laquo;ÖREB-Kataster richtig gemacht&raquo;-Serie angekündigt, geht es im zweiten Teil um die ÖREB-Datenbank.
+
+Die Grundidee ist, dass sämtliche Daten, die für den Betrieb des Katasters notwendig sind, in einem Schema vorliegen. Wobei das weniger wichtig ist (und schlussendlich aus zwei Gründen nicht ganz eingehalten wird), als dass sämtliche Geobasisdaten inkl. der Rechtsvorschriften in den gleichen Tabellen vorhanden sind. In &laquo;ili2pg-Sprech&raquo; bedeutet das, dass mit _ili2pg_ das Transferstruktur-Teilmodell des ÖREB-Rahmenmodells in der Datenbank abgebildet wird und anschliessend können sämtliche ÖREB-Themen in dieses eine Schema importiert werden. Ein ÖREB-Webservice muss sich so nur um eine einzige Datenquelle kümmern und kann mit einer einzigen SQL-Abfrage sämtliche betroffenen Eigentumsbeschränkungen sämtlicher ÖREB-Themen eruieren (&laquo;Cookie-Cutter&raquo;). In das gleiche Schema importieren wir ebenfalls die Konfigurationen (Logos, Texte, Themen, gesetzliche Grundlagen, ...), die amtliche Vermessung und die PLZ/Ortschaften.
+
+Aus betrieblichen Gründen erstellen wir bei uns zwei identische solche Schemen: `live` und `stage`. Das `live`-Schema dient als Produktions-Umgebung und das `stage`-Schema dient den Fachstellen für die Validierung der importierten Daten in den ÖREB-Kataster vor dem definitiven Freischalten. Ein ÖREB-Webservice muss einzig mit einem Schemanamen parametrisiert werden, um eine Validierungsumgebung zu erhalten.
+
+Das Erstellen des Schemas mit _ili2pg_ ist leider nicht ganz so super-trivial wie man sich das wünscht. Der Hauptgrund ist, dass man im gleichen Schema INTERLIS 1 und INTERLIS 2 Modelle abbilden will. Das funktioniert mit einem einzelnen ili2pg-Befehl nicht. Wenn man aber zwei Befehle ausführen muss und man mit der `--createScript`-Option das SQL in eine Datei schreiben will, muss man das erzeugte SQL noch leicht anpassen, weil sonst z.B. versucht wird Sequenzen doppelt zu erstellen. Ein SQL-Skript wird benötigt, weil wir so beim erstmaligen Hochfahren der Datenbank (als Dockercontainer) das Schema und die Tabellen anlegen wollen.
+
+Langer Rede, kurzer Sinn: Man muss irgendwie mit _ili2pg_ die SQL-Skripte erstellen, diese noch leicht anpassen und dann zusammensetzen. Soweit keine Hexerei. Man kann dazu z.B. ein Shellskript schreiben oder, weil man sowieso Java benötigt, mit https://www.jbang.dev/[_jbang_] ein Java-Skript (also sowas wie ein Skript in Java geschrieben) schreiben. Das https://github.com/oereb/oereb-db/blob/main/create_schema_sql.java[Skript] befindet sich im https://github.com/oereb/oereb-db[Github-Repository]. Technisch ist es nicht sonderlich interessant. Es wird mit der ili2db-Bibliothek direkt gearbeitet und anschliessend mit Regex-Magie und Suchen und Ersetzen die notwendigen Anpassungen gemacht. Schaut man sich das Skript ein wenig genauer an, fällt auf, dass es neben den beiden erwähnten Schemen auch noch die beiden Schemen `live_wms` und `stage_wms` erstellt. Dabei handelt es sich um Schemen mit Tabellen, die dem ÖREB-Darstellungsdienst (WMS) als Quelle dienen. Die Originaltabellen des Rahmenmodells sind normalisiert, was für die Verwendung in WMS-Servern nicht hilfreich ist. Entweder erstellt man Datenbankviews oder -tabellen und denormalisiert. Wir haben uns für Tabellen entschieden, weil wir die Dokumente als JSON-codierten Text in einer Spalte speichern und so via WMS-GetFeatureInfo verfügbar machen wollen. Das ist aus Sicht ÖREB-Kataster nicht zwingend notwendig. Uns dient die Spalte aber im Validierungsprozess. Da somit der Datenumbau vom Rahmenmodell in unsere denormalisierte Struktur aufwändiger ist, reicht die Performance mit Views nicht mehr. Damit das Anlegen der WMS-Tabellen analog funktioniert, haben wir ein https://geo.so.ch/models/AGI/SO_AGI_OeREB_WMS_20220222.ili[INTERLIS-Datenmodell] erstellt. Das Modell muss in separaten Schemen abgebildet werden, weil andere ili2db-Optionen verwendet werden sollen. 
+
+Das Skript kann mit folgenden Befehl ausgeführt werden:
+
+```
+jbang create_schema_sql.java
+```
+
+Ist _jbang_ nicht installiert, kann man das Skript (unter Linux und macOS) wie folgt ausführen:
+```
+curl -Ls https://sh.jbang.dev | bash -s - create_schema_sql.java
+```
+
+Das Resultat ist eine `setup.sql`-Datei. Mit dieser lassen sich nun sämtliche Schemen und sämtlichen Tabellen in einer _PostgreSQL_/_PostGIS_-Datenbank erstellen. Die Datei interessiert mich direkt aber nicht, da ich sie selber nicht benötige, sondern der Docker-Container beim erstmaligen Hochfahren die SQL-Befehle ausführt. Für das Docker-Image verwende ich unser PostgreSQL/PostGIS-Basisimage (`sogis/postgis:14-3.2`). Bis es offizielle PostGIS-Images gibt, welche auf ARM-Prozessoren (Apple Silicon) laufen, muss ich mich selber um ein solches Image kümmern, was wiederum nicht sonderlich aufwändig ist, weil das offizielle PostgreSQL-Image glückerlicherweise für ARM-Prozesseren verfügbar ist. Richtig viel passiert im https://github.com/oereb/oereb-db/blob/main/Dockerfile[Dockerfile] nicht mehr. Es werden einzig zwei Dateien in den Ordner `/docker-entrypoint-initdb.d` kopiert: Die soeben erstellt Datei `setup.sql` dient dazu die Tabellen und Scheman in der Datenbank zu erstellen. Die Datei `initdb-user.sh` wird benötigt um einige Benutzer in der Datenbank zu erstellen und diesen die benötigten Rechte zuzuweisen.
+
+Das Dockerimage wird mit folgendem Befehl erstellt:
+```
+docker build -t ghcr.io/oereb/oereb-db:latest .
+```
+
+Beim Starten des Containers müssen Umgebungsvariablen mitgeliefert werden:
+```
+docker run --rm --name oerebdb -p 54323:5432 -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=oereb -e POSTGRES_HOST_AUTH_METHOD=md5 -e PG_READ_PWD=dmluser -e PG_WRITE_PWD=ddluser -e PG_GRETL_PWD=gretl ghcr.io/oereb/oereb-db:latest
+```
+
+- `POSTGRES_PASSWORD`: Passwort des `postgres`-Benutzers
+- `POSTGRES_DB`: Name der Datenbank
+- `POSTGRES_HOST_AUTH_METHOD`: Siehe https://github.com/claeis/ili2db/issues/448. Oder mit den Worten von https://www.youtube.com/watch?v=Ze5Ul7Z9kE8[Tom Petty: &laquo;Time to move on&raquo;]
+- `PG_READ_PWD`: Passwort eines read-only Benutzers (`dmluser/dmluser`). Siehe auch `initdb-user.sh`.
+- `PG_WRITE_PWD`: Passwort eines read/write Benutzers (`ddluser/ddluser`). Siehe auch `initdb-user.sh`.
+- `PG_GRETL_PWD`: Passwort eines read/write Benutzers (`gretl/gretl`). Siehe auch `initdb-user.sh`.
+
+Man kann natürlich in `initdb_user.sh` komplett andere Benutzer und ein eigenes Dockerimage erstellen. Diese drei Benutzer sind bei uns intern häufig die Regel für Entwicklungsumgebungen. 
+
+Die Datenbank `oereb` mit unseren vier erstellten Schemen ist nach kurzer Zeit verfügbar (aber leer): 
+
+image::../../../../../images/oerebk_richtig_gemacht_p02/dbeaver_oerebdb_empty.png[alt="dbeaver oerebdb empty", align="center"]
+
+Wird der Docker-Container gestoppt, verliert man sämtliche Daten. In unserem Fall ist das noch nicht so tragisch, da bis jetzt noch keine Daten importiert wurden. Jedoch gehen auch die vier Schemen verloren. D.h. bei jedem Container-Neustart, werden diese Schemen wieder erzeugt. Will man dieses Verhalten verhindern, muss man das Datenbankverzeichnis auf dem lokalen Dateisystem persistieren. Das lokale Verzeichnis muss mit korrekten Permissions erzeugt werden.
+
+```
+mkdir -m 0777 ~/pgdata
+docker run --rm --name oerebdb -p 54323:5432 -v ~/pgdata:/var/lib/postgresql/data:delegated .... (siehe oben)
+```
+
+Das Herstellen und Testen des Images übernimmt eine https://github.com/oereb/oereb-db/blob/main/.github/workflows/main.yml[Github] https://github.com/oereb/oereb-db/actions[Action]. Die Images gibt es für `amd64`- (Intel, AMD) wie auch für `arm64`-Systeme (Apple Silicon) in der https://github.com/oereb/oereb-db/pkgs/container/oereb-db[Github Container Registry]. 
+
+Weil eine leere Datenbank nichts bringt, zeige ich im dritten Teil, wie man alle notwendigen Daten einfach importiert.
 
 
 
-Ich habe bereits während der Realisierung der ersten Version des ÖREB-Katasters über unsere http://blog.sogeo.services/blog/2018/10/21/oereb-kataster-1-as-a-gradle-script.html[Architektur] http://blog.sogeo.services/blog/2018/12/31/xslt-xslfo-2-pdf4oereb.html[geschrieben]. Diese Lösung hat sich sehr bewährt. Wir hatten damals zwei bestehende Softwarelösungen angeschaut und uns trotzdem für etwas Eigenes entschieden. Eine der  bestehenden Lösung kann meines Erachtens zu viel, die andere habe ich irgendwie nie ganz verstanden.
 
-Im Rahmen unserer Realisierung der zweiten Version des ÖREB-Katasters möchte ich detailliertere Einblicke in unser System geben und auch ein paar Skripte und Docker-Images bereitstellen, damit man das ausprobieren kann. Und ich gebe die Hoffnung nicht auf, dass auch Swisstopo bei passender Gelegenheit die ganze Sache durchspielt und sieht, was es zu tun gibt und damit ein vertiefteres technisches Verständnis für die Materie bekommt.
 
-Die https://www.cadastre.ch/de/manual-oereb/publication/instruction.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Rahmenmodell-de.pdf.html[Erläuterungen] zum Rahmenmodell des ÖREB-Katasters zeigen in Kapitel 4 &laquo;Organisatorischer Rahmen&raquo; folgende Abbildung:
 
-image::../../../../../images/oerebk_richtig_gemacht_p01/rahmenmodell_organisation.png[alt="rahmenmodell_organisation", align="center"]
 
-In der Mitte steht die Katasterverantwortliche Stelle (KVS), welche in irgendeiner Ausprägung den ÖREB-Kataster betreibt. Die Pfeile deuten die Datenflüsse resp. die Schnittstellen an:
 
-- Gemeinden, Staatskanzlei und die Bundeskanzlei liefern die Gesetzlichen Grundlagen
-- Die zuständigen Stellen liefern die Geobasisdaten inkl. der Rechtsvorschriften.
-- Aus der amtlichen Vermessung kommen die Liegenschaften und die PLZ/Ortschaften.
 
-Aus dieser Organisation ergeben sich die Anforderungen an das https://models.geo.admin.ch/V_D/OeREB/[ÖREB-Rahmenmodell]. Es gibt somit INTERLIS-Modelle, welche den ganzen Kataster und die Organisation dazu beschreibt. 
 
-Legen wir den Augenmerk vom eher Organisatorischen auf die technischen Rahmenbedingungen:
 
-- Die Bundesthemen inkl. der gesetzlichen Grundlagen, der Logos und der Texte des Bundes liegen als INTERLIS-Transferdatei im Rahmenmodell vor.
-- Ein kantonales Thema wird in einer Fachanwendung bewirtschaftet, welche die Daten im INTERLIS-Rahmenmodell bereitstellt.
-- Die Daten der amtlichen Vermessung liegen als INTERLIS-Transferdatei vor.
-- Seit Rahmenmodell V2.0 gibt es ein https://models.geo.admin.ch/V_D/OeREB/OeREBKRMkvs_V2_0.ili[Konfigurations-Teilmodell], welches z.B. die Logos und die statischen Texte beinhaltet oder die Verfügbarkeit der Gemeinden steuern kann.
-- Es gibt ein elaboriertes Toolset für das Arbeiten mit INTERLIS-Datenmodellen und -Transferfiles: https://github.com/claeis/ili2db[_ili2pg_] und https://github.com/claeis/ilivalidator[_ilivalidator_]
 
-Für uns war bei der Lösungsfindung wichtig, dass sowohl die Realisierung als auch der Betrieb des ÖREB-Katasters möglichst einfach, transparent und effizient verläuft. Zusammen mit den vorhandenen Rahmenbedingungen ergab sich (vereinfacht) folgende Architektur:
-
-image::../../../../../images/oerebk_richtig_gemacht_p01/oerebkataster_overview.png[alt="oerebkataster_overview", align="center"]
-
-Erläuterung:
-
-1. Es gibt eine ÖREB-Datenbank mit einem Schema, welches sämtliche Daten (Geobasisdaten, amtliche Vermessung, Konfiguration, ...) beinhaltet. Der Import resp. das Ersetzen der Daten wird mit _ili2pg_ durchgeführt. Die Daten werden vor dem Import mit _ilivalidator_ geprüft.
-2. Es braucht einen Webdienst, der den DATA-Extract (aka XML) und den statischen Auszug (das PDF) herstellt. Dieser Dienst muss bloss mit einer Datenbank (der ÖREB-Datenbank) im Sinne einer &laquo;Cookie-Cutter&raquo;-Abfrage kommunizieren. Das Resultat dieser Abfrage muss nach XML umformatiert werden und das XML muss zu einem PDF gemacht werden. Mehr muss diese Anwendung nicht können.
-3. Sämtliche Geobasisdaten müssen im ÖREB-Rahmenmodell vorliegen, damit sie mit den vorhandenen Werkzeugen in die ÖREB-Datenbank importiert und bei einer Nachführung ersetzt werden können. Konsequenz: Einige kantonale Themen müssen vom kantonalen Erfassungsmodell in das ÖREB-Rahmenmodell umgebaut werden. Auch für diesen Schritt können wir auf bewährte Methoden und Werkzeuge zurückgreifen (Stichwort SQL und _ili2pg_).
-4. Konfigurationen (Logos, Themen, Texte, ...) und gesetzliche Grundlagen des Bundes und des Kantons müssen ebenfalls im dafür vorgesehenen Teilmodell vorliegen.
-5. In der Übersicht fehlt bewusst der dynamische Auszug.
-
-Die Idee war/ist alles was mit Daten und Datenimport/-export zu tun hat mit INTERLIS und den bekannten INTERLIS-Werkzeugen zu machen, also die Reduzierung auf eine einzelne Schnittstelle. Auch weil hier bereits alles vorhanden ist. 
-
-Diese Architektur liefert uns die Basis für eine grösstmögliche Transparenz (z.B. beim Protokollieren von neuen Publikationen in den Kataster) und eine sehr gute Qualitätskontrolle inkl. sauberer Schnitte zwecks Zuweisung der Verantwortlichkeiten. 
-
-Im zweiten Teil gehe ich vertieft auf die Herstellung und Organisation der ÖREB-Datenbank ein und stelle ein Docker-Image inkl. Import-Skripte zur Verfügung.

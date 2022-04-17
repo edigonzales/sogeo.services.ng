@@ -44,6 +44,6 @@ Erläuterung:
 
 Die Idee war/ist alles was mit Daten und Datenimport/-export zu tun hat mit INTERLIS und den bekannten INTERLIS-Werkzeugen zu machen, also die Reduzierung auf eine einzelne Schnittstelle. Auch weil hier bereits alles vorhanden ist. 
 
-Diese Architektur liefert uns die Basis für eine grösstmögliche Transparenz (z.B. beim Protokollieren von neuen Publikationen in den Kataster) und eine sehr gute Qualitätskontrolle inkl. sauberer Schnitte zwecks Zuweisung der Verantwortlichkeiten. 
+Diese Architektur liefert uns die Basis für eine grösstmögliche Transparenz (z.B. beim Protokollieren von neuen Publikationen in den Kataster) und eine sehr gute Qualitätskontrolle inkl. sauberer Schnitte zwecks Zuweisung der Verantwortlichkeiten. So ist das System auch praktisch unabhängig vom Ort, wo es installiert ist, da es keine Laufzeitabhängigkeiten zu bestehenden GDI-Komponenten hat (z.B. Erfassungsdatenbank).
 
 Im zweiten Teil gehe ich vertieft auf die Herstellung und Organisation der ÖREB-Datenbank ein und stelle ein Docker-Image inkl. Import-Skripte zur Verfügung.
