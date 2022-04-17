@@ -22,7 +22,7 @@ task upload(type: S3Upload) {
     accessKey = System.getenv('AWS_ACCESS_KEY_ID')
     secretKey = System.getenv('AWS_SECRET_ACCESS_KEY')
     sourceDir = file("./output")
-    bucketName = "blog.sogeo.service"
+    bucketName = "blog.sogeo.services"
     endPoint = "https://s3.eu-central-1.amazonaws.com" 
     region = "eu-central-1"
     acl = "public-read"
