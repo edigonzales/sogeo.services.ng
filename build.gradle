@@ -18,7 +18,7 @@ buildscript {
 
 defaultTasks 'validate'
 
-task uploadDirectory(type: S3Upload) {
+task upload(type: S3Upload) {
     accessKey = System.getenv('AWS_ACCESS_KEY_ID')
     secretKey = System.getenv('AWS_SECRET_ACCESS_KEY')
     sourceDir = file("./output")

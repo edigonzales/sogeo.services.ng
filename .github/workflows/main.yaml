@@ -19,7 +19,7 @@ jobs:
       - name: Show files
         run: ls -la 
       - name: Upload files to S3
-        run: ./gradlew clean build buildDockerImage -x test -x dockerTest
+        run: ./gradlew upload
       # - name: Push docker image
       #   run: |
       #     export CI_JOB_TIMESTAMP=$(date +%Y%m%dT%H%M%S)
