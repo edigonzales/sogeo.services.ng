@@ -40,9 +40,17 @@ task validate(type: IliValidator){
 }
 ----
 
-Im Verzeichnis, wo die `build.gradle`-Datei liegt, kann man den Job mit `gradle` aufgerufen werden. Die zu prüfende Datei `fubar.xtf` muss natürlich auf vorhanden sein. Das interessante sind die sogenannten Tasks. Von diesen Tasks kann es beliebig viele geben und sie können auch voneinander abhängig (`dependsOn`) sein. Einen Überblick über alle unsere Jobs (und Inspiration) erlangt man in unserem https://github.com/sogis/gretljobs/[gretljobs-Repo]. Eine möglichst vollständige Dokumentation unserer selbst programmierten Task findet man ebenfalls im https://github.com/sogis/gretl/blob/master/docs/user/index.md[Repo] oder man kann sich die https://pretalx.com/fossgis2019/talk/ESDMQB/[Präsentation von Gretl] an einer Fossgis zu Gemüte führen. Die ganze Sache läuft nun seit circa fünf Jahren und wir könnten zufriedener nicht sein. Zur Orchestrierung sämtliche Jobs verwenden wir übrigens Jenkins, was sich ebenfalls sehr bewährt hat: Perfekte Übersicht über sämtliche Jobs und Logfiles immer am gleichen Ort. Viel mehr braucht es nicht:
+Im Verzeichnis, wo die `build.gradle`-Datei liegt, kann man den Job mit `gradle` aufgerufen werden. Die zu prüfende Datei `fubar.xtf` muss natürlich auf vorhanden sein und _gradle_ installiert sein. Das interessante sind die sogenannten Tasks. Von diesen Tasks kann es beliebig viele geben und sie können auch voneinander abhängig (`dependsOn`) sein. Einen Überblick über alle unsere Jobs (und Inspiration) erlangt man in unserem https://github.com/sogis/gretljobs/[gretljobs-Repo]. Eine möglichst vollständige Dokumentation unserer selbst programmierten Task findet man ebenfalls im https://github.com/sogis/gretl/blob/master/docs/user/index.md[Repo] oder man kann sich die https://pretalx.com/fossgis2019/talk/ESDMQB/[Präsentation von Gretl] an einer Fossgis zu Gemüte führen. Die ganze Sache läuft nun seit circa fünf Jahren und wir könnten zufriedener nicht sein. Zur Orchestrierung sämtliche Jobs verwenden wir übrigens Jenkins, was sich ebenfalls sehr bewährt hat: Perfekte Übersicht über sämtliche Jobs und Logfiles immer am gleichen Ort. Viel mehr braucht es nicht:
 
 image::../../../../../images/oerebk_richtig_gemacht_p03/jenkins.png[alt="gretl jenkins", align="center"]
 
 Jenkins soll hier beim Datenimport in die ÖREB-Datenbank keine Rolle spielen, da ein Gretl-Job eben auch ganz ohne Schnick-Schnack in der Konsole ausgeführt werden kann. Wir haben das Gretl-Plugin mit sämtlichen Abhängigkeiten in ein https://hub.docker.com/repository/docker/sogis/gretl[Docker-Image] gepackt. So sind wir sicher, dass wir immer die gleichen Versionen der Abhängigkeiten verwenden und sind zugleich unabhängig von einer Java-Installation. Das Image ist seit kurzem auch auf einem Apple Silicon Rechner lauffähig. Man sieht: eine gewisse Leidensfähigkeit und Durchhaltewillen als Macbook-Anwender der neueren Generation muss man mitbringen.
 
+Zurück zum eigentlichen Ziel: Dem Import aller benötigten Daten in die ÖREB-Datenbank (aus http://blog.sogeo.services/blog/2022/04/18/oereb-kataster-richtig-gemacht-2.html[Teil 2]) für den Betrieb des ÖREB-Katasters.
+
+```
+
+```
+network...
+
+Import nur in `live`-Schema....
