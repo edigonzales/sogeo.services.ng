@@ -1,0 +1,48 @@
+= ÖREB-Kataster richtig gemacht #3 - ÖREB-Gretljobs
+Stefan Ziegler
+2022-04-19
+:jbake-type: post
+:jbake-status: draft
+:jbake-tags: ÖREB,ÖREB-Kataster,PostgreSQL,PostGIS,INTERLIS,Gretl,Gradle,ili2pg,ili2db,ilivalidator
+:idprefix:
+
+Im dritten Teil schlägt die Stunde der ÖREB-Gretljobs. Gretljobs? Gretl?
+
+Als wir uns vor Jahren daran machten unser Cronjob- und Datenintegrationschaos (oder allgemeiner ETL-Prozess) zu beseitigen, kamen wir auf die Idee ein Build-Tool zu verwenden. Der Grund für diese Entscheidung war, dass ein solcher Prozess (= Job) immer in Teilschritte (= Tasks) runtergebrochen werden kann. Beispiel: Daten werden heruntergeladen (Task 1), Daten werden entzippt (Task 2), Daten werden geprüft (Task 3), Daten werden importiert (Task 4) und Daten werden in eine andere Datenbankstruktur umgebaut (Task 5). Als Build-Tool verwenden wir https://gradle.org[_Gradle_]. Einerseits gibt es out-of-the-box bereits viele Funktionen und Plugins und andererseits ist es relativ einfach erweiterbar. Erweiterbar muss es sein, weil wir ein paar &laquo;Geo-Tasks&raquo; benötigen (z.B. INTERLIS-Import etc.) oder Funktionen, die es weder im Core noch in einem Plugin gibt. Unsere Erweiterungen packten wir ebenfalls in ein https://plugins.gradle.org/plugin/ch.so.agi.gretl[Plugin] und somit war https://github.com/sogis/gretl[Gretl (Gradle ETL)] geboren.
+
+Ein minimales Beipiel, das eine INTERLIS-Datei prüft, sieht wie folgt aus (der Code muss in einer `build.gradle`-Datei erstellt werden): 
+
+[source,groovy,linenums]
+----
+import ch.so.agi.gretl.tasks.*
+import ch.so.agi.gretl.api.*
+
+apply plugin: 'ch.so.agi.gretl'
+
+buildscript {
+    repositories {
+        maven { url "http://jars.interlis.ch" }
+        maven { url "http://jars.umleditor.org" }
+        maven { url "https://repo.osgeo.org/repository/release/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'ch.so.agi', name: 'gretl',  version: '2.1.+'
+    }
+}
+
+defaultTasks 'validate'
+
+
+task validate(type: IliValidator){
+    dataFiles = ["fubar.xtf"]
+}
+----
+
+Im Verzeichnis, wo die `build.gradle`-Datei liegt, kann man den Job mit `gradle` aufgerufen werden. Die zu prüfende Datei `fubar.xtf` muss natürlich auf vorhanden sein. Das interessante sind die sogenannten Tasks. Von diesen Tasks kann es beliebig viele geben und sie können auch voneinander abhängig (`dependsOn`) sein. Einen Überblick über alle unsere Jobs (und Inspiration) erlangt man in unserem https://github.com/sogis/gretljobs/[gretljobs-Repo]. Eine möglichst vollständige Dokumentation unserer selbst programmierten Task findet man ebenfalls im https://github.com/sogis/gretl/blob/master/docs/user/index.md[Repo] oder man kann sich die https://pretalx.com/fossgis2019/talk/ESDMQB/[Präsentation von Gretl] an einer Fossgis zu Gemüte führen. Die ganze Sache läuft nun seit circa fünf Jahren und wir könnten nicht zufriedener sein. Zur Orchestrierung sämtliche Jobs verwenden wir übrigens Jenkins, was sich ebenfalls sehr bewährt hat: Perfekte Übersicht über sämtliche Jobs und Logfiles immer am gleichen Ort. Viel mehr braucht es nicht:
+
+image::../../../../../images/oerebk_richtig_gemacht_p03/jenkins.png[alt="gretl jenkins", align="center"]
+
+Jenkins soll hier beim Datenimport in die ÖREB-Datenbank keine Rolle spielen, da ein Gretl-Job eben auch ganz ohne Schnick-Schnack in der Konsole ausgeführt werden kann. Wir haben das Gretl-Plugin mit sämtlichen Abhängigkeiten in ein https://hub.docker.com/repository/docker/sogis/gretl[Docker-Image] gepackt. So sind wir sicher, dass wir immer die gleichen Versionen der Abhängigkeiten verwenden und sind zugleich unabhängig von einer Java-Installation. Das Image ist seit kurzem auch auf einem Apple Silicon Rechner lauffähig. Man sieht: eine gewisse Leidensfähigkeit und Durchhaltewillen als Macbook-Anwender der neueren Generation muss man mitbringen.
+
