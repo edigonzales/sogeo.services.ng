@@ -34,7 +34,6 @@ buildscript {
 
 defaultTasks 'validate'
 
-
 task validate(type: IliValidator){
     dataFiles = ["fubar.xtf"]
 }
