@@ -47,9 +47,20 @@ Jenkins soll hier beim Datenimport in die ÖREB-Datenbank keine Rolle spielen, d
 
 Zurück zum eigentlichen Ziel: Dem Import aller benötigten Daten in die ÖREB-Datenbank (aus http://blog.sogeo.services/blog/2022/04/18/oereb-kataster-richtig-gemacht-2.html[Teil 2]) für den Betrieb des ÖREB-Katasters. Und mit allen Daten sind eben nicht nur Geodaten gemeint, sondern auch Konfiguration im weiteren Sinne, d.h. Gesetzliche Grundlagen, Themen, Logos, Texte. Falls nötig sowohl für Bund und Kanton (Gemeinden). Ein wichtige Konfiguration im engeren Sinne sind die freigeschalteten Gemeinden (wo ist der ÖREB-Kataster verfügbar?). Dafür gibt es im Modell `OeREBKRMkvs_V2_0` die Klasse `GemeindeMitOeREBK`. In dieser Klasse kann man feingranular verwalten welche Themen in welcher Gemeinde vorhanden sind. Alle diese Daten(sätze) sind bei uns in einer INTERLIS-Transferdatei vorhanden resp. für die Bundesthemen stellt sie bereits Swisstopo https://models.geo.admin.ch/V_D/OeREB/[zur Verfügung]. Es gibt absolut keine Notwendigkeit diese Konfigurationen mit etwas selber Definiertem zu verwalten.
 
-Stehen die Datensätze online zur Verfügung, müssen die Gretl-Jobs diese nur noch herunterladen, validieren und importieren (siehe http://blog.sogeo.services/blog/2022/04/17/oereb-kataster-richtig-gemacht-1.html[Teil 1] &laquo;sauberer Schnitt&raquo; und &laquo;Zuständigkeiten&raquo;). Matchentscheidend ist die Reihenfolge wie die Gretl-Jobs ausgeführt werden: Die Daten werden in eine Datenbank importiert. Die Beziehungen zwischen Klassen werden mittels Fremdschlüsseln abgebildet. D.h. man kann keine Daten importieren, wenn die Daten auf ein Objekt zeigen, dass noch nicht in der Datenbank vorhanden ist. In unserem Fall müssen zwingend die zuständigen Stellen vorhanden sein, falls diese nicht mit den Geobasisdaten mitgeliefert werden. Man kann (mit einer ili2pg-Option) das Erstellen der Fremdschlüsseln ausschalten, was aber meines Erachtens nicht sinnvoll ist. Diese gibt es ja aus guten Gründen und wenn man immer und immer wieder Daten in den DB-Tabellen austauscht, passiert garantiert irgendwann mal ein Fehler und die Daten passen nicht mehr zusammen. Herausfordernd wird es wenn - bleiben wir beim Beispiel der zuständigen Stellen - der Name oder die Adresse der zuständigen Stelle ändert. Dieser Record kann ich der Datenbank nicht ausgetauscht werden, weil ein anderer Record einen Fremdschlüssel auf diesen Record hat. Die meisten Fälle können mit ili2db-Magie gelöst werden indem man die `--update`-Option verwendet. Dann wird das Objekt in der Datenbank nicht gelöscht, sondern - nomen est omen - upgedatet. Das funktioniert natürlich nicht, wenn das Amt gelöscht werden soll und es immer noch Objekte gibt, die auf diese Amt verweisen. Dann bleibt einem nichts anderes übrig, als zuerst diese Objekte zu löschen und anschliessend auch das Amt (Stichwort Transaktion).
+Stehen die Datensätze online zur Verfügung, müssen die Gretl-Jobs diese nur noch herunterladen, validieren und importieren (siehe http://blog.sogeo.services/blog/2022/04/17/oereb-kataster-richtig-gemacht-1.html[Teil 1] &laquo;sauberer Schnitt&raquo; und &laquo;Zuständigkeiten&raquo;). Matchentscheidend ist die Reihenfolge wie die Gretl-Jobs ausgeführt werden: Die Daten werden in eine Datenbank importiert. Die Beziehungen zwischen Klassen werden mittels Fremdschlüsseln abgebildet. D.h. man kann keine Daten importieren, wenn die Daten auf ein Objekt zeigen, dass noch nicht in der Datenbank vorhanden ist. In unserem Fall müssen zwingend die zuständigen Stellen vorhanden sein (falls diese nicht mit den Geobasisdaten mitgeliefert werden), wenn man Geobasisdaten importieren will. Man kann (mit einer ili2pg-Option) das Erstellen der Fremdschlüsseln ausschalten, was aber meines Erachtens nicht sinnvoll ist. Diese gibt es ja aus guten Gründen und wenn man immer und immer wieder Daten in den DB-Tabellen austauscht, passiert garantiert irgendwann mal ein Fehler und die Daten passen nicht mehr zusammen (Stichwort referentielle Integrität). Herausfordernd wird es, wenn - bleiben wir beim Beispiel der zuständigen Stellen - der Name oder die Adresse der zuständigen Stelle ändert. Dieser Record kann in der Datenbank nicht einfach so ausgetauscht werden, weil ein anderer Record einen Fremdschlüssel auf diesen Record hat. Aber die meisten Fälle solcher Fälle können mit ili2db-Magie gelöst werden indem man die `--update`-Option verwendet. Dann wird das Objekt in der Datenbank nicht gelöscht, sondern - nomen est omen - upgedatet. Das funktioniert natürlich nicht, wenn das Amt gelöscht werden soll und es immer noch Objekte gibt, die auf diese Amt verweisen. Dann bleibt einem nichts anderes übrig, als zuerst diese Objekte zu löschen und anschliessend auch das Amt.
 
-Gradle (das Build-Tool, die Basis von Gretl) bietet verschiedene Hilfsmittel wie die Reihenfolge von einzelnen Tasks garantieren kann (`dependsOn`, `mustRunAfter`, `finalizedBy`). Bei der Organisation der Gretl-Jobs sind der Fantasie keine Grenzen gesetzt. Es gibt viele richtige Varianten. Im vorliegenden Fall habe ich mich technisch für einen Haupt-Gretl-Job entschieden, der aus verschiedenen Sub-Jobs besteht. So kann man mit einem Befehl alles Notwendige importieren aber trotzdem noch einzelne Schritte selbständig ausführen, z.B. das Ersetzen sämtlicher Bundesgeobasisdaten. Ein Blick hinter die Kulissen erlaubt das https://github.com/oereb/oereb-gretljobs[Gretljobs-Repo]. Die Mutter aller Jobs ist XXXXXXXXXX mit dem Task....
+Gradle (das Build-Tool, die Basis von Gretl) bietet verschiedene Hilfsmittel wie die Reihenfolge von einzelnen Tasks garantieren kann (`dependsOn`, `mustRunAfter`, `finalizedBy`). Bei der Organisation der Gretl-Jobs sind der Fantasie keine Grenzen gesetzt. Es gibt viele richtige Varianten. Im vorliegenden Fall habe ich mich technisch für einen Haupt-Gretl-Job entschieden, der aus verschiedenen Sub-Jobs besteht. So kann man mit einem Befehl alles Notwendige importieren aber trotzdem noch einzelne Schritte selbständig ausführen, z.B. das Ersetzen sämtlicher Bundesgeobasisdaten. Ein Blick hinter die Kulissen erlaubt das https://github.com/oereb/oereb-gretljobs[Gretljobs-Repo]. Es gibt eine `build.gradle`-Datei, welche den Haupt-Gretl-Job definiert im Root-Verzeichnis. Zusätzlich gibt es eine `settings.gradle`-Datei, welche dem Haupt-Gretl-Job die Sub-Jobs bekannt macht.
+
+Meine gewünschte Import-Reihenfolge soll folgende sein:
+
+1. Grundlagedaten, da diese von nichts abhängig sind: Amtliche Vermessung und PLZ/Ortschaften.
+2. Bundesgesetze
+3. Bundeskonfigurationen
+4. Kantonale Konfigurationen (beinhalten auch kantonale Gesetze)
+5. Bundesdaten (alle)
+6. Kantonsdaten (Auswahl): kommunalen und kantonale Nutzungsplanung, KbS, Grundwasserschutz
+
+Erreicht wird das durch eine Kombination von `mustRunAfter`-Optionen in Tasks der Sub-Jobs und einem einzelnen Task im Haup-Gretl-Job, welcher von allen Import-Task der einzelnen Sub-Jobs abhängig ist. Die Reihenfolge wie die Tasks resp. Jobs ausgeführt werden, entspricht nicht zwingend der Reihenfolge wie sie in der `dependsOn`-Option definiert sind. Aus diesem Grund sind die `mustRunAfter`-Optionen (siehe https://github.com/oereb/oereb-gretljobs/blob/main/oereb_plzo/build.gradle#L63[Beispiel]) notwendig. Mit dieser Definition der Tasks und Jobs und Abhängigkeiten zwischeneinander kann man mit einem Befehl alle Daten importieren aber zu einem späteren Zeitpunkt nur noch die Geobasisdaten in der Datenbank austauschen.
 
 Klickt man sich ein wenig durchs Repo und schaut sich die einzelnen `build.gradle`-Dateien an, erkennt man, dass sich alle sehr ähnlich sind. Ich denke, man sieht sehr gut, dass  die zu erledigende Arbeit (also der Sub-Job) in einzelne kleine Schritte (= Tasks) aufgesplittet wurde, was der Transparenz sehr zuträglich ist (Fehlersuche etc.). Die vorliegende Aufteilung in die Sub-Jobs ist vielleicht nicht ultra-logisch, was darauf zurück zu führen ist, dass ich vieles von unseren Gretl-Jobs für den ÖREB-Kataster übernommen habe und diese aber für Demo-Zwecke nicht zwingend sinnvoll gruppiert sind.
 
@@ -63,15 +74,20 @@ network...
 
 Import nur in `live`-Schema....
 
-referenzielle integrität... update  / fk problematik / Bemerkung
-Reihenfolge
-
 nicht ultra-stringent bezüglich namensgebung und packetierung. Aber man sieht, dass wir für alle Konfig eine entsprechend INTERLIS-Transferdatei (im Rahmenmodell) haben. 
 
-Reihenfolge ist für gewissen Daten(sätze) entscheidend. Ansonsten kann man sich das zusammenstöpseln wie man will und wie es für die eigene Organisation am besten ist.
 
 Unser ÖREB-Webservcie (Teil 5) benötigt eine Verfügbar-Dataset (-> Klasse?). Sonst weiss er nicht, welche Gemeinde freigeschaltet sind.
 
 Daten aus unserer Test-Umgebung.
 
 WMS-updates nicht vergessen.
+
+export ORG_GRADLE_PROJECT_dbUriOerebV2="jdbc:postgresql://oereb-db/oereb"
+export ORG_GRADLE_PROJECT_dbUserOerebV2="gretl"
+export ORG_GRADLE_PROJECT_dbPwdOerebV2="gretl"
+export ORG_GRADLE_PROJECT_geoservicesUrl="http://localhost/wms"
+
+./start-gretl.sh --docker-image sogis/gretl-local:latest --docker-network oereb-gretljobs_default --job-directory $PWD motherOfAllTasks
+
+Will man
