@@ -19,7 +19,7 @@ sslmode=disable
 options=-c search_path=public,live_wms
 ```
 
-Die erste Zeile ist der Name der Verbindung. Dieser Name ist das einzige, was man in QGIS-Desktop im Datenbank-Connection-Fenster eintippen muss:
+QGIS-Desktop muss man das Service-File bekannt machen, indem man unter `Preferences` - `System` - `Environment` eine `PGSERVICEFILE`-Variable mit dem Pfad zur Datei setzt. Die erste Zeile des Service-Files ist der Name der Verbindung. In QGIS-Desktop muss man im Datenbank-Connection-Fenster einzig der Name der Verbindung eintippen:
 
 image::../../../../../images/oerebk_richtig_gemacht_p04/qgis_pg_connection.png[alt="qgis pg connection", align="center"]
 
