@@ -78,7 +78,7 @@ export ORG_GRADLE_PROJECT_geoservicesUrl="http://localhost/wms"
 Umgebungsvariablen, die mit `ORG_GRADLE_PROJECT_` starten, müssen nicht manuell im Build-Skript ausgelesen werden, sondern stehen automatisch zur Verfügung. Für das Auführen der Gretl-Jobs verwenden wir unser https://hub.docker.com/repository/docker/sogis/gretl[Docker-Image], welches wir mit einem https://github.com/oereb/oereb-gretljobs/blob/main/start-gretl.sh[Shell-Skript] bedienen. Das Shell-Skript ist nicht viel mehr als ein `docker run`-Befehl. Früher hatte das Skript noch weitere Funktionen, die aber nicht mehr benötigt werden. Zum Auflisten sämtlicher Task aller (Sub-)Jobs muss folgender Befehl verwendet werden:
 
 ```
-./start-gretl.sh --docker-image sogis/gretl-local:latest --docker-network oereb-gretljobs_default --job-directory $PWD tasks --all
+./start-gretl.sh --docker-image sogis/gretl:latest --docker-network oereb-gretljobs_default --job-directory $PWD tasks --all
 ```
 
 Wenn man &laquo;Gretl pur&raquo; verwenden würde, also ohne Docker, entspräche das dem Befehl: `gradle tasks --all`. Mit dem Shell-Skript können wir das Docker-Image, das Docker-Netzwerk und das Job-Directory auswählen. Damit der Gretl-Docker-Container mit dem Datenbank-Container kommunizieren kann, müssen sie im gleichen Netzwerk sein. Falls das Datenbank-Container-Netzwerk anders heisst (`docker network ls`), muss selbstverständlich dieser Namen verwendet werden. 
