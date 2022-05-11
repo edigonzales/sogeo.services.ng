@@ -14,7 +14,7 @@ Die XML-Datei als solches müssen wir nicht selber formatieren, sondern verwende
 
 Die Umwandlung der XML-Datei in eine PDF-Datei machen wir mit https://www.w3.org/TR/xslt/[XSLT] und https://www.w3.org/wiki/Xsl-fo[XSL-FO]. Die XSL-Transformation wandelt das XML in eine &laquo;ASCII-PDF&raquo;-Datei um. Die Transformation mit XSL-FO formatiert diese &laquo;ASCII-PDF&raquo;-Datei in eine richtige PDF-Datei. XSLT ist ein lebendiger Standard, der in der Version 3 sehr mächtig ist. Sogar Browser unterstützen XSLT. Leider nur die Version 1. Trotzdem lassen sich einige sinnvolle Anwendungen für XSL-Transformationen im Browser finden, so z.B. die ilimodels.xml-Datei einer INTERLIS-Modellablage lesbarer zu gestalten: https://geo.so.ch/models/ilimodels.xml[https://geo.so.ch/models/ilimodels.xml]. XSL-FO wird leider als Standard nicht mehr weiterentwickelt. Zukünftig könnte vielleicht https://www.w3.org/TR/css-page-3/[CSS Paged Media] diese Rolle übernehmen. Jedoch gibt es immer noch lebendige XSL-FO-Softwareprojekte, die stetig weiterentwickelt werden, z.B. https://xmlgraphics.apache.org/fop/[Apache FOP], das auch wir einsetzen.
 
-Die Umwandlung der XML-Datei in eine PDF-Datei haben wir in eine separate https://github.com/sogis/pdf4oereb[Bibliothek] ausgelagert, die vom Webservice referenziert wird. Sie unterstützt alle Landessprachen und kann mit eingebetteten Bildern oder mit WMS-GetMap-Requests umgehen. Veröffentlicht wird die Bibliothek auf https://mvnrepository.com/artifact/io.github.sogis/pdf4oereb[Maven-Central] oder als Standalone-CLI-Tool auf https://github.com/sogis/pdf4oereb/releases[Github]. Die Verwendung des CLI-Tools auf im https://github.com/sogis/pdf4oere[README.md] beschrieben. Die XML-Datei wird vor der Transformation nicht auf Schemakonformität geprüft. Dieser Schritt könnte/sollte man eventuell noch einbauen. Für einige sehr spezifische Teilprozesse mussten https://github.com/sogis/pdf4oereb/tree/master/app/src/main/java/ch/so/agi/oereb/pdf4oereb/saxon/ext[eigene XSLT-Funktionen mit Java implementiert] werden. Dabei handelt es sich vor allem um grafischen Transformationen, wie z.B. das Herstellen des Overlay-Images bestehend aus Rubberband, Massstabsbalken und Nordpfeil. Es gibt auch noch einen (quick 'n' dirty) https://github.com/edigonzales/pdf4oereb-web-service/[Webservice] mit einem hässlichen GUI und einer M2M-Schnittstelle.
+Die Umwandlung der XML-Datei in eine PDF-Datei haben wir in eine separate https://github.com/sogis/pdf4oereb[Bibliothek] ausgelagert, die vom Webservice referenziert wird. Sie unterstützt alle Landessprachen und kann mit eingebetteten Bildern oder mit WMS-GetMap-Requests umgehen. Veröffentlicht wird die Bibliothek auf https://mvnrepository.com/artifact/io.github.sogis/pdf4oereb[Maven-Central] oder als Standalone-CLI-Tool auf https://github.com/sogis/pdf4oereb/releases[Github]. Die Verwendung des CLI-Tools ist im https://github.com/sogis/pdf4oere[README.md] beschrieben. Die XML-Datei wird vor der Transformation nicht auf Schemakonformität geprüft. Dieser Schritt könnte/sollte man eventuell noch einbauen. Für einige sehr spezifische Teilprozesse mussten https://github.com/sogis/pdf4oereb/tree/master/app/src/main/java/ch/so/agi/oereb/pdf4oereb/saxon/ext[eigene XSLT-Funktionen mit Java implementiert] werden. Dabei handelt es sich vor allem um grafischen Transformationen, wie z.B. das Herstellen des Overlay-Images bestehend aus Rubberband, Massstabsbalken und Nordpfeil. Es gibt auch noch einen (quick 'n' dirty) https://github.com/edigonzales/pdf4oereb-web-service/[Webservice] mit einem hässlichen GUI und einer M2M-Schnittstelle.
 
 Neben der http://blog.sogeo.services/blog/2022/04/18/oereb-kataster-richtig-gemacht-2.html[ÖREB-Datenbank] und dem http://blog.sogeo.services/blog/2022/04/24/oereb-kataster-richtig-gemacht-4.html[ÖREB-WMS] ist der ÖREB-Webservice die dritte Software-Komponente des ÖREB-Katasters. Die `docker-compose` https://github.com/oereb/oereb-stack/blob/main/docker-compose.yml[Datei] muss entsprechend erweitert werden. Im Rahmen dieser Blogreihe erstellen wir kein separates Dockerimage für den Webservice, sondern verwenden das Image, welches auch wir in Betrieb haben. Das https://github.com/sogis/oereb-web-service-docker/blob/master/Dockerfile.alpine[Dockerfile] zeigt die wenigen notwendigen Einstellungsmöglichkeiten. Einige der Optionen (z.B. Hintergrundkarte, ...) müssten noch als Umgebungsvariable exponiert werden, damit nicht nur der Kanton Solothurn dieses Image verwenden kann. Ergänzt werden muss die Compose-Datei um folgenden Eintrag:
 
@@ -36,13 +36,93 @@ Neben der http://blog.sogeo.services/blog/2022/04/18/oereb-kataster-richtig-gema
       - db
 ```
 
-Mit `docker-compose up` kann man die drei Container starten und falls der Webservice erfolgreich gestartet ist, erscheint unter http://localhost:8080[http://localhost:8080] die Meldung &laquo;oereb web service&raquo;. Der Webservice wird trotzdem gestartet, wenn z.B. die Datenbank-Url oder die Login-Credentials falsch sind. In diesem Fall meldet sich der Webservice jedoch &laquo;krank&raquo;. Unter dem http://localhost:8080/actuator/health[Health-Endpoint] erscheint die Meldung `"status": "DOWN"` anstellen von `"UP"`.
+Mit `docker-compose up` kann man die drei Container starten und falls der Webservice erfolgreich gestartet ist, erscheint unter http://localhost:8080[http://localhost:8080] die Meldung &laquo;oereb web service&raquo;. Der Webservice wird trotzdem gestartet, wenn z.B. die Datenbank-Url oder die Login-Credentials falsch sind. In diesem Fall meldet sich der Webservice jedoch &laquo;krank&raquo;. Unter dem http://localhost:8080/actuator/health[Health-Endpoint] erscheint die Meldung `"status": "DOWN"` anstelle von `"UP"`.
 
-Falls der DB-Container seit Teil 4 gestoppt wurde, müssen wir die Daten nochmals importieren: `./start-gretl.sh --docker-image sogis/gretl:latest --docker-network oereb-stack_default --job-directory $PWD motherOfAllTasks`.
+Falls der DB-Container seit Teil 4 gestoppt wurde, müssen wir die Daten nochmals importieren: 
+```
+./start-gretl.sh --docker-image sogis/gretl:latest --docker-network \
+oereb-stack_default --job-directory $PWD motherOfAllTasks
+```
+
+Wurden die Daten wieder importiert, können wir einen Testrequest machen und einen E-GRID an einer bestimmen Koordinate suchen:
+
+http://localhost:8080/getegrid/xml/?EN=2600573,1215488&GEOMETRY=true
+[http://localhost:8080/getegrid/xml/?EN=2600573,1215488&GEOMETRY=true]
+
+Sieht der Output plausibel aus, können wir mit dem eruierten E-GRID einen XML-Auszug anfordern:
+
+http://localhost:8080/extract/xml?EGRID=CH955832730623[http://localhost:8080/extract/xml?EGRID=CH955832730623]
+
+Auch hier gibt es nicht viel zu sagen. Im Browser sollte eine XML-Datei angezeigt werden. Der Webservice unterstützt keinen JSON-Output. Ich finde die Weisung diesbezüglich unglücklich: XML-Output ist Pflicht, JSON ist optional. Ich bin der Meinung man sollte sich auf ein Format beschränken. Stand heute würde ich klar immer noch XML vorziehen. Die Schemaunterstützung von XML ist viel erwachsener, entsprechend auch die Werkzeuge. Oftmals hört man in diesem Kontext das Argument &laquo;aber JSON ist schneller&raquo;. Gemeint ist, dass aufgrund der absoluten Dateigrösse weniger Daten vom Server an den Client geschickt werden müssen, was natürlich stimmt. Jetzt kommt ein grosses ABER: Wenn man seinen Webserver nicht komplett falsch konfiguriert hat, werden die zu sendenden Daten komprimiert. Der Grössenvorteil von JSON gegenüber XML schmilzt so natürlich ziemlich dahin. Nun sollte man für eine gute User Experience nicht bloss die Zeit für das Übertragen des Auszugs zählen, sondern vom Anfang an, d.h. vom Klicken in die Karte bis der Auszug beim Kunden ist. Somit dürfte matchentscheidender sein wie schnell das eigentliche Herstellung des Auszuges dauert. Vor allem die Datenbankabfragen inkl. Verschnitte etc. werden viel mehr ins Gewicht fallen als ein paar Kilobyte mehr, die übertragen werden müssen. Ausserdem sollten die dynamischen Client so konfiguriert sein, dass sie nicht zwingend immer auch eingebettete Bilder anfordern, sondern bloss die WMS-Requests. Denn die Bilder braucht man nicht für die Darstellung im Web GIS Client. Und das Herstellen dieser Bilder ist sehr teuer.
+
+Ein Request mit eingebetteten Bildern funktioniert nicht (richtig):
+
+http://localhost:8080/extract/xml?EGRID=CH955832730623&WITHIMAGES=true[http://localhost:8080/extract/xml?EGRID=CH955832730623&WITHIMAGES=true]
+
+Es erscheint zwar eine XML-Datei im Browser aber das `IMAGE`-Element enthält bloss einen minimalen Platzhalter-Blob. Und in der Konsole, in der wir den Service mit docker-compose gestartet haben, erscheinen Fehlermeldungen: `failed to get wms image`. Was ist passiert?
 
 
-http://localhost:8080/getegrid/xml/?EN=2597906.32,1225675.02
+**FIXME** Blob bleibt weiterhin leer.
+
+
+In den ÖREB-Daten wird der Darstellungsdient mitverwaltet. In den Bundesdaten steht z.B. etwas wie https://wms.geo.admin.ch/....". In den kantonalen Daten steht momentan (ausser beim KbS, weil diese Daten in einer externen Fachanwendung vorgehalten werden und diese auch das Transferfile herstellt) http://localhost/wms/oereb. Dies haben wir mit der Umgebungsvariable `ORG_GRADLE_PROJECT_geoservicesUrl` beim Import der Daten in die Datenbank  gesteuert. Weil aber der WMS-Server in der docker-compose-Datei mit dem Port 8083 exponiert ist, findet der ÖREB-Webservice den WMS-Server nicht. Und wenn man sowohl ÖREB-Webservice und WMS mit Port 80 ansprechen will, braucht man sowieso etwas wie einen https://github.com/oereb/oereb-proxy[Reverse Proxy], den wir ebenfalls in der docker-compose-Datei als Service registrieren müssen:
+
+```
+  proxy:
+    image: ghcr.io/oereb/proxy:latest
+    ports:
+      - 80:80
+    depends_on:
+      - qgis-server
+      - db
+      - webservice
+```
+
+Vielleicht kann man einen neu hinzugefügten Service separat starten. Ich habs leider versäumt und muss die Daten nochmals importieren. Der Webservice wie auch der WMS-Server sind nun unter Port 80 erreichbar:
+
+http://localhost/extract/xml?EGRID=CH955832730623&WITHIMAGES=true[http://localhost/extract/xml?EGRID=CH955832730623&WITHIMAGES=true]
+
+Leider erscheinen immer noch die gleichen Fehler. Jedenfalls auf https://docs.docker.com/desktop/windows/networking/[Windows] und https://docs.docker.com/desktop/mac/networking/[macOS]. Der Grund dafür ist "localhost". Das funktioniert nicht so wie man sich das wünscht, d.h. der Webservice-Container sieht den WMS-Server immer noch nicht. Wir müssen die URL der Darstellungsdienste in den Daten ändern zu:
+
+```
+export ORG_GRADLE_PROJECT_geoservicesUrl="http://host.docker.internal/wms/oereb"
+```
+
+Das
+
+
+
+
+In den ÖREB-Daten wird der Darstellungsdient mitverwaltet. Im Fall unserer kantonalen Daten steht dort `http://localhost/wms/oereb`. D.h. der WMS-Server muss für den Webservice für das Herstellen der Bilder unter dieser URL erreichbar sein. Ist er aber nicht. Ein Blick in die https://github.com/oereb/oereb-stack/blob/main/docker-compose.yml[`docker-compose`-Datei] zeigt, dass der WMS-Server unter dem Port 8083 erreichbar ist. Man kann das natürlich auf 80 ändern, nur kann dann der ÖREB-Webservice nicht mehr unter dem Port 80 exponiert werden. D.h. wir brauchen einen kleinen https://github.com/oereb/oereb-proxy[Reverse-Proxy-Server], den wir ebenfalls in der docker-compose-Datei als Service registrieren müssen:
+
+```
+  proxy:
+    image: ghcr.io/oereb/proxy:latest
+    ports:
+      - 80:80
+    depends_on:
+      - qgis-server
+      - db
+      - webservice
+```
+
+Vielleicht kann man einen neu hinzugefügten Service separat starten. Ich habs leider versäumt und muss die Daten nochmals importieren. Der Webservice wie auch der WMS-Server sind nun unter Port 80 erreichbar:
+
+http://localhost/extract/xml?EGRID=CH955832730623&WITHIMAGES=true[http://localhost/extract/xml?EGRID=CH955832730623&WITHIMAGES=true]
+
+Die IMAGE-Elemente beinhalten die korrekten Blobs, was man überprüfen kann, wenn man ein PDF anfordert:
+
+http://localhost/extract/pdf?EGRID=CH955832730623[http://localhost/extract/pdf?EGRID=CH955832730623]
+
+
+
+
 http://localhost:8080/getegrid/xml/?EN=2600472.81,1215445.88&GEOMETRY=true
+
+
+
+xml vs json
+
 
 
 Als WMS-Server verwenden wir QGIS-Server. Für die (Nicht-)Anforderungen des ÖREB-Katasters ginge aber wohl jeder halbwegs konforme WMS-Server. Als erstes müssen wir die Layer unserer Daten konfigurieren. Die Datenquelle ist die Datenbank aus http://blog.sogeo.services/blog/2022/04/18/oereb-kataster-richtig-gemacht-2.html[Teil 2], die wir im http://blog.sogeo.services/blog/2022/04/19/oereb-kataster-richtig-gemacht-3.html[Teil 3] mit Daten befüllt haben. Es gibt in der Datenbank die Schemen `stage_wms` und `live_wms`. Ersteres dient zur Verifikation der in die Katasterstruktur importieren Daten, das zweite Schema ist das eigentlich Produktionsschema. Damit die QGIS-Projektdatei aber unabhängig vom Schemennamen aufgebaut werden kann, verwenden wir nicht direkt Datenbankverbindungsparameter, sondern das sogenannte https://www.postgresql.org/docs/current/libpq-pgservice.html[Connection Service File]. Mit grosser Wahrscheinlichkeit werden zwei benötigt. Eines für das lokale Arbeiten und eines für den Betrieb, da sich die Verbindungsparameter unterscheiden. Das Service-File für das lokale Arbeiten sieht bei mir so aus:

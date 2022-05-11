@@ -78,7 +78,7 @@ Wichtig ist, dass der Name des Datenbank-Services im https://github.com/oereb/oe
 export ORG_GRADLE_PROJECT_dbUriOerebV2="jdbc:postgresql://db/oereb"
 export ORG_GRADLE_PROJECT_dbUserOerebV2="gretl"
 export ORG_GRADLE_PROJECT_dbPwdOerebV2="gretl"
-export ORG_GRADLE_PROJECT_geoservicesUrl="http://localhost/wms"
+export ORG_GRADLE_PROJECT_geoservicesUrl="http://localhost/wms/oereb"
 ----
 
 ```
