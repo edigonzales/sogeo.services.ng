@@ -64,6 +64,7 @@ Es erscheint zwar eine XML-Datei im Browser aber das `IMAGE`-Element enthält bl
 
 **FIXME** Blob bleibt weiterhin leer.
 
+Notfalls mit Linux-VM??
 
 In den ÖREB-Daten wird der Darstellungsdient mitverwaltet. In den Bundesdaten steht z.B. etwas wie https://wms.geo.admin.ch/....". In den kantonalen Daten steht momentan (ausser beim KbS, weil diese Daten in einer externen Fachanwendung vorgehalten werden und diese auch das Transferfile herstellt) http://localhost/wms/oereb. Dies haben wir mit der Umgebungsvariable `ORG_GRADLE_PROJECT_geoservicesUrl` beim Import der Daten in die Datenbank  gesteuert. Weil aber der WMS-Server in der docker-compose-Datei mit dem Port 8083 exponiert ist, findet der ÖREB-Webservice den WMS-Server nicht. Und wenn man sowohl ÖREB-Webservice und WMS mit Port 80 ansprechen will, braucht man sowieso etwas wie einen https://github.com/oereb/oereb-proxy[Reverse Proxy], den wir ebenfalls in der docker-compose-Datei als Service registrieren müssen:
 
