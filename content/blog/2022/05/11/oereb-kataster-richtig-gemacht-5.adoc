@@ -86,7 +86,7 @@ http://localhost/extract/xml?EGRID=CH955832730623&WITHIMAGES=true[http://localho
 Leider erscheinen immer noch die gleichen Fehler. Jedenfalls auf https://docs.docker.com/desktop/windows/networking/[Windows] und https://docs.docker.com/desktop/mac/networking/[macOS]. Der Grund dafür ist "localhost". Das funktioniert nicht so wie man sich das wünscht, d.h. der Webservice-Container sieht den WMS-Server immer noch nicht. Wir müssen die URL der Darstellungsdienste in den Daten ändern zu:
 
 ```
-export ORG_GRADLE_PROJECT_geoservicesUrl="http://host.docker.internal/wms/oereb"
+export ORG_GRADLE_PROJECT_geoservicesUrl="http://host.docker.internal:8083/wms/oereb"
 ```
 
 Das
