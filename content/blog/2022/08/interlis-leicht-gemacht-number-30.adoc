@@ -56,4 +56,4 @@ In der _ilimodels.xml_-Datei gibt es allerlei Fehler: Doppelte TID, zu lange Tex
 
 Viele der Fehler lassen sich vermeiden, wenn man a) die Modellablagen nicht händisch nachführt (wer hat schon Bock einen md5-Hash abzutippen?) und b) nach dem Nachführen die Modellablagen auch prüft. Siehe dazu http://blog.sogeo.services/blog/2022/07/19/interlis-leicht-gemacht-number-28.html.
 
-Der Repochecker läuft unter folgender URL: https://geo.so.ch/repochecker
++++<s>Der Repochecker läuft unter folgender URL: https://geo.so.ch/repochecker</s>+++ Das Teil scheint mir noch ein Memoryleak zu haben und ist darum nicht online. Wer es testen will, einfach den obigen Dockerbefehl ausführen.
