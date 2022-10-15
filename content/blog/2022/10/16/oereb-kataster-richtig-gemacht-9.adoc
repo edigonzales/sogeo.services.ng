@@ -1,10 +1,16 @@
-= ÖREB-Kataster richtig gemacht #8 - ÖREB-Kataster Compliance Test Suite
+= ÖREB-Kataster richtig gemacht #9 - Der ÖREB-Spassvogel: Ein Drama in Akten
 Stefan Ziegler
-2022-10-02
+2022-10-16
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: ÖREB,ÖREB-Kataster,Java,XSLT
+:jbake-tags: ÖREB,ÖREB-Kataster,Monitoring,Metering,Spassvogel
 :idprefix:
+
+Oder vielleicht sind es auch mehrere Spassvögel. Wir wissen es nicht. Aber was ist passiert?
+
+
+
+
 
 Der ÖREB-Kataster ist durch das https://www.cadastre.ch/de/manual-oereb/publication/instruction.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Rahmenmodell-de.pdf.html[Rahmenmodell] und https://www.cadastre.ch/de/manual-oereb/service/webservice.html[verschiedene] https://www.cadastre.ch/de/services/publication.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Weisung-OEREB-Data-Extract-de.pdf.html[Weisungen] gut spezifiert. Das bedeutet, dass man eigentlich weiss, was man umsetzen muss. Das heisst ebenfalls, dass man das Umgesetzte gut prüfen kann. Warum sollte man das prüfen? Die sauber spezifizierte M2M-Schnittstelle bringt einfach nichts, wenn sie bei jedem Kanton anders ist. 
 
