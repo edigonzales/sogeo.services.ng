@@ -26,7 +26,7 @@ Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat dan
 
 image::../../../../../images/oerebk_richtig_gemacht_p09/logitio01.jpg[alt="logit.io Logging-Auswertung", align="center"]
 
-Wir sind aber noch nicht fertig. Mit der Livenessprobe sind wir noch nicht zufrieden, weil sie irgendwie noch nicht das prüft, was sie soll und die Anwendung selber (also der ÖREB-Webservice) funktioniert zwar einwandfrei aber nur weil das API-Gateway ihn vor Überlastung schützt.
+Wir sind aber noch nicht fertig. Mit der Livenessprobe sind wir noch nicht zufrieden, weil sie noch nicht das prüft, was sie soll. Und die Anwendung selber (also der ÖREB-Webservice) funktioniert zwar einwandfrei aber nur weil das API-Gateway sie vor Überlastung schützt.
 
 Für die Livenessprobe ist der Standard-Health-Endpoint, welche die Backing-Services berücksichtigt schlichtweg das falsche. Der Server ist ja trotzdem live aber eben nicht ready (Readinessprobe) Requests abzuarbeiten. [_Spring Boot_] hat dafür https://spring.io/blog/2020/03/25/liveness-and-readiness-probes-with-spring-boot[zwei separate Endpunkte]. Für die Liveness-Endpunkt werden die Backing-Services nicht mehr berücksichtigt.
 
