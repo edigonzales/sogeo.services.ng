@@ -3,73 +3,33 @@ Stefan Ziegler
 2022-10-16
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: ÖREB,ÖREB-Kataster,Monitoring,Metering,Spassvogel
+:jbake-tags: ÖREB,ÖREB-Kataster,Monitoring,Metering,Logging,Spassvogel,Habasch
 :idprefix:
 
 Oder vielleicht sind es auch mehrere Spassvögel. Wir wissen es nicht. Aber was ist passiert?
 
+Plötzlich schlug unser OpenShift-Cluster Alarm. Genauer gesagt die https://docs.openshift.com/container-platform/4.11/applications/application-health.html[Livenessprobe]. Als Livenessprobe haben wir den https://docs.spring.io/spring-boot/docs/2.7.3/actuator-api/htmlsingle/#health[Standard-Health-Endpoint] von https://spring.io/projects/spring-boot[_Spring Boot_] verwendet. Dieser Endpoint prüft, ob die Anwendung gesund ist. Zur Beurteilung werden dazu auch die sogenannten Backing-Services herangezogen. D.h. in unserem Fall die Datenbank. Falls bei der Prüfung nun keine Datenbankverbindung mehr hergestellt werden kann, ist die Anwendung nicht mehr gesund und die Livenessprobe schlägt fehl und der Container wird https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle[neu gestartet].
 
+Aber warum gingen uns die Datenbankverbindungen aus? Irgend ein https://de.wikipedia.org/wiki/Havas#%C3%9Cbertragene_Bedeutung[Habasch] flutete uns mit XML-Anfragen. Wir haben bei uns zwei Instanzen/Pods mit dem Webservice am Laufen. Jeder Pod erhält 10 Datenbankverbindung resp. es wird ein DB-Connectionpool mit maximal 10 Verbindungen aufgebaut. Pro Anfrage benötigt die Anwendung 3 DB-Connections. Auch wenn die Abwicklung der Anfrage im Regelfall sehr schnell passiert, skaliert die Sache natürlich mit bloss 10 zur Verfügung stehender DB-Verbindungen nicht wirklich. Werden wir mit Anfragen geflutet und lassen diese auch auf die Anwendung los, hat diese eher früher als später ein Problem: Die DB-Verbindungen gehen aus und die Livenessprobe schlägt fehl, weil der Health-Endpoint ein `SELECT 1` macht, um zu prüfen, ob die Datenbank noch da ist resp. die Anwendung darauf zugreifen kann. Dass in einem solchen Fall nun der Pod neu gestartet wird, löst das Problem gar nicht, da dieser sofort wieder geflutet wird. Und zu guter Letzt geht es ja weniger um die Livenessprobe, sondern dass die &laquo;normalen&raquo; Benutzer des ÖREB-Katasters keine Anfragen machen mehr können, weil alles verstopft ist und/oder nicht mehr läuft.
 
+Was machen? Als erstes haben wir gerade den Holzhammer hervorgenommen und die IP in unserem API-Gateway (https://nginx.org/en/[_nginx_]) gesperrt. Im Wissen, dass der Spassvogel sich schnell eine neue IP besorgen kann. Zusätzlich haben wir mit ungutem Gefühl die Livenessprobe ausgeschaltet, weil die ja so nix bringt. Es dauerte dann nicht lange und es ging wieder von vorne los...
 
+Also mussten wir mit mehr Hirn ran: Nach bisschen Überlegen kommt man dann auf die Idee eines https://www.nginx.com/blog/rate-limiting-nginx/[Rate Limiters]. Dieser sorgt dafür, dass nur ein eine konfigurierte Anzahl an Requests pro Zeiteinheit vom API-Gateway an die Anwendung weitergereicht wird. Das führte zu folgender Situation (ab etwas vor 18:00 Uhr):
 
-Der ÖREB-Kataster ist durch das https://www.cadastre.ch/de/manual-oereb/publication/instruction.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Rahmenmodell-de.pdf.html[Rahmenmodell] und https://www.cadastre.ch/de/manual-oereb/service/webservice.html[verschiedene] https://www.cadastre.ch/de/services/publication.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Weisung-OEREB-Data-Extract-de.pdf.html[Weisungen] gut spezifiert. Das bedeutet, dass man eigentlich weiss, was man umsetzen muss. Das heisst ebenfalls, dass man das Umgesetzte gut prüfen kann. Warum sollte man das prüfen? Die sauber spezifizierte M2M-Schnittstelle bringt einfach nichts, wenn sie bei jedem Kanton anders ist. 
+image::../../../../../images/oerebk_richtig_gemacht_p09/statuscake01.jpeg[alt="Statuscake ÖREB-XML-Requestdauer", align="center"]
 
-So eine Prüfbibliothek wäre ausserdem schick, um End-zu-End- oder Systemtests zu machen. Gesagt, getan: Ich habe mir als Proof-of-Concept https://github.com/edigonzales/oereb-cts[eine Anwendung resp. eine Bibliothek] geschrieben, die im Prinzip die beiden Aspekte - Aufruf des Services und Auszug - prüft (Stand heute: Teile davon). Das Ganze unter einen Hut zu bringen, fand ich noch herausfordernd:
+Kurz vor 18:00 Uhr haben wird den Rate-Limiter eingeschaltet. Das führte bei https://statuscake.com[Statuscake] dazu, dass es plötzlich viele Ausfallmeldungen des ÖREB-Webservices gab. Das war aber eigentlich kein Ausfall des Servers, sondern wir haben den Test so konfiguriert, dass der Test fehlschlägt, wenn die Antwort länger als 15 Sekunden dauert. Weil wir ja wusste, dass wir mit Requests geflutet werden, haben wir zuerst einfach nur diesen 15-Sekunden-Threshold hochgeschraubt. Und siehe da: Ab etwas nach 12:00 war es wieder grün. Was uns aber störte und wir nicht ganz verstanden haben war der Umstand, dass auch Requests im Web GIS Client diese circa 20 Sekunden dauerten. Erstens ist das für den Anwender nicht toll und zweitens haben wir es nicht verstanden, weil der Rate Limiter nach der IP limitiert. Es stellt sich dann heraus, dass wir den Rate Limiter noch nicht korrekt konfiguriert haben und dieses &laquo;Group-by-IP&raquo; nicht funktioniert. Als wir das korrigierten, sah die Grafik wieder super aus, d.h. _fair use_ Benutzer sind nicht mehr betroffen.
 
-Es gibt verschiedene Möglichkeiten einen Auszug (oder die GetEGRID-Antwort) anzufordern. Das kann z.B. eine Koordinate sein oder NBIdent und Grundstücksnummer. Und man kann eine Antwort mit oder ohne Geometrie resp. mit oder ohne Bilder anfordern. Das führt dazu, dass es viele Kombinationen gibt, die geprüft sein wollen und die verschiedenen Konfigurationen müssen von jemandem definiert werden. Hat man die Antwort, reicht es nicht diese gegenüber einem Schema zu prüfen, da der Inhalt ja abhängig von den Inputparametern ist. Das wiederum müsste bei der Konfiguration der Tests auch berücksichtigt werden. 
+image::../../../../../images/oerebk_richtig_gemacht_p09/statuscake02.jpg[alt="Statuscake ÖREB-XML-Requestdauer", align="center"]
 
-Ich habe mich daher entschieden, so wenig wie möglich von einem Menschen konfigurieren zu lassen und die vielen Kombinationen durch die Maschine selber zu machen. Das heisst, man muss nur den Service-Endpunkt und die notwendigen Parameter angeben, die für den Aufruf benötigt werden (z.B. `EGRID` oder `EN`). Fehlen die Parameter, wird der Test, welcher diese Parameter benötigt, nicht durchgeführt. Wenn `IDENTDN` und `NUMBER` fehlen, werden keine Tests durchgeführt, welche diese beiden benötigen. Momentan ist das alles über ein Ini-File zu konfigurieren:
+Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat dann wirklich eine Woche lang XML- _und_ PDF-Auszüge à discretion gesaugt. Summa summarum und geschätzt, waren es plusminus sämtliche Grundstücke des Kantons... Warum mach man sowas? Sinnvoll scheint mir das nicht. Was will man mit dem? Man weiss ja nicht, ob etwas noch aktuell ist oder bereits veraltet!? Hier ein Ausschnitt aus einer Logging-Auswertung mit https://logit.io/[_logit.io_]:
 
-[source,groovy,linenums]
-----
-[SO]
-SERVICE_ENDPOINT=https://geo.so.ch/api/oereb/
-EN=2600595,1215629
-IDENTDN=SO0200002457
-NUMBER=168
-EGRID=CH807306583219
-----
+image::../../../../../images/oerebk_richtig_gemacht_p09/logitio01.jpg[alt="logit.io Logging-Auswertung", align="center"]
 
-Was als Resultat zu erwarten ist, kann oftmals anhand der Request-Parameter eruiert werden: Falls `GEOMETRY=true` verwendet wird, muss in der Antwort ein Geometry-Element vorhanden sein. Was aber ohne menschliches Zutun nicht wirklich funktioniert, ist der Umgang mit leeren Antworten. Es kann korrekt sein, dass eine Antwort leer ist (also kein Grundstück). Woher weiss die Maschine das, ohne dass man es konfigurieren würde? Dieser Fall ist momentan nicht abgefangen. Bei der Konfiguration der Tests muss man also sicher sein, dass z.B. für den definierten `EGRID` auch wirklich ein Auszug zurückkommt.
+Wir sind aber noch nicht fertig. Mit der Livenessprobe sind wir noch nicht zufrieden, weil sie irgendwie noch nicht das prüft, was sie soll und die Anwendung selber (also der ÖREB-Webservice) funktioniert zwar einwandfrei aber nur weil das API-Gateway ihn vor Überlastung schützt.
 
-Geprüft werden momentan der `GetEGRID`- und `extract`-Aufruf und die jeweiligen Antworten. Folgende Checks werden durchgeführt:
+Für die Livenessprobe ist der Standard-Health-Endpoint, welche die Backing-Services berücksichtigt schlichtweg das falsche. Der Server ist ja trotzdem live aber eben nicht ready (Readinessprobe) Requests abzuarbeiten. [_Spring Boot_] hat dafür https://spring.io/blog/2020/03/25/liveness-and-readiness-probes-with-spring-boot[zwei separate Endpunkte]. Für die Liveness-Endpunkt werden die Backing-Services nicht mehr berücksichtigt.
 
-- Stimmt der HTTP Status Code?
-- Stimmt der Response Content Type?
-- Ist die Antwort schemakonform?
-- Gibt es Geometrie-Elemente, wenn solche vorhanden sein müssen (resp. umgekehrt)?
-- Gibt es eingebettete Bilder, wenn solche vorhanden sein müssen (resp. umgekehrt)?
-- Sind alle Bundesthemen-Codes im XML-Inhaltsverzeichnis vorhanden? (`ConcernedTheme`, `NotConcernedTheme`, `ThemeWithoutData`)
+Bleibt noch die Anwendung selber: Mit den Standardeinstellung lassen wir die Anwendung bis zu 200 Threads (Requests) gleichzeitig abarbeiten (sehr vereinfacht beschrieben, weil kompliziert und ich nur _denke_, dass ich es richtig verstanden habe). Wie eingangs beschrieben, haben wir aber der Anwendung nur 10 Datenbankverbindungen zugewiesen und pro Request werden drei davon benötigt. Da muss man kein Einstein sein, um zu merken, dass das nicht aufgeht. Die maximale Anzahl sogenannter Worker-Threads muss im Einklang mit anderen Rahmenbedingungen sein: RAM, CPU aber auch DB-Connections. D.h. wir reduzieren diese Worker-Threads auf circa 3 oder 4. Das bedeutet jedoch nicht, dass weitere Requests mit einem 429 (_too many requests_) o.ä. beantwortet werden, denn es gibt verschiedene Queues, die dann greifen und wo die Requests parkiert werden (weiter weg von der eigentlich Anwendung, aber immer noch im Applikationsserver). Tests mit _jMeter_ haben gezeigt, dass bei 32 parallelen Requests mit nur 3 Worker-Threads trotzdem alle Requests korrekt bearbeitet werden.
 
-Alle mir bekannten ÖREB-Kataster-V2-Webservice habe ich geprüft. Examplarisch ein Screenshot von unserem Dienst. Die Gesamtshow gibt es http://blog.sogeo.services/data/oereb-kataster-richtig-gemacht-8/result.html[hier].
-
-image::../../../../../images/oerebk_richtig_gemacht_p08/result_so_01.png[alt="Prüfresultat SO Übersicht", align="center"]
-
-Unser Fehler wurde auch bei der Abnahme erkannt und ist folgendes:
-
-image::../../../../../images/oerebk_richtig_gemacht_p08/result_so_02.png[alt="Prüfresultat SO Detail", align="center"]
-
-Wir sind für den Fall, dass keine Geometrien angefordert werden, nicht schemakonform: Es fehlt die Boundingbox. Klammerbemerkung: Man schaue sich die Request time an. Der Request dauerte 9s. Das sind circa 8.5 Sekunden zu lang. Grund dafür sind die Spezialisten, die seit geraumer Zeit bei verschiedenen Kantonen ziemlich stupide Tausende Requests in kürzester Zeit absetzen...
-
-Das Gesamtbild ist in etwa folgendes: Die Fehler wiederholen sich. Man erkennt - behaupte ich mal - anhand der Fehler, welches System ein Kanton einsetzt. Typische Fehler sind:
-
-- Grundstückstyp fehlt in der GetEGRID-Antwort
-- Geometrieelement fehlt in der GetEGRID-Antwort
-- Response Content Type ist &laquo;falsch&raquo;.
-- Status Code bei der URL-Weiterleitung ist falsch.
-- Fehlende Bundesthemen-Codes
-
-Die Exoten dürfen auch nicht fehlen:
-
-- Keine NBIdents in der Antwort vorhanden resp. &laquo;N/A&raquo;. In den Daten der amtlichen Vermessung gibt es für dieses Grundstück aber einen NBIdent.
-- Fehlender &laquo;/&raquo;. Anstelle von `/oereb/getegrid/xml/?EN=YYYYYYYY,XXXXXXXX` funktioniert der Aufruf nur ohne den letzten Slash.
-- Ignorieren von XML-Namespaces, d.h. es wird nur genau einer verwendet.
-
-Wo ich mir aber selber nicht ganz sicher bin:
-
-Ist der Response Content Type `application/xml; charset=UTF-8` wirklich falsch? In der Weisung steht nur `application/xml`. Eine interessante Erklärung was eine andere Spez erwartet, gibt es https://stackoverflow.com/questions/3272534/what-content-type-value-should-i-send-for-my-xml-sitemap[hier].
-
-Und stimmt mein Test bezüglich der Bundesthemen-Codes? Meines Erachtens müssen alle Bundesthemen-Codes bei den &laquo;Themes&raquo; vorkommen. Momentan gibt es jetzt Kantone, die formell _keine_ Nutzungsplanung (`ch.Nutzungsplanung`) publizieren.
-
-Ausserdem könnte man sich eventuell darauf einigen wie Links enkodiert werden sollen. Da gibt es unterschiedlichste Varianten. Es wird alles enkodiert, z.B. `https://geo.so.ch` wird zu `https%3A%2F%2Fgeo.so.ch` oder noch spannender ist das Verpacken eines solchen Links in einem CDATA-Block... Innerhalb eines Auszuges werden die Varianten auch gerne gemischt. Ich denke, dass man sich auf das Minimum beschränken sollte, was XML verlangt (z.B. &laquo;&&raquo; wird zu &laquo;amp&raquo;).
-
+Der Spassvogel ist und bleibt zwar nicht ganz 100. Aber wir haben immerhin viel gelernt.
