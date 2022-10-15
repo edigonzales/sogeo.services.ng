@@ -22,7 +22,7 @@ Kurz vor 18:00 Uhr haben wird den Rate-Limiter eingeschaltet. Das führte bei ht
 
 image::../../../../../images/oerebk_richtig_gemacht_p09/statuscake02.jpg[alt="Statuscake ÖREB-XML-Requestdauer", align="center"]
 
-Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat wirklich eine Woche lang XML- _und_ PDF-Auszüge à discretion gesaugt, insgesamt zwischen 1000 und 1500 Auszüge pro Stunde. Summa summarum und geschätzt, waren es sämtliche Grundstücke des Kantons... Warum mach man sowas? Sinnvoll scheint mir das nicht. Was will man mit dem? Man weiss ja nicht, ob etwas noch aktuell ist oder bereits veraltet!? Hier ein Ausschnitt aus einer Logging-Auswertung mit https://logit.io/[_logit.io_]:
+Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat wirklich eine Woche lang XML- _und_ PDF-Auszüge à discretion gesaugt, insgesamt zwischen 1000 und 1500 Auszüge pro Stunde. Summa summarum und geschätzt, waren es sämtliche Grundstücke des Kantons... Warum macht man sowas? Sinnvoll scheint mir das nicht. Was will man mit dem? Man weiss ja nicht, ob etwas noch aktuell ist oder bereits veraltet!? Hier ein Ausschnitt aus einer Logging-Auswertung mit https://logit.io/[_logit.io_]:
 
 image::../../../../../images/oerebk_richtig_gemacht_p09/logitio01.jpg[alt="logit.io Logging-Auswertung", align="center"]
 
