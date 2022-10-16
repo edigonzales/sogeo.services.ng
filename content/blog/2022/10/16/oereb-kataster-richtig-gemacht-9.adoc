@@ -22,11 +22,11 @@ Kurz vor 18:00 Uhr haben wir den Rate-Limiter eingeschaltet. Das führte bei htt
 
 image::../../../../../images/oerebk_richtig_gemacht_p09/statuscake02.jpg[alt="Statuscake ÖREB-XML-Requestdauer", align="center"]
 
-Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat wirklich eine Woche lang XML- _und_ PDF-Auszüge à discretion gesaugt, insgesamt zwischen 1000 und 1500 Auszüge pro Stunde. Summa summarum und geschätzt, waren es sämtliche Grundstücke des Kantons... Warum macht man sowas? Sinnvoll scheint mir das nicht. Was will man mit den vielen Dateien machen? Man weiss ja nicht, ob etwas noch aktuell ist oder bereits veraltet!? Hier ein Ausschnitt aus einer Logging-Auswertung mit https://logit.io/[_logit.io_]:
+Auch im Web GIS Client waren wir wieder _back to normal_. Der Spassvogel hat wirklich eine Woche lang XML- _und_ PDF-Auszüge à discretion gesaugt, insgesamt zwischen 1000 und 1500 Auszüge pro Stunde. Summa summarum und geschätzt, waren es sämtliche Grundstücke des Kantons... Warum macht man sowas? Sinnvoll erscheint mir das nicht. Was will man mit den vielen Dateien machen? Man weiss ja nicht, ob etwas noch aktuell ist oder bereits veraltet!? Hier ein Ausschnitt aus einer Logging-Auswertung mit https://logit.io/[_logit.io_]:
 
 image::../../../../../images/oerebk_richtig_gemacht_p09/logitio01.jpg[alt="logit.io Logging-Auswertung", align="center"]
 
-Wir sind aber noch nicht fertig. Mit der Livenessprobe sind wir noch nicht zufrieden, weil sie nicht das prüft, was sie soll. Und die Anwendung selber (also der ÖREB-Webservice) funktioniert zwar einwandfrei aber nur weil das API-Gateway sie vor Überlastung schützt.
+Wir sind aber noch nicht fertig. Mit der Livenessprobe sind wir wie eingangs erwähnt nicht zufrieden, weil sie nicht das prüft, was sie soll. Und die Anwendung selber (also der ÖREB-Webservice) funktioniert zwar einwandfrei aber nur weil das API-Gateway sie vor Überlastung schützt.
 
 Für die Livenessprobe ist der Standard-Health-Endpoint, welche die Backing-Services berücksichtigt schlichtweg das Falsche. Der Server ist ja trotzdem live aber eben nicht ready (Readinessprobe) Requests abzuarbeiten. [_Spring Boot_] hat dafür https://spring.io/blog/2020/03/25/liveness-and-readiness-probes-with-spring-boot[zwei separate Endpunkte]. Für die Liveness-Endpunkt werden die Backing-Services nicht mehr berücksichtigt.
 
