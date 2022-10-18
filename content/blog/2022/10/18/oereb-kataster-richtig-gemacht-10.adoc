@@ -1,4 +1,4 @@
-= ÖREB-Kataster richtig gemacht #10 - ÖREB on stereoids
+= ÖREB-Kataster richtig gemacht #10 - ÖREB on steroids
 Stefan Ziegler
 2022-10-18
 :jbake-type: post
