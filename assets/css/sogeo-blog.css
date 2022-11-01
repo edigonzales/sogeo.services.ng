@@ -88,6 +88,10 @@ ol.linenums {
     margin-bottom: 0px !important;
 }
 
+ul, ol, dl {
+    line-height: 1.7 !important;
+}
+
 .date {
     font-size: 1rem;
     color: #aaa;
