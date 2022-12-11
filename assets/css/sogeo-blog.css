@@ -136,6 +136,11 @@ pre code {
     font-size: 0.95rem;
 }
 
+pre {
+    font-family: 'JetBrains Mono', monospace;
+    border: 0px solid #ccc !important;
+}
+
 .listingblock ol.linenums {
     font-style: normal;
     font-family: 'JetBrains Mono', monospace;
