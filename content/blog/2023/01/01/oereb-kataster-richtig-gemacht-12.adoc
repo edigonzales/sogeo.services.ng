@@ -64,6 +64,8 @@ Trotz allem Erreichten darf man sich nicht zu stark auf die Schultern klopfen. A
 
 Die Abnahme resp. die Validierung des Katasters ist ebenfalls nicht ganz einfach. Klar kann man gegen das Schema prüfen. Jedoch ist das Schema relativ tolerant: D.h. eine einfache Schemaprüfung validiert positiv auch wenn man eingebettete Bilder anfordert aber keine zurück bekommt. Die Prüfung ist also abhängig vom Request und es sind sehr viele Kombinationen möglich. Ich prüfe z.B. nur XML-Auszüge. Man wollte als Option unbedingt noch JSON, das bedeutet nun aber auch erhöhter Prüfungsaufwand und erhöhte Fehleranfälligkeit.
 
+Alhamdulillah ist der ÖREB-Kataster nicht systemkritische Infrastruktur.
+
 Ich bleibe dabei:
 
 image::../../../../../images/oerebk_richtig_gemacht_p12/twitter.png[alt="tweet öreb at kgk", align="center"]
