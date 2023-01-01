@@ -1,4 +1,4 @@
-= ÖREB-Kataster richtig gemacht #12 - ÖREB-Kataster Compliance Test Suite revisited
+= ÖREB-Kataster richtig gemacht #12 - Revisited: ÖREB-Kataster Compliance Test Suite
 Stefan Ziegler
 2023-01-01
 :jbake-type: post
@@ -18,7 +18,7 @@ Hier wird nur die Schemakonformität geprüft. Das Capabilities-Dokument bekomme
 
 **Plan für das Grundbuch**
 
-Ein Kränzchen winden muss man den Kantonen BE und BL. Diese verwenden für die Hintergrundkarte den Situationsplan (aka Plan für das Grundbuch) von https://geodienste.ch/services/av/info[geodienste.ch]. Das hat natürlich mich getriggert und ich musste den Dienst auch https://geo.so.ch/map/?k=7935c2a96[bei uns testen]. Leider werden die Gebäudenummern dargestellt, was im Kanton Solothurn dazu führt, dass Platzhalter-Werte dargestellt werden. Wir kennen keine eigentlichen Gebäudenummern und darum füllen die NF-Geometer Platzhalter ab, damit überhaupt ein EGID erfasst werden kann. Ist mir momentan noch nicht ganz klar, wie wir das lösen können. Sinnvoll wäre die Benutzung des geodienste.ch Services allemal, da er für teures Geld erstellt wurde und nun verwenden die aller meisten Kantone ihn nicht...
+Ein Kränzchen muss man den Kantonen BE und BL winden. Diese verwenden für die Hintergrundkarte den Situationsplan (aka Plan für das Grundbuch) von https://geodienste.ch/services/av/info[geodienste.ch]. Das hat natürlich mich getriggert und ich musste den Dienst auch https://geo.so.ch/map/?k=7935c2a96[bei uns testen]. Leider werden die Gebäudenummern dargestellt, was im Kanton Solothurn dazu führt, dass Platzhalter-Werte dargestellt werden. Wir kennen keine eigentlichen Gebäudenummern und darum füllen die NF-Geometer Platzhalter ab, damit überhaupt ein EGID erfasst werden kann. Ist mir momentan noch nicht ganz klar, wie wir das lösen können. Sinnvoll wäre die Benutzung des geodienste.ch Services allemal, da er für teures Geld erstellt wurde und nun verwenden die aller meisten Kantone ihn nicht...
 
 **Stabilität**
 
