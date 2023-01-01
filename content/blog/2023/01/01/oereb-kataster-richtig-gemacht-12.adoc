@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: ÖREB,ÖREB-Kataster,Spring Boot
 :idprefix:
 
-Ich habe die Test Suite um die Validierung der Endpunkte  &laquo;versions&raquo; und &laquo;capabilities&raquo; https://sogis-oereb-cts-remdc.ondigitalocean.app/[erweitert] und verschiedene Resultate ein wenig unter die Lupe genommen.
+Ich habe die https://github.com/edigonzales/oereb-cts[Test Suite] um die Validierung der Endpunkte  &laquo;versions&raquo; und &laquo;capabilities&raquo; https://sogis-oereb-cts-remdc.ondigitalocean.app/[erweitert] und verschiedene Resultate ein wenig unter die Lupe genommen.
 
 **versions**
 
@@ -14,7 +14,7 @@ Beim Versions-Output prüfe ich neben der Schemakonformität tatsächlich auch d
 
 **capabilities**
 
-Hier wird nur die Schemakonformität geprüft. Das Capabilities-Dokument bekommen die meisten hin. Der Kanton Freiburg leitet jedoch mit Status Code 307 weiter, was den Test fehl schlagen lässt. Die Kantone NW, OW und UR sind nicht schemakonform, weil der Topic-Code mit einer Zahl beginnt. Wieso sie das so machen, ist mir nicht klar. Der Topic-Code sollte doch gleich sein, wie später im Extract? Der Kanton Tessin hat zu lange Gemeindenummern (`531002`) und der Kanton Wallis hat wiederum Namespace-Probleme: Einerseits ist das Root-Element `GetCapabilitiesResponse` einem falschen Namespace zugewiesen (`http://schemas.geo.admin.ch/swisstopo/OeREBK/15/Extract`), was die Prüfung sofort abbrechen lässt und andererseits sind Topics vom Typ &laquo;Theme&raquo;, die einem anderem Namespace zugewiesen werden müssen, was hier nicht gemacht wird. Das Kantonskürzel bei kantonalen Themen muss in Grossbuchstaben geschrieben sein und nicht in Kleinbuchstaben (`ch.vs.Ueberlagernde_Nutzungsplanung`).
+Hier wird nur die Schemakonformität geprüft. Das Capabilities-Dokument bekommen die meisten hin. Der Kaƒnton Freiburg leitet jedoch mit Status Code 307 weiter, was den Test fehl schlagen lässt. Die Kantone NW, OW und UR sind nicht schemakonform, weil der Topic-Code mit einer Zahl beginnt. Wieso sie das so machen, ist mir nicht klar. Der Topic-Code sollte doch gleich sein, wie später im Extract? Der Kanton Tessin hat zu lange Gemeindenummern (`531002`) und der Kanton Wallis hat wiederum Namespace-Probleme: Einerseits ist das Root-Element `GetCapabilitiesResponse` einem falschen Namespace zugewiesen (`http://schemas.geo.admin.ch/swisstopo/OeREBK/15/Extract`), was die Prüfung sofort abbrechen lässt und andererseits sind Topics vom Typ &laquo;Theme&raquo;, die einem anderem Namespace zugewiesen werden müssen, was hier nicht gemacht wird. Das Kantonskürzel bei kantonalen Themen muss in Grossbuchstaben geschrieben sein und nicht in Kleinbuchstaben (`ch.vs.Ueberlagernde_Nutzungsplanung`).
 
 **Plan für das Grundbuch**
 
@@ -42,7 +42,7 @@ image::../../../../../images/oerebk_richtig_gemacht_p12/ZG_landregister_main.png
 
 Getreu dem Motto &laquo;Quadratisch, praktisch, gut&raquo; liefert der Kanton Luzern zudem seine Bilder in einem quadratischen Format aus. 
 
-Wir im Kanton Solothurn sind meines Erachtens auch nicht ganz korrekt unterwegs beim Plan für das Grundbuch der Titelseite. Auf Wunsch der Nachführungsgeometer stellen wir bei uns den sogenannten &laquo;zukünftigen&raquo; Stand der Grundstücke dar. D.h. bei einer Mutation werden die zwar rechtsgültigen, alten Grenzen nicht dargestellt, sondern in rot die zukünftigen Grenzen. Beim Plan für das Grundbuch für die ÖREB wird der rechtsgültige Zustand dargestellt (und keine projektierten Grundstücke).
+Wir im Kanton Solothurn sind meines Erachtens auch nicht ganz korrekt unterwegs beim Plan für das Grundbuch der Titelseite. Auf Wunsch der Nachführungsgeometer stellen wir bei uns den sogenannten &laquo;zukünftigen&raquo; Stand der Grundstücke dar. D.h. bei einer Mutation werden die immer noch rechtsgültigen (schwarzen) Grenzen nicht dargestellt, sondern in rot die zukünftigen Grenzen. Beim Plan für das Grundbuch für die ÖREB wird der rechtsgültige Zustand dargestellt (und keine projektierten Grundstücke).
 
 Der Kanton Wallis liefert keine eingebetteten Bilder aus und liefert auch bei `WITHIMAGES=true` nur einen Verweis auf einen ESRI-Webdienst (!= WMS). Die Bilder der einzelnen ÖREB haben fälschlicherweise bereits den Plan für das Grundbuch als Hintergrund:
 
@@ -60,11 +60,13 @@ image::../../../../../images/oerebk_richtig_gemacht_p12/ZH_landregister.png[alt=
 
 **Conclusions**
 
-Ich weiss nicht genau welche Kataster in welchem Abnahme-Status sind. Die gezeigte Folie an der letzten ÖREB-Kataster-Veranstaltung war ähm irgendwie eher ein Zufallsprodukt (sorry).
+Ich weiss nicht genau welche Kataster in welchem Abnahme-Status sind. Die gezeigte Folie an der letzten ÖREB-Kataster-Veranstaltung war ähm irgendwie eher ein Zufallsprodukt (sorry). Übrigens: Kann jemand https://www.cadastre.ch/content/dam/cadastre-internet/de/divers-rdppf/Info-Veranstaltung-2022-de.zip[diese Zip-Datei] öffnen? In einer dieser Präsentationen sollte die Übersichtskarte mit den Status der Kantone sein. Leider kann ich sie nicht öffnen.
 
-Trotz allem Erreichten darf man sich nicht zu stark auf die Schultern klopfen. Anscheinend ist auch die technische Umsetzung des ÖREB-Katasters für die Kantone non-trivial. Trotzdem will man es 26 Mal umsetzen. Viele Kantone verwenden den gleichen Software-Stack. Abgesehen von eher marginalen Fehlern, scheint es hier also eher ein Konfigurations- und Betriebsproblem zu sein? Bei ganz wenigen dünkt mich die Qualität schlichtweg ungenügend. Wie soll ein Benutzer damit umgehen, wenn er nicht bloss einen Knopf im dynamischen Auszug drückt (anscheinend fokussiert sich unser aller Aufmerksamkeit da drauf), sondern wirklich mit den Schnittstellen arbeiten will und muss? Das ist in diesen Fällen schlichtweg nicht möglich oder verschiedentlich nur mit grausigen Workarounds (= Zusatz-Code = Zusatzfauwand). Hier sollte sowohl der Kanton und auch die Aufsicht besser hinschauen.
+Trotz allem Erreichten im &laquo;Gesamtsystem&raquo; ÖREB-Kataster darf man sich nicht zu stark auf die Schultern klopfen. Anscheinend ist auch die technische Umsetzung des ÖREB-Katasters für die Kantone non-trivial. Trotzdem will man es 26 Mal umsetzen. Viele Kantone verwenden den gleichen Software-Stack. Abgesehen von eher marginalen Fehlern, scheint es hier also eher ein Konfigurations- und Betriebsproblem zu sein? Ist der Software-Stack zu kompliziert? Fehlt Wissen in den Kantonen? Ich weiss es nicht. Bei ganz wenigen dünkt mich die Qualität schlichtweg ungenügend. Wie soll ein Benutzer damit umgehen, wenn er nicht bloss einen Knopf im dynamischen Auszug drückt (anscheinend fokussiert sich unser aller Aufmerksamkeit da drauf), sondern wirklich mit den Schnittstellen arbeiten will und muss? Das ist in diesen Fällen schlichtweg nicht möglich oder verschiedentlich nur mit grausigen Workarounds (= Zusatz-Code = Zusatzaufwand. Ja ja und technisch ist immer alles möglich... technical debs und so). Hier sollte sowohl der Kanton und auch die Aufsicht besser hinschauen.
 
 Die Abnahme resp. die Validierung des Katasters darf nicht unterschätzt werden. Klar kann man gegen das Schema prüfen. Jedoch ist das Schema relativ tolerant: D.h. eine einfache Schemaprüfung validiert positiv auch wenn man eingebettete Bilder anfordert aber keine zurück bekommt. Die Prüfung ist also abhängig vom Request und es sind sehr viele Kombinationen möglich. Ich prüfe z.B. nur XML-Auszüge. Man wollte als Option unbedingt noch JSON als (optionales) Outputformat, das bedeutet nun aber auch erhöhter Prüfungsaufwand und erhöhte Fehleranfälligkeit.
+
+Leicht kritisch darf man zukünftige Weiterentwicklungen hinterfragen: Einfacher wird es nicht und wir kriegen bereits ein relativ einfaches Konstrukt nicht wirklich sauber auf die Reihe.
 
 Alhamdulillah ist der ÖREB-Kataster nicht systemkritische Infrastruktur.
 
