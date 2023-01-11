@@ -66,4 +66,4 @@ Die gerenderte Reihenfolge im Client (also mein eigener Code) müsste ich auch n
 
 Harmlos aber nervend, wie ich finde:
 
-Was man noch sinnvollerweise testen sollte, wäre der _layerIndex_ der Map-Elemente. Wenn sämtliche Elemente, also auch die Hintergrundkarte, den gleichen Wert aufweisen, weiss man nicht in welcher Reihenfolge die Bilder geschichtet werden müssen. Und wohl müsste im Regelfall (oder immer) die Hintergrundkarte - nomen est omen - tatsächlich im Hintergrund sein, also den kleinsten Wert aufweisen.
+Was man noch sinnvollerweise testen sollte, ist der _layerIndex_ der Map-Elemente. Wenn sämtliche Elemente, also auch die Hintergrundkarte, den gleichen Wert aufweisen, weiss man nicht in welcher Reihenfolge die Bilder geschichtet werden müssen. Und wohl müsste im Regelfall (oder immer) die Hintergrundkarte - nomen est omen - tatsächlich im Hintergrund sein, also den kleinsten Wert aufweisen.
