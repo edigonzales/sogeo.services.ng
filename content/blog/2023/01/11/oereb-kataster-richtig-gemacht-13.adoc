@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: ÖREB,ÖREB-Kataster,Spring Boot,GWT,Java
 :idprefix:
 
-Um die URL ein wenig einprägsamer zu machen, habe ich die Resultate der Prüfungen der kantonalen ÖREB-Kataster-Dienste unter https://quality.oereb.services[quality.oereb.services] publiziert. Ein Kanton hat sich bereits bewegt: Der Kanton Zürich hat &laquo;Versions&raquo; und &laquo;GetEGRID&raquo; korrigiert.
+Um die URL ein wenig einprägsamer zu machen, habe ich die Resultate der Prüfungen der kantonalen ÖREB-Kataster-Dienste unter https://monitoring.oereb.services[monitoring.oereb.services] publiziert. Ein Kanton hat sich bereits bewegt: Der Kanton Zürich hat &laquo;Versions&raquo; und &laquo;GetEGRID&raquo; korrigiert.
 
 Die ÖREB-Spezifikationen sind gut, insbesondere die des ÖREB-Webservices und des DATA-Extracts. Mit dem XML-Output lässt sich z.B. das PDF erzeugen. Man muss (und soll) nicht zwei unterschiedliche Wege für die Herstellung des XML und des PDF beschreiten. Sondern das XML herstellen und daraus das PDF ableiten. Somit lassen sich bereits viele Fehler vermeiden, z.B. Inhalt XML != Inhalt PDF usw.
 
