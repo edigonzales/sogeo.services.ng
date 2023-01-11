@@ -10,7 +10,7 @@ Um die URL ein wenig einprägsamer zu machen, habe ich die Resultate der Prüfun
 
 Die ÖREB-Spezifikationen sind gut, insbesondere die des ÖREB-Webservices und des DATA-Extracts. Mit dem XML-Output lässt sich z.B. das PDF erzeugen. Man muss (und soll) nicht zwei unterschiedliche Wege für die Herstellung des XML und des PDF beschreiten. Sondern das XML herstellen und daraus das PDF ableiten. Somit lassen sich bereits viele Fehler vermeiden, z.B. Inhalt XML != Inhalt PDF usw.
 
-Eine andere Anwendungsmöglichkeit des XML-Auszuges ist die Aufbereitung/Ableitung zum dynamischen Auszug, sprich zu einer Webanwendung. Die Webanwendung braucht bloss den XML-Auszug für ein Grundstück abzurufen und kann aus den Informationen eine mehr oder weniger schicke Anwendung konfigurieren. Ich denke, einige der Clients der Kantone funktionieren (hoffentlich) so. Macht man das nun mit dem Anspruch, dass es schweizweit funktionieren soll - wir sind ja standardisiert - gewinnt man wieder Erkenntnisse über die Spezialitäten der Kantone und wohl auch noch über Fehler, die man sonst weniger gut entdecken würde. Gesagt, getan. https://map.oereb.services[map.oereb.services]. Es gibt sicher noch das eine oder andere Grundstück, wo es nicht funktioniert. Mal was Null, was man abfangen sollte o.ä. Und es fehlen mir die Änderungen mit und ohne Vorwirkung, um die Gruppierung / Reihenfolge des Clients zu validieren.
+Eine andere Anwendungsmöglichkeit des XML-Auszuges ist die Aufbereitung/Ableitung zum dynamischen Auszug, sprich zu einer Webanwendung. Die Webanwendung braucht bloss den XML-Auszug für ein Grundstück abzurufen und kann aus den Informationen eine mehr oder weniger schicke Anwendung konfigurieren. Ich denke, einige der Clients der Kantone funktionieren (hoffentlich) so. Macht man das nun mit dem Anspruch, dass es schweizweit funktionieren soll - wir sind ja standardisiert - gewinnt man wieder Erkenntnisse über die Spezialitäten der Kantone und wohl auch noch über Fehler, die man sonst weniger gut entdecken würde. Gesagt, getan. https://map.oereb.services[map.oereb.services]. Es gibt sicher noch das eine oder andere Grundstück, wo es nicht funktioniert. Mal was Null, was man abfangen sollte o.ä. Und es fehlen genügend funktionierende Dienste, die Änderungen mit und ohne Vorwirkung publizieren, um die Gruppierung / Reihenfolge des Clients zu validieren. Oder ich habe die betroffenen Grundstücke nicht gefunden.
 
 Zuerst ein paar nicht-ÖREB-Bemerkungen:
 
@@ -30,12 +30,12 @@ Von den momentan vorhandenen Versions-2-Kantonen, können folgende Kantone nicht
 - AR: WMS verlangt Authentifizerung
 - BS: GEOMETRY=true beim https://api.oereb.bs.ch/getegrid/xml/?EN=2612855,1267223&GEOMETRY=true[GetEGRID-Request] führt zu Fehlern.
 - FR: Geometrie fehlt beim https://geo.fr.ch/RDPPF_ws/RdppfSVC.svc/getegrid/xml/?EN=2578478,1183785&GEOMETRY=true[GetEGRID-Request].
-- LU: Liefert kein Referenz-WMS im Auszug mit.
-- NW: Liefert kein Referenz-WMS im Auszug mit.
-- OW: Liefert kein Referenz-WMS im Auszug mit.
+- LU: Liefert keinen Referenz-WMS im Auszug mit.
+- NW: Liefert keinen Referenz-WMS im Auszug mit.
+- OW: Liefert keinen Referenz-WMS im Auszug mit.
 - SG: WMS verlangt Authentifizerung.
 - UR: Die Geometrien weisen ein falsches Koordinatensystem auf.
-- VS: Anstelle eines WMS wird ein ESRI-Irgendwas-Dienste-URL mitgeliefert.
+- VS: Anstelle eines WMS wird eine ESRI-Irgendwas-Dienste-URL mitgeliefert.
 
 Es funktionieren folgende Kantone:
 
