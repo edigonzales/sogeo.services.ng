@@ -37,23 +37,11 @@ Von den momentan vorhandenen Versions-2-Kantonen, können folgende Kantone nicht
 - UR: Die Geometrien weisen ein falsches Koordinatensystem auf.
 - VS: Anstelle eines WMS wird eine ESRI-Irgendwas-Dienste-URL mitgeliefert.
 
-Es funktionieren folgende Kantone:
-
-- AG
-- BE 
-- BL
-- GR
-- JU
-- NE
-- SO
-- TG
-- TI
-- ZU
-- ZH
+Es funktionieren die Kantone AG, BE, BL, GR, JU, NE, SO, TG, TI, ZG, ZH.
 
 **CORS**
 
-Ich wollte ohne Umwege über ein Backend den XML-Auszug anfordern und im Browser verarbeiten. D.h. das XML wird vom Browser angefordert. Nun geht das leider bei vielen Kantonen nicht, das die &laquo;CORS-Header&laquo; nicht gesetzt werden. Die KGK hat im Juni 2019 die Kanton darüber informiert. Damals ging es um die GetCapabilities-Antwort eines WMS, die vom Browser ohne die Header nicht verarbeitet werden kann:
+Ich wollte ohne Umwege über ein Backend den XML-Auszug anfordern und im Browser verarbeiten. D.h. das XML wird vom Browser angefordert. Nun geht das leider bei vielen Kantonen nicht, das die &laquo;CORS-Header&raquo; nicht gesetzt werden. Die KGK hat vor geraumer Zeit die Kantone darüber informiert. Damals ging es um die GetCapabilities-Antwort eines WMS, die vom Browser ohne die Header nicht verarbeitet werden kann:
 
 image::../../../../../images/oerebk_richtig_gemacht_p13/corsheader.png[alt="cors header", align="center"]
 
@@ -61,12 +49,12 @@ Funktioniert hat es (ohne alle zu prüfen) in den Kantonen BE, SO und TG. Um tro
 
 **Layer-Opazität**
 
-Es gibt das Attribut _layerOpacity_, das die Deckkraft des Kartenelements regelt. In den Kantonen JU und ZH ist der Wert 1. Das bedeutet, das die Karte komplett deckend ist. Wahrscheinlich nicht so gewollt.
+Es gibt das Attribut _layerOpacity_, das die Deckkraft des Kartenelements regelt. In den Kantonen JU und ZH ist der Wert &laquo;1&raquo;. Das bedeutet, das die Karte komplett deckend ist. Wahrscheinlich nicht so gewollt.
 
 **Reihenfolge**
 
 Die Reihenfolge der Themen wie auch der Dokumente ist in der Weisung definiert.
-Beim Kanton Zürich ist mir aufgefallen, dass die Reihenfolge der gesetzlichen Grundlage nicht stimmt. Das RPG wird ganz am Ende aufgelistet und sollte eigentlich als erstes geführt werden. Der Kanton Aargau verwendet hier &laquo;None&raquo;. EGRID???? Das habe ich netterweise im Code abgefangen. Die Reihenfolge der Themen habe mir nicht angeschaut. 
+Beim Kanton Zürich ist mir aufgefallen, dass die Reihenfolge der gesetzlichen Grundlage nicht stimmt. Das RPG wird ganz am Ende aufgelistet und sollte eigentlich als erstes geführt werden. Der Kanton Aargau verwendet hier https://api.geo.ag.ch/v2/oereb/extract/xml/?EGRID=CH832377520646[&laquo;None&raquo;]. Das habe ich netterweise im Code abgefangen. Die Reihenfolge der Themen habe mir nicht angeschaut. 
 
 Die gerenderte Reihenfolge im Client (also mein eigener Code) müsste ich auch noch vertieft verifizieren, ob sie stimmt. Im ZH-Fall habe ich es im XML nachgeprüft.
 
