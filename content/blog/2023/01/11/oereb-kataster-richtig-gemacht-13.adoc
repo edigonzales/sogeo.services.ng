@@ -1,0 +1,75 @@
+= ÖREB-Kataster richtig gemacht #13 - map.oereb.services und weitere Beobachtungen
+Stefan Ziegler
+2023-01-11
+:jbake-type: post
+:jbake-status: published
+:jbake-tags: ÖREB,ÖREB-Kataster,Spring Boot,GWT,Java
+:idprefix:
+
+Um die URL ein wenig einprägsamer zu machen, habe ich die Resultate der Prüfungen der kantonalen ÖREB-Kataster-Dienste unter https://quality.oereb.services[quality.oereb.services] publiziert. Ein Kanton hat sich bereits bewegt: Der Kanton Zürich hat &laquo;Versions&raquo; und &laquo;GetEGRID&raquo; korrigiert.
+
+Die ÖREB-Spezifikationen sind gut, insbesondere die des ÖREB-Webservices und des DATA-Extracts. Mit dem XML-Output lässt sich z.B. das PDF erzeugen. Man muss (und soll) nicht zwei unterschiedliche Wege für die Herstellung des XML und des PDF beschreiten. Sondern das XML herstellen und daraus das PDF ableiten. Somit lassen sich bereits viele Fehler vermeiden, z.B. Inhalt XML != Inhalt PDF usw.
+
+Eine andere Anwendungsmöglichkeit des XML-Auszuges ist die Aufbereitung/Ableitung zum dynamischen Auszug, sprich zu einer Webanwendung. Die Webanwendung braucht bloss den XML-Auszug für ein Grundstück abzurufen und kann aus den Informationen eine mehr oder weniger schicke Anwendung konfigurieren. Ich denke, einige der Clients der Kantone funktionieren (hoffentlich) so. Macht man das nun mit dem Anspruch, dass es schweizweit funktionieren soll - wir sind ja standardisiert - gewinnt man wieder Erkenntnisse über die Spezialitäten der Kantone und wohl auch noch über Fehler, die man sonst weniger gut entdecken würde. Gesagt, getan. https://map.oereb.services[map.oereb.services]. Es gibt sicher noch das eine oder andere Grundstück, wo es nicht funktioniert. Mal was Null, was man abfangen sollte o.ä. Und es fehlen mir die Änderungen mit und ohne Vorwirkung, um die Gruppierung / Reihenfolge des Clients zu validieren.
+
+Zuerst ein paar nicht-ÖREB-Bemerkungen:
+
+Die Anwendung ist komplett in Java mit https://www.gwtproject.org/[GWT] geschrieben. Als Toolkit wird https://demo.dominokit.org/home[Domino Kit] verwendet. Das führt zu einem sehr angenehmen Entwickeln, da man sich im gleichen Ökosystem (Sprache, IDE, Build Tools) bewegt wie sonst auch.
+
+Will man etwas wie eine Adressen- und Grundstücksuche anbieten, reichen die Möglichkeiten des ÖREB-Webservices nicht mehr aus. Es fehlt schlichtweg die Möglichkeit mittels Freitext zu suchen. Soweit auch nicht schlimm und wohl auch nicht sinnvoll. Der https://api3.geo.admin.ch/services/sdiservices.html#search[Search-Service] der GeoAdmin API hilft uns. Der Dienst liefert uns eine Koordinate zurück. Mit dieser kann man einen EGRID beim ÖREB-Webservice abfragen. Nun müsste man die Anfrage an den Service eines jeden Kantons machen. Das wird nicht performen. Abhilfe schafft auch hier wieder die GeoAdmin API indem man den https://api3.geo.admin.ch/services/sdiservices.html#search[Feature Resource] Dienst verwendet und wissen will, in welchem Kanton (ch.swisstopo.swissboundaries3d-kanton-flaeche.fill) die soeben erhaltene Koordinate liegt. Mit diesem Wissen kann man direkt den Service des betroffenen Kantons mit dem GetEGRID-Request beglücken. Der vermeintlich unnötige GetEGRID-Request ist notwendig, um zu eruieren, ob es sich um eine Liegenschaft oder um eine Baurecht handelt, wenn man einen Auszug mittels Klick in die Karte anfordert und es an dieser Stelle mehrere Grundstücke gibt. 
+
+Für die Hintergrundkarte verwendet ich den ÖREB-Situationsplan von https://geodienste.ch/services/av/info[geodienste.ch]. Leider fehlt noch ein WMTS.
+
+Nun zu den ÖREB-Kataster spezifischen Bemerkungen und Beobachtungen:
+
+**Inkompatible Kantone**
+
+Von den momentan vorhandenen Versions-2-Kantonen, können folgende Kantone nicht für diesen Anwendungsfall verwendet werden (oder wäre nur mit unnötigem Geknorze möglich):
+
+- AI: WMS verlangt Authentifizierung, https://www.geoportal.ch/services/wms/ktai?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.geoportal.raumplanung_grundstueckskataster.1478.0.oereb_zonenplan_kt_ai&MAPID=1478&CRS=EPSG%3A2056&WIDTH=493&HEIGHT=280&BBOX=2748370.5620040814%2C1243979.8562142858%2C2748756.2509959186%2C1244198.9087857143&AUTHENTICATE=true&EPOCH=2022-10-28T20%3A00%3A19&SRS=EPSG%3A2056[Beispielrequest].
+- AR: WMS verlangt Authentifizerung
+- BS: GEOMETRY=true beim https://api.oereb.bs.ch/getegrid/xml/?EN=2612855,1267223&GEOMETRY=true[GetEGRID-Request] führt zu Fehlern.
+- FR: Geometrie fehlt beim https://geo.fr.ch/RDPPF_ws/RdppfSVC.svc/getegrid/xml/?EN=2578478,1183785&GEOMETRY=true[GetEGRID-Request].
+- LU: Liefert kein Referenz-WMS im Auszug mit.
+- NW: Liefert kein Referenz-WMS im Auszug mit.
+- OW: Liefert kein Referenz-WMS im Auszug mit.
+- SG: WMS verlangt Authentifizerung.
+- UR: Die Geometrien weisen ein falsches Koordinatensystem auf.
+- VS: Anstelle eines WMS wird ein ESRI-Irgendwas-Dienste-URL mitgeliefert.
+
+Es funktionieren folgende Kantone:
+
+- AG
+- BE 
+- BL
+- GR
+- JU
+- NE
+- SO
+- TG
+- TI
+- ZU
+- ZH
+
+**CORS**
+
+Ich wollte ohne Umwege über ein Backend den XML-Auszug anfordern und im Browser verarbeiten. D.h. das XML wird vom Browser angefordert. Nun geht das leider bei vielen Kantonen nicht, das die &laquo;CORS-Header&laquo; nicht gesetzt werden. Die KGK hat im Juni 2019 die Kanton darüber informiert. Damals ging es um die GetCapabilities-Antwort eines WMS, die vom Browser ohne die Header nicht verarbeitet werden kann:
+
+image::../../../../../images/oerebk_richtig_gemacht_p13/corsheader.png[alt="cors header", align="center"]
+
+Funktioniert hat es (ohne alle zu prüfen) in den Kantonen BE, SO und TG. Um trotzdem an den XML-Auszug zu kommen, musste ein einfacher Proxy her, der serverseitig das XML anfordert und direkt an den Browser zurückschickt.
+
+**Layer-Opazität**
+
+Es gibt das Attribut _layerOpacity_, das die Deckkraft des Kartenelements regelt. In den Kantonen JU und ZH ist der Wert 1. Das bedeutet, das die Karte komplett deckend ist. Wahrscheinlich nicht so gewollt.
+
+**Reihenfolge**
+
+Die Reihenfolge der Themen wie auch der Dokumente ist in der Weisung definiert.
+Beim Kanton Zürich ist mir aufgefallen, dass die Reihenfolge der gesetzlichen Grundlage nicht stimmt. Das RPG wird ganz am Ende aufgelistet und sollte eigentlich als erstes geführt werden. Der Kanton Aargau verwendet hier &laquo;None&raquo;. EGRID???? Das habe ich netterweise im Code abgefangen. Die Reihenfolge der Themen habe mir nicht angeschaut. 
+
+Die gerenderte Reihenfolge im Client (also mein eigener Code) müsste ich auch noch vertieft verifizieren, ob sie stimmt. Im ZH-Fall habe ich es im XML nachgeprüft.
+
+**Performance**
+
+
