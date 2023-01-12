@@ -18,7 +18,7 @@ Die Anwendung ist komplett in Java mit https://www.gwtproject.org/[GWT] geschrie
 
 Will man etwas wie eine Adressen- und Grundstücksuche anbieten, reichen die Möglichkeiten des ÖREB-Webservices nicht mehr aus. Es fehlt schlichtweg die Möglichkeit mittels Freitext zu suchen. Soweit auch nicht schlimm und wohl auch nicht sinnvoll. Der https://api3.geo.admin.ch/services/sdiservices.html#search[Search-Service] der GeoAdmin API hilft uns. Der Dienst liefert uns eine Koordinate zurück. Mit dieser kann man einen EGRID beim ÖREB-Webservice abfragen. Nun müsste man die Anfrage an den Service eines jeden Kantons machen. Das wird nicht performen. Abhilfe schafft auch hier wieder die GeoAdmin API indem man den https://api3.geo.admin.ch/services/sdiservices.html#search[Feature Resource] Dienst verwendet und wissen will, in welchem Kanton (ch.swisstopo.swissboundaries3d-kanton-flaeche.fill) die soeben erhaltene Koordinate liegt. Mit diesem Wissen kann man direkt den Service des betroffenen Kantons mit dem GetEGRID-Request beglücken. Der vermeintlich unnötige GetEGRID-Request ist notwendig, um zu eruieren, ob es sich um eine Liegenschaft oder um eine Baurecht handelt, wenn man einen Auszug mittels Klick in die Karte anfordert und es an dieser Stelle mehrere Grundstücke gibt. 
 
-Für die Hintergrundkarte verwendet ich den ÖREB-Situationsplan von https://geodienste.ch/services/av/info[geodienste.ch]. Leider fehlt noch ein WMTS.
+Für die Hintergrundkarte verwendet ich den ÖREB-Situationsplan von https://geodienste.ch/services/av/info[geodienste.ch]. Leider fehlt ein schweizweiter WMTS dieser Hintergrundkarte. Und aus diesem Grund wirkt es im vorliegenden Fall nicht so &laquo;snappy&raquo;
 
 Nun zu den ÖREB-Kataster spezifischen Bemerkungen und Beobachtungen:
 
@@ -66,4 +66,4 @@ Die gerenderte Reihenfolge im Client (also mein eigener Code) müsste ich auch n
 
 Harmlos aber nervend, wie ich finde:
 
-Was man noch sinnvollerweise testen sollte, ist der _layerIndex_ der Map-Elemente. Wenn sämtliche Elemente, also auch die Hintergrundkarte, den gleichen Wert aufweisen, weiss man nicht in welcher Reihenfolge die Bilder geschichtet werden müssen. Und wohl müsste im Regelfall (oder immer) die Hintergrundkarte - nomen est omen - tatsächlich im Hintergrund sein, also den kleinsten Wert aufweisen.
+Was man zusätzlich automatisch durch eine Maschine testen sollte, ist der _layerIndex_ der Map-Elemente. Wenn sämtliche Elemente, also auch die Hintergrundkarte, den gleichen Wert aufweisen, weiss man nicht in welcher Reihenfolge die Bilder geschichtet werden müssen. Und wohl müsste im Regelfall (oder immer) die Hintergrundkarte - nomen est omen - tatsächlich im Hintergrund sein, also den kleinsten Wert aufweisen.
