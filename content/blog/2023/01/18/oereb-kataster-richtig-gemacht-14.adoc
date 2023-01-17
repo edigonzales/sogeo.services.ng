@@ -6,76 +6,60 @@ Stefan Ziegler
 :jbake-tags: ÖREB,ÖREB-Kataster,FOP,Apache FOP,PDF
 :idprefix:
 
+Ok, schauen wir noch ein bisschen die PDF (aka statischer Auszug) an. Sicher nicht die systemkritischste Komponente. Aber man will einen einheitlichen Auftritt und die Frage ist, kriegt man ihn?
 
-....
+Ich habe mich auf Dinge beschränkt, die einem mehr oder weniger direkt ins Auge springen. Bei einigen dieser Dinge ist die Frage wie man es formal nachprüfen kann. Mich dünkt z.B. die Schrift an einer Stelle zu gross. Und nun? Strichlupe? Ich habe mich für den Weg via Import in https://inkscape.org/[_Inkscape_] entschieden. _Inkscape_ hat einen brauchbaren PDF-Import und Texte bleiben als Texte erhalten. Weil ich nicht weiss, wie gut und korrekt dieser letzten Endes ist, bleibt natürlich eine gewisse Unsicherheit.
 
-Genauso interessant wie typografische &laquo;Tüpflischisserei&raquo; ist die Frage wie man sowas überhaupt sinnvoll prüfen kann? Wie kann ich z.B. prüfen, ob die Schriftgrösse stimmt?
+Ich habe die Analysen nach ÖREB-PDF-Generator zu gruppieren versucht. In der Hoffnung, dass die Gruppierung stimmt. Verwendet ein Kanton Generator X, gelten die Aussagen oftmals auch für einen anderen Kanton, der denselben Generator einsetzt.
 
+Neben den rein visuellen Dingen, habe ich die Konformität des verlangten PDF-Formates _versucht_ zu überprüfen. Die Weisung verlangt, dass das PDF entweder ein PDF/A-1 oder PDF/A-2a ist. Die Überprüfung ist leider nicht ganz trivial. https://de.wikipedia.org/wiki/PDF/A[Wikipedia] beschreibt das Problem sehr gut: &laquo;Eine Validierung von gültigem PDF/A ist über entsprechende Prüfwerkzeuge möglich (siehe Weblinks). Diese Software-Tools sind sich jedoch häufig uneinig darüber, ob eine erzeugte Datei entsprechend PDF/A gültig ist. Der Grund dafür ist, dass die zugrundeliegenden Normen unterschiedlich interpretiert werden.&raquo; Ich habe https://avepdf.com/de/pdfa-validation[zwei] https://www.slub-dresden.de/veroeffentlichen/open-access-publizieren/pdfa-erstellung/slub-pdfa-validator?tx_slubpdfavalidator_pdfavalidator%5Baction%5D=show&tx_slubpdfavalidator_pdfavalidator%5Bcontroller%5D=Validator&cHash=6d6ea1dc278612daa71841856e34536b[Online-Validatoren] verwendet.
 
-Um die URL ein wenig einprägsamer zu machen, habe ich die Resultate der Prüfungen der kantonalen ÖREB-Kataster-Dienste unter https://monitoring.oereb.services[monitoring.oereb.services] publiziert (Digitalocean 10-Dollar-Deployment. Und irgendwie verstehe ich nicht wie genau das Restarten des Containers funktioniert, wenn der Health Check fehl schlägt. Oder übersehe ich was?). Ein Kanton hat sich bereits bewegt: Der Kanton Zürich hat &laquo;Versions&raquo; und &laquo;GetEGRID&raquo; korrigiert.
+**pyramid-oereb (mapfish print)**
+ 
+Als erstes fällt auf, dass das Gemeindewappen mit dem Gemeindenamen ergänzt wird. Meines Erachtens steht nichts davon in der Weisung. Und weil auf dem Titelblatt explizit die Gemeinde aufgelistet wird, finde ich das mindestens überflüssig.
 
-Die ÖREB-Spezifikationen und Weisungen sind gut, insbesondere die des ÖREB-Webservices und des DATA-Extracts. Mit dem XML-Output lässt sich z.B. das PDF erzeugen. Man muss (und soll) nicht zwei unterschiedliche Wege für die Herstellung des XML und des PDF beschreiten. Sondern das XML herstellen und daraus das PDF ableiten. Somit lassen sich bereits viele Fehler vermeiden, z.B. Inhalt XML != Inhalt PDF usw.
+Auf der Titelseite ist die erste Inhaltszeile von &laquo;Katasterverantwortliche Stelle&raquo; nicht bündig und ist zu Nahe am der Trennlinie.
 
-Eine andere Anwendungsmöglichkeit des XML-Auszuges ist die Aufbereitung/Ableitung zum dynamischen Auszug, sprich zu einer Webanwendung. Die Webanwendung braucht bloss den XML-Auszug für ein Grundstück abzurufen und kann aus den Informationen eine mehr oder weniger schicke Anwendung konfigurieren. Ich denke, einige der Clients der Kantone funktionieren (hoffentlich) so. Macht man das nun mit dem Anspruch, dass es schweizweit funktionieren soll - wir sind ja standardisiert - gewinnt man wieder Erkenntnisse über die Spezialitäten der Kantone und wohl auch noch über Fehler, die man sonst weniger gut entdecken würde. Gesagt, getan: https://map.oereb.services[map.oereb.services]. Es gibt sicher noch das eine oder andere Grundstück, wo es nicht funktioniert. Mal was Null, was man abfangen sollte o.ä. Und es fehlen genügend funktionierende Dienste, die Änderungen mit und ohne Vorwirkung publizieren, um die Gruppierung / Reihenfolge des Clients zu validieren. Oder ich habe die betroffenen Grundstücke nicht gefunden.
+Auf der zweiten Seite (dem Inhaltsverzeichnis) stimmt die Grösser des Textes nicht. Die jeweiligen Titel sind in der Schriftgrösse 8pt, die Auflistung der Themen in Schriftgrösse 9pt. Die Schriftgrösse der Themen muss aber 6pt sein. Die Ergänzung des Themas mit &laquo;(Rechtsgültig)&raquo; sollte nicht sein. Nur &laquo;nicht-rechtsgültige&raquo; müssen mit dem Rechtsstatus in Klammer ergänzt werden.
 
-Zuerst ein paar nicht-ÖREB-Bemerkungen:
+Die Beschreibung eines Typs auf den einzelnen ÖREB-Seiten ist zu gross: sie darf nur 8pt gross ein und nicht 9pt. Es scheint auch nicht sauber vertikal zentriert zu sein.
 
-Die Anwendung ist komplett in Java mit https://www.gwtproject.org/[_GWT_] geschrieben. Als Toolkit wird https://demo.dominokit.org/home[_Domino Kit_] verwendet. Das führt zu einem sehr angenehmen Entwickeln, da man sich im gleichen Ökosystem (Sprache, IDE, Build Tools) bewegt wie sonst auch. Mit https://graalvm.org[_GraalVM_] zu einem Native Image runterkompilieren und die &laquo;Java&raquo;-Anwendung startet 0.06 Sekunden.
+Der Kanton Zug verwendet auch Mapfish Print aber lustigerweise liegt das PDF in der Version 1.7 vor, was sowieso nicht PDF/A-1- oder PDF/A-2-konform sein kann.
 
-Will man etwas wie eine Adressen- und Grundstücksuche anbieten, reichen die Möglichkeiten des ÖREB-Webservices nicht mehr aus. Es fehlt schlichtweg die Möglichkeit mittels Freitext zu suchen. Soweit auch nicht schlimm und wohl auch nicht sinnvoll. Der https://api3.geo.admin.ch/services/sdiservices.html#search[Search-Service] der GeoAdmin API hilft uns. Der Dienst liefert eine Koordinate zurück. Mit dieser kann man einen EGRID beim ÖREB-Webservice abfragen. Nun müsste man die Anfrage an den Service eines jeden Kantons machen. Das wird nicht performen. Abhilfe schafft auch hier wieder die GeoAdmin API indem man den https://api3.geo.admin.ch/services/sdiservices.html#feature-resource[Feature Resource] Dienst verwendet und wissen will, in welchem Kanton (_ch.swisstopo.swissboundaries3d-kanton-flaeche.fill_) die soeben erhaltene Koordinate liegt. Mit diesem Wissen kann man direkt den Service des betroffenen Kantons mit dem GetEGRID-Request beglücken. Der vermeintlich unnötige GetEGRID-Request ist notwendig, um zu eruieren, ob es sich um eine Liegenschaft oder um ein Baurecht handelt, wenn man einen Auszug mittels Klick in die Karte anfordert und es an dieser Stelle https://map.oereb.services/?egrid=CH527354320619[mehrere Grundstücke] gibt. 
+Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
-Für die Hintergrundkarte verwende ich den ÖREB-Situationsplan von https://geodienste.ch/services/av/info[geodienste.ch]. Leider fehlt ein schweizweiter WMTS dieser Hintergrundkarte. Aus diesem Grund wirkt das Zoomen und Pannen nicht so &laquo;snappy&raquo;.
+**pdf4oereb**
 
-Nun zu den ÖREB-Kataster spezifischen Bemerkungen und Beobachtungen:
+Wir im Kanton Solothurn verwenden eine XSL/XSL-FO-Tranformation bei der Herstellung des PDF aus dem XML. Was mich nicht ganz korrekt dünkt, ist der eigentliche Namen des Inhaltsverzeichnis-Eintrags eines Themas. Gemäss Weisung ist die Logik: &laquo;Thema: Subthema&raquo;. Bei uns steht nur der Name des Subthemas. Ich frage mich, ob sich hier DATA-Extract und PDF-Weisung nicht widersprechen. Entweder wir benennen unsere Subthemen um oder man müsste im XML noch irgendwo den sprechenden Namen des Themas verwalten. Oder man müsste die ganze Table of Contents- vs. Themen-Geschichte bei den einzelnen ÖREB anders leben. Aber wie? Ist wohl wirklich nicht ganz widerspruchsfrei.
 
-**Inkompatible Kantone**
+Das PDF validert mit beiden Validatoren gegen PDF/A-1a.
 
-Von den momentan vorhandenen Versions-2-Kantonen, können folgende Kantone nicht für diesen Anwendungsfall verwendet werden (oder es wäre nur mit unnötigem Geknorze möglich):
+**Kantone NW, OW, UR**
 
-- AI: WMS verlangt Authentifizierung, https://www.geoportal.ch/services/wms/ktai?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&FORMAT=image%2Fpng&TRANSPARENT=true&LAYERS=ch.geoportal.raumplanung_grundstueckskataster.1478.0.oereb_zonenplan_kt_ai&MAPID=1478&CRS=EPSG%3A2056&WIDTH=493&HEIGHT=280&BBOX=2748370.5620040814%2C1243979.8562142858%2C2748756.2509959186%2C1244198.9087857143&AUTHENTICATE=true&EPOCH=2022-10-28T20%3A00%3A19&SRS=EPSG%3A2056[Beispielrequest].
-- AR: WMS verlangt Authentifizerung
-- BS: GEOMETRY=true beim https://api.oereb.bs.ch/getegrid/xml/?EN=2612855,1267223&GEOMETRY=true[GetEGRID-Request] führt zu Fehlern.
-- FR: Geometrie fehlt beim https://geo.fr.ch/RDPPF_ws/RdppfSVC.svc/getegrid/xml/?EN=2578478,1183785&GEOMETRY=true[GetEGRID-Request].
-- LU: Liefert keinen Referenz-WMS im Auszug mit.
-- NW: Liefert keinen Referenz-WMS im Auszug mit.
-- OW: Liefert keinen Referenz-WMS im Auszug mit.
-- SG: WMS verlangt Authentifizerung.
-- UR: Die Geometrien weisen ein falsches Koordinatensystem auf.
-- VS: Anstelle eines WMS wird eine ESRI-Irgendwas-Dienste-URL mitgeliefert.
+Die drei PDF dünken mich sehr ähnlich, es gibt aber einige Unterschiede. 
 
-Es funktionieren die Kantone AG, BE, BL, GR, JU, NE, SO, TG, TI, ZG, ZH.
+Im Kanton Uri weisen die Gemeindewappen den Gemeindenamen auf. Die Symbole sind zu klein. Im Kanton Uri noch kleiner als z.B. im Kanton NW. Die Trennlinie ist zu breit (1pt statt 0.2pt). Der Abstanz zwischen Bild und Auflistung der Typen ist zu klein. Zwischen dem Anteil und dem Prozentzeichen darf es keinen Leerschlag geben.
 
-**CORS**
+Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
-Ich wollte ohne Umwege über ein Backend den XML-Auszug anfordern und im Browser verarbeiten. D.h. das XML wird vom Browser angefordert. Nun geht das leider bei vielen Kantonen nicht, da die &laquo;CORS-Header&raquo; nicht gesetzt werden. Die KGK hat vor geraumer Zeit die Kantone darüber informiert. Damals ging es um die GetCapabilities-Antwort eines WMS, die vom Browser ohne die Header nicht verarbeitet werden kann:
+**Kanton Zürich**
 
-image::../../../../../images/oerebk_richtig_gemacht_p13/corsheader.png[alt="cors header", align="center"]
+Interessanterweise kann ich das PDF nicht gleich gut wie andere in Inkscape importieren. Es fehlen die Texte (was aber noch rein gar nichts über die Qualität des PDF aussagt). Was jedoch sofort auffällt ist, dass im Kanton Zürich praktisch alles kursiv geschrieben ist. Warum?
 
-Funktioniert hat es (ohne alle zu prüfen) in den Kantonen BE, SO und TG. Um dennoch an den XML-Auszug zu kommen, musste ein einfacher Proxy her, der serverseitig das XML anfordert und an den Browser zurückschickt.
+Bei den einzelnen Typen steht manchmal ein Asterix hinter den Quadratmeter und Prozent. Mir auch nicht klar. Ebenfalls steht ein überflüssiger Leerschlag zwischen Anteil und dem Prozentzeichen.
 
-**Layer-Opazität**
+Die Liste auf der letzten Seite bei &laquo;Begriffe und Abkürzungen&raquo; stammt wohl noch aus der ersten Version. Sie müsste umfangreicher und länger sein.
 
-Es gibt das Attribut _layerOpacity_, das die Deckkraft des Kartenelements regelt. In den Kantonen JU und ZH ist der Wert &laquo;1&raquo;. Das bedeutet, dass die Karte komplett deckend ist. Wahrscheinlich nicht so gewollt.
+Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
-**Reihenfolge**
+**Kanton Wallis**
 
-Die Reihenfolge der Themen wie auch der Dokumente ist in der Weisung definiert.
-Beim Kanton Zürich ist mir aufgefallen, dass die Reihenfolge der gesetzlichen Grundlagen nicht stimmt. Das RPG wird ganz am Ende aufgelistet und sollte eigentlich als erstes geführt werden. Der Kanton Aargau verwendet hier https://api.geo.ag.ch/v2/oereb/extract/xml/?EGRID=CH832377520646[&laquo;None&raquo;]. Das habe ich netterweise im Code abgefangen. Die Reihenfolge der Themen habe mir nicht angeschaut. 
+Der Kanton Wallis hat noch einige Version-1-Restanzen: Der Titel &laquo;Allfällige Eigentumsbeschränkungen, zu denen noch keine Daten vorhanden sind&raquo; ist nicht mehr korrekt. Ebenso gibt es keine vollständige Legende mehr. Die Abstände zwischen verschiedenen Elementen stimmt oftmals nicht.
 
-Die gerenderte Reihenfolge meines Clients müsste ich auch vertieft verifizieren, ob sie stimmt. Im ZH-Fall habe ich es im XML nachgeprüft.
+Was mich ein wenig irritiert ist, dass man anscheinend die falsche Farbe der Links nicht erkennt, resp. noch niemand erkannt hat. Auch die Schriftart selber ist nicht korrekt. Bei den Links wird anstelle Cadastra Helvetica verwendet.
 
-**Performance**
+Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
-Vielleicht ein heikles Thema. Mich dünkt, dass einige Dienste langsam sind. Ein denkbare Erklärung kann auch der http://blog.sogeo.services/blog/2022/10/16/oereb-kataster-richtig-gemacht-9.html[&laquo;ÖREB-Habasch&raquo;] sein, der im betroffenen Kanton wütet. Auffallend ist jedoch, dass Kantone mit der gleichen Software eher zu den langsameren gehören. Als Extrembeispiel dient der Kanton Aargau. Die GetEGRID-Anfrage dauert für ein https://map.oereb.services/?egrid=CH467223527107[Einfamilienhaus-Grundstück] zwischen 1 und 6 Sekunden. Das ist m.E. nicht mehr nachvollziehbar. Warum soll eine Point-in-Polygon-Abfrage so viel Zeit in Anspruch nehmen? Der Extract nimmt zwischen 5 und 12 Sekunden in Anspruch. Im https://map.oereb.services/?egrid=CH756746873539[Kanton Bern] ist es circa 1 Sekunde für den GetEGRID-Request und 3 Sekunden für den Extract. Die Kantone https://map.oereb.services/?egrid=CH338277496924[BL] und https://map.oereb.services/?egrid=CH548749776707[NE] sind ähnlich. Im Issue-Tracker findet man Meldungen zu einer https://github.com/openoereb/pyramid_oereb/issues/1508[Performance-Verschlechterung] in den neueren Versionen. Ich habe jedenfalls in Erinnerung, dass diese Kantone in der Version 1.0 schneller waren.
+**Fazit**
 
-Am anderen Ende der Skala sind die Kantone TG, ZH und SO: Da sind die GetEGRID-Requests im tieferen 3-stelligen Millisekundenbereich und der Extract gibt es für nicht allzu grosse Grundstücke im Subsekunden-Bereich.
-
-**Url-Encoding**
-
-Was ich echt nicht verstehe, sind gewisse Url-Encodings. Warum macht man sowas: &laquo;https%3A%2F%2Fwww.oereb2.apps.be.ch%2Fimage%2Fsymbol%2Fch.Nutzungsplanung%2Flegend_entry.png%3Fidentifier%3D3bcf516e-6419-4657-9190-a075e60c9512&raquo;? Warum encodiert man den Doppelpunkt und die beiden Slashs des Url-Schemas? Das ist doch nie nötig? Und ist bloss mühsam wenn man damit arbeiten will.
-
-**Identische Namen für unterschiedliche Dokumente**
-
-Beim Kanton Aargau erkennt man das https://oereblex.ag.ch/app/de/decrees[ÖREBlex-Datenmodell] wieder. Dort gibt es pro Entscheid ein Dokument, das Anhänge haben kann (oder so ähnlich). Das führt dazu, dass im XML unterschiedliche Dokumente den gleichen Titel aufweisen. Ob das sinnvoll ist, weiss ich nicht so recht. Tendiere zu nein. Der Kanton Aargau hat das jedenfalls visuell ansprechend im https://apps.geo.ag.ch/oereb/client/?lang=de&map_x=2646295.685&map_y=1248707.667&map_zoom=12&egrid=CH807752802322[dynamischen] Auszug gelöst (siehe Nutzungsplanung). Dito im PDF. Ganz streng genommen, sieht das wahrscheinlich die https://www.cadastre.ch/de/services/publication.detail.document.html/cadastre-internet/de/documents/oereb-weisungen/Weisung-OEREB-statischer-Auszug-de.pdf.html[Weisung zum statischen Auszug] nicht vor. In https://map.oereb.services/?egrid=CH807752802322[meinem Client] wird jedes Dokument aufgelistet, egal ob es den gleichen Titel trägt. Also auch wieder ein Spezialität, die man als Entwickler kennen müsste, weil mindestens nicht offensichtlich.
-
-Was man auch automatisch durch eine Maschine testen sollte, ist der _layerIndex_ der Map-Elemente. Wenn sämtliche Elemente, also auch die Hintergrundkarte, den gleichen Wert aufweisen, weiss man nicht in welcher Reihenfolge die Bilder geschichtet werden müssen. Und wohl müsste im Regelfall (oder immer) die Hintergrundkarte - nomen est omen - tatsächlich im Hintergrund sein, also den kleinsten Wert aufweisen.
+Wahrlich kein Weltuntergang aber irgendwie, auf einem anderen Level, trotzdem leicht verstörend. Wir können es uns leisten mindestens 5 Mal ein Werkzeug für den identischen Arbeitsschritt zu bauen (dafür aber keines wirklich korrekt). Zu viel Geld? Zu viele Programmierer, die sich verwirklichen wollen? Zu viele Leute, die reinreden, was alles konfigurierbar sein muss? Fehlanreize? Ich weiss es nicht. 
