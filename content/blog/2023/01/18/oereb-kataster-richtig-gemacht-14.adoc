@@ -56,7 +56,7 @@ Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
 Der Kanton Wallis hat noch einige Version-1-Restanzen: Der Titel &laquo;Allfällige Eigentumsbeschränkungen, zu denen noch keine Daten vorhanden sind&raquo; ist nicht mehr korrekt. Ebenso gibt es keine vollständige Legende mehr. Die Abstände zwischen verschiedenen Elementen stimmt oftmals nicht.
 
-Was mich ein wenig irritiert ist, dass man anscheinend die falsche Farbe der Links nicht erkennt, resp. noch niemand erkannt hat. Auch die Schriftart selber ist nicht korrekt. Bei den Links wird anstelle Cadastra Helvetica verwendet.
+Was mich ein wenig irritiert ist, dass man anscheinend die falsche Farbe der Links nicht erkennt, resp. noch niemand erkannt hat. Auch die Schriftart  ist nicht korrekt. Bei den Links wird anstelle Cadastra Helvetica verwendet.
 
 Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
