@@ -20,7 +20,7 @@ Als erstes fällt auf, dass das Gemeindewappen mit dem Gemeindenamen ergänzt wi
 
 Auf der Titelseite ist die erste Inhaltszeile von &laquo;Katasterverantwortliche Stelle&raquo; nicht bündig und ist zu Nahe am der Trennlinie.
 
-Auf der zweiten Seite (dem Inhaltsverzeichnis) stimmt die Grösser des Textes nicht. Die jeweiligen Titel sind in der Schriftgrösse 8pt, die Auflistung der Themen in Schriftgrösse 9pt. Die Schriftgrösse der Themen muss aber 6pt sein. Die Ergänzung des Themas mit &laquo;(Rechtsgültig)&raquo; sollte nicht sein. Nur &laquo;nicht-rechtsgültige&raquo; müssen mit dem Rechtsstatus in Klammer ergänzt werden.
+Auf der zweiten Seite (dem Inhaltsverzeichnis) stimmt die Grösse des Textes nicht. Die jeweiligen Titel sind in der Schriftgrösse 8pt, die Auflistung der Themen in Schriftgrösse 9pt. Die Schriftgrösse der Themen muss aber 8pt sein. Die Ergänzung des Themas mit &laquo;(Rechtsgültig)&raquo; sollte nicht sein. Nur &laquo;nicht-rechtsgültige&raquo; müssen mit dem Rechtsstatus in Klammer ergänzt werden.
 
 Die Beschreibung eines Typs auf den einzelnen ÖREB-Seiten ist zu gross: sie darf nur 8pt gross ein und nicht 9pt. Es scheint auch nicht sauber vertikal zentriert zu sein.
 
@@ -40,6 +40,8 @@ Die drei PDF dünken mich sehr ähnlich, es gibt aber einige Unterschiede.
 
 Im Kanton Uri weisen die Gemeindewappen den Gemeindenamen auf. Die Symbole sind zu klein. Im Kanton Uri noch kleiner als z.B. im Kanton NW. Die Trennlinie ist zu breit (1pt statt 0.2pt). Der Abstanz zwischen Bild und Auflistung der Typen ist zu klein. Zwischen dem Anteil und dem Prozentzeichen darf es keinen Leerschlag geben.
 
+Die Schriftgrösse im Inhaltsverzeichnis ist zu klein. Sie darf nicht 6pt sein, sondern muss 8pt sein.
+
 Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
 **Kanton Zürich**
@@ -56,7 +58,19 @@ Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
 Der Kanton Wallis hat noch einige Version-1-Restanzen: Der Titel &laquo;Allfällige Eigentumsbeschränkungen, zu denen noch keine Daten vorhanden sind&raquo; ist nicht mehr korrekt. Ebenso gibt es keine vollständige Legende mehr. Die Abstände zwischen verschiedenen Elementen stimmt oftmals nicht.
 
+Das ÖREB-Katasterlogo ist nicht rechtsbündig und verzerrt.
+
 Was mich ein wenig irritiert ist, dass man anscheinend die falsche Farbe der Links nicht erkennt, resp. noch niemand erkannt hat. Auch die Schriftart  ist nicht korrekt. Bei den Links wird anstelle Cadastra Helvetica verwendet.
+
+Das PDF ist gemäss beiden Validatoren nicht formatkonform.
+
+**Kanton Luzern**
+
+Der Kanton Luzern verwendet ebenfalls eine eigene Lösung. 
+
+Auf der Titelseite fehlt der Stand der amtlichen Vermessung. Die Schriften sind zu gross: 8.5pt statt 8pt. Im Inhaltsverzeichnis wird die alte Bezeichung &laquo;Allfällige...&raquo; verwendet. Das Gemeindelogo weist den Gemeindenamen auf.
+
+Bei den einzelnen ÖREB-Seiten fehlt der kleine Untertitel, der Auskunft über den Rechtsstatus liefert. Die Legende ist &laquo;komisch&raquo; aufgebaut. Irgendwie scheint es Unterkapitel zu geben, z.B. gibt es beim Zonenplan in der Legend das Unterkapitel &laquo;Grundnutzung&raquo; und &laquo;Überlagerungen&raquo;. Der eigentliche Legendentext, z.B. &laquo;Zone für öffentliche Zwecke&raquo; wird ebenfalls mit Subkontext versehen (&laquo;Zonentyp Gemeinde: Zone für öffentliche Zwecke&raquo;). Scheint mir nicht der Weisung zu entsprechen. Die Einrückungen der Links auf die Dokumente fehlt und deren Farbe ist nicht korrekt. Die weiteren Informationen und Hinweise folgen fälschlicherweise nach den zuständigen Stellen. Sie sollten vor den zuständigen Stellen gelistet werden.
 
 Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
