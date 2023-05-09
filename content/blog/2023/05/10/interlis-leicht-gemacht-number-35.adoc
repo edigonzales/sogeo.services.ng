@@ -25,6 +25,8 @@ java -jar /Users/stefan/apps/ili2pg-4.11.0/ili2pg-4.11.0.jar --dbhost localhost 
 
 `
 
+Es wird im Gegensatz zu den Modellen nix gecached. Wohl bewusst.(?)
+
 Test mit Geopackate inkl. Schemaimport. Ginge natürlich auch mit fgdb und lk...
 
 metaconf...
