@@ -24,7 +24,7 @@ Auf der zweiten Seite (dem Inhaltsverzeichnis) stimmt die Grösse des Textes nic
 
 Die Beschreibung eines Typs auf den einzelnen ÖREB-Seiten ist zu gross: sie darf nur 8pt gross ein und nicht 9pt. Es scheint auch nicht sauber vertikal zentriert zu sein.
 
-Der Kanton Zug verwendet auch Mapfish Print aber lustigerweise liegt das PDF in der Version 1.7 vor, was sowieso nicht PDF/A-1- oder PDF/A-2-konform sein kann.
+Der Kanton Zug verwendet auch Mapfish Print aber lustigerweise liegt das PDF in der Version 1.7 vor, was nicht PDF/A-1-konform, jedoch PDF/A-2-konform sein könnte.
 
 Das PDF ist gemäss beiden Validatoren nicht formatkonform.
 
