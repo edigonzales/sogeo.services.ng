@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,ili2db,Java
 :idprefix:
 
-Seit ili2db 4.10.0 gibt es neue Möglichkeiten seine Prozesse nochmals einfacher zu automatisieren:...
+Seit ili2db 4.10.0 gibt es neue Möglichkeiten seine Prozesse nochmals einfacher zu automatisieren: Man kann mit einem ili2db-Befehl Daten aus einem Daten-Repository herunterladen und in eine Datenbank importieren. Das Daten-Repository ist das Äquivalent zum Modell-Repository: Es werden beliebige Daten in strukturierter Form bereitgestellt. Die strukturierte Form ist in diesem Fall natürlich wieder eine INTERLIS-Transferdatei. Im Rahmen unseres neuen https://data.geo.so.ch/[Datenbezuges] habe ich ein solches https://data.geo.so.ch/ilidata.xml[Daten-Repository] erstellt. 
 
 
 `docker-compose up`
