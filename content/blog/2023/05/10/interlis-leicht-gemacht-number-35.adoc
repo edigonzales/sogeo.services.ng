@@ -115,7 +115,6 @@ Beinahe fast schon Feenstaub. INTERLIS mal wieder dem Rest um Längen voraus.
 
 Was passiert, wenn ich Datensätze importieren will, die aus verschiedenen Dateien bestehen? Z.B. die kommunalen Nutzungsplanung:
 
-
 [source,xml,linenums]
 ----
 <files>
@@ -142,7 +141,7 @@ Was passiert, wenn ich Datensätze importieren will, die aus verschiedenen Datei
 
 Es wird nur die erste Datei importiert. Scheint mir noch nicht ganz ausgereift zu sein. Hier würde sich wohl auch die Frage nach einer Unterstützung von `--dataset` stellen.
 
-Man kann nicht nur Daten in einem Daten-Repository referenzieren und bereitstellen, sondern auch Konfigurationen. Also mit welchen Paramatern ein Schema angelegt werden soll. Ein solche Konfigurationsdatei sieht für unsere Beispiel so aus:
+Man kann nicht nur Daten in einem Daten-Repository referenzieren und bereitstellen, sondern auch Konfigurationen. Also mit welchen Paramatern ein Schema angelegt werden soll. Eine solche Konfigurationsdatei ("ch.so.agi.hoheitsgrenzen.ini") sieht für unser Beispiel so aus:
 
 [source,xml,linenums]
 ----
@@ -190,7 +189,7 @@ Der dazugehörige Eintrag in der _ilidata.xml_-Datei:
 </DatasetIdx16.DataIndex.DatasetMetadata>
 ----
 
-Die `Code_`-Einträge sind - soweit ich die Dokumentation verstehe - freiwillig.
+Die `Code_`-Einträge sind - soweit ich die Dokumentation verstehe - freiwillig. Die Konfigurationsdatei mit den Optionen wird in den "file"-Attributen referenziert.
 
 Der ili2pg-Befehl verkürzt sich jetzt stark, da viele Optionen in der ini-Datei vorhanden sind. Weil ich für diese Konfigurationsdatei noch kein Repository haben, muss ich sie direkt ansprechen:
 
@@ -210,7 +209,7 @@ java -jar ili2gpkg-4.11.0.jar --dbfile hoheitsgrenzen.gpkg --metaConfig ch.so.ag
 
 Was bringt uns das nun alles?
 
-Das automatische Herunterladen und Importieren von Daten ist für Endbenutzer interessant, die regelmässig und automatisch Daten bei sich integrieren. Man muss jedoch ID des Datensatzes kennen, um von dieser Automatisierung zu profitieren, was wohl z.B. bei Lisa Liegenschaft nicht der Fall sein dürfte. Für uns wiederum könnte es für das lokale Entwickeln von Datenumbauten etc. interessant sein. Wir kennen plusminus die ID der Datensätze und können so Entwicklungsumgebungen auf Knopfdruch herstellen.
+Das automatische Herunterladen und Importieren von Daten ist für Endbenutzer interessant, die regelmässig und automatisch Daten bei sich integrieren. Man muss jedoch ID des Datensatzes kennen, um von dieser Automatisierung zu profitieren, was wohl z.B. bei Lisa Liegenschaft nicht der Fall sein dürfte. Für uns wiederum könnte es für das lokale Entwickeln von Datenumbauten etc. interessant sein. Wir kennen plusminus die ID der Datensätze und können so Entwicklungsumgebungen auf Knopfdruck herstellen.
 
 Die Bereitstellung der Konfigurationsdateien für die Schemaerstellung machen wir heute bereits ähnlich, jedoch mit einem selbstgestrickten Werkzeug. Dieses können wir mit ili2pg-pur ersetzen.
 
