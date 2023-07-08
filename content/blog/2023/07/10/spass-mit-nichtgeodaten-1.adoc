@@ -1,9 +1,9 @@
-= INTERLIS leicht gemacht #36 - Mapping rules matter und weitere Performancebeobachtungen
+= Spass mit Nicht-Geodaten #1 - csv2parquet
 Stefan Ziegler
-2023-05-14
+2023-07-10
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: INTERLIS,Java,Spring Boot,STAC
+:jbake-tags: INTERLIS,CSV,Parquet,Java
 :idprefix:
 
 Ich bin zur Zeit am https://github.com/edigonzales/sodata-stac[Entwickeln einer Anwendung], welche die Geodaten des Kantons als https://stacspec.org[STAC-Katalog] bereitstellt. Im Prinzip ist sie in einer ersten, einfachen Form fertig, nur konnte ich sie bei uns noch nicht in Betrieb nehmen, weil der OPTIONS-Request in der Firewall gesperrt ist. Dieser wird benötigt, wenn der STAC-Browser unseren Katalog anzapfen will. Was bei uns aufgrund der Umstände eine Woche geht, dauert bei Digitalocean eine Stunde:
