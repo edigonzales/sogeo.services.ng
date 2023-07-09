@@ -6,7 +6,65 @@ Stefan Ziegler
 :jbake-tags: OGD,INTERLIS,Java,CSV,Parquet
 :idprefix:
 
-Ob https://so.ch[wir] überhaupt mal OGD machen werden, steht noch in den Sternen. Es schadet aber wohl nichts, sich ein paar Gedanken zu den Abläufen und dem Einsatz und Zusammenspiel einzelner Komponenten zu machen. Synergien zu den Prozessen und den Werkzeugen in unserer https://geo.so.ch/[GDI] gibt es mit grosser Wahrscheinlichkeit.
+Ob https://so.ch[wir] überhaupt mal OGD machen werden, steht noch in den Sternen. Es schadet aber wohl nichts, sich ein paar Gedanken zu den Abläufen und dem Einsatz und Zusammenspiel einzelner Komponenten zu machen. Synergien zu den Prozessen und den Werkzeugen in unserer https://geo.so.ch/[GDI] gibt es mit genügend grosser Wahrscheinlichkeit.
+
+CSV-Dateien spielen anscheinend eine https://www.stadt-zuerich.ch/portal/de/index/ogd/werkstatt/csv.html[grosse] https://www.zh.ch/de/politik-staat/opendata/leitlinien.html#-932898780[Rolle]. Gehen wir also davon aus, dass Fachstellen ihre offenen Daten im CSV-Format anliefern. Ein paar Fragen, die sich stellen:
+
+- Wie beschreibt man CSV-Daten? (z.B. Was bedeutet das Attribut <xxx> genau?)
+- Wie kontrolliert man CSV-Daten?
+- Soll man neben CSV (und dem Klassiker XLSX) noch weitere, &laquo;bessere&raquo; Formate bereitstellen?
+
+Die ersten beiden Fragestellungen lassen sich mit INTERLIS erledigen. Eine Antwort auf die letzte Fragen könnte https://en.wikipedia.org/wiki/Apache_Parquet[Parquet] sein. Parquet ist ein spaltenorientiertes Dateiformat. Die Spezifikation ist quelloffen. Es eignet sich gut für die Abfrage und Verarbeitung von Daten. Oder vielleicht am Profansten: Es gibt Datentypen, Rätselraten war gestern.
+
+Was nun CSV mit INTERLIS zu tun hat und wie man eine CSV-Datei in eine Parquet-Datei umwandeln kann, zeige ich anhand meines kleinen Prototypes https://github.com/edigonzales/csv2parquet[_csv2parquet_]. Es handelt sich dabei um eine Java-Kommandozeilenanwendung und dient momentan vor allem Anschauungs- und Testzwecken. Früher oder später würde die Umwandlung bei uns wohl in unserer ETL-Werkzeug https://github.com/sogis/gretl[GRETL] integriert werden. Heruntergeladen werden kann die aktuellste Version https://github.com/edigonzales/csv2parquet/releases/[hier]. Die Zip-Datei entpacken und das Shell-Skript resp. die Batch-Datei auführen:
+
+```
+./bin/csv2parquet --help
+```
+
+In der Konsole sollte der Hilfetext erscheinen. Die Anforderungen an die Anwendung sind moderat (Java 8 reicht). Leider muss man gefühlt das halbe Internet herunterladen. Die Zip-Datei ist 70MB gross. Der Grund dafür sind die - für mich und viele anderen - unnötigen Hadoop-Abhängigkeiten der https://github.com/apache/parquet-mr[Parquet-Bibliothek]. Es gibt einen https://issues.apache.org/jira/browse/PARQUET-1822?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel[Issue] dazu. Vergessen wir das wieder und konzentrieren uns auf die Funktionen und erstellen die erste Parquet-Datei aus einer CSV-Datei. Ausgewählt habe ich die https://raw.githubusercontent.com/edigonzales/csv2parquet/b9172dd298f7b55a45eb89e4deb0b5009de58300/src/test/data/bewilligte_erdwaermeanlagen/bewilligte_erdwaermeanlagen.csv[bewilligten Erdwärmeanlagen]. Das https://afu.so.ch[Amt für Umwelt] stellt viele Daten bereits heute freundlicherweise https://so.ch/verwaltung/bau-und-justizdepartement/amt-fuer-umwelt/umweltdaten/[online]. Der einfachst mögliche Aufruf ist:
+
+
+```
+./bin/csv2parquet -i bewilligte_erdwaermeanlagen.csv
+```
+
+Damit das einfach so funktioniert, werden Annahmen bezüglich des Trennzeichens (Separator) und des Feldtrenners (Delimiter) getroffen. Standardwert für das Trennzeichen ist ein Semikolon und für den Feldtrenner ein leeres Zeichen (also kein Feldtrenner). Das entspricht dem Output von Excel:
+
+[source,xml,linenums]
+----
+jahr;anfragen;bewilligte_anlagen;durchschnittlicher_oelpreis_pro_1000_liter;bewilligte_erdsonden;bewilligte_erdkollektoren;sondenlaenge_km;heizleistung_kw;internet_clicks_durchschnitt_pro_monat
+1991;28;28;;26;2;;;
+1992;67;33;;26;7;;;
+1993;99;26;;24;2;;;
+----
+
+Wenn kein Zielverzeichnis (`--output`) angegeben wird, wird versucht die Parquet-Datei in das Quellverzeichnis zu schreiben. Jetzt haben wir zwar eine Paquet-Datei aber kann man sie anschauen? 
+
+
+
+https://duckdb.org/docs/guides/sql_editors/dbeaver.html
+
+
+
+iox-reader... / writer.
+
+
+
+
+
+attribute immer gleich 
+
+
+
+
+
+bug fix / local timestamp... nicht ganz deckungsglelich avro und parrquet (m.E.) PITA!!! 
+
+https://www.stadt-zuerich.ch/portal/de/index/ogd/werkstatt/csv.html
+
+Ob cli überhaupt im Einsatz bleibt/kommt, keine Ahnung. Es muss als GRETL-Task implementiert werden und vielleicht als Webservice.
+
 
 http://blog.sogeo.services/blog/2022/11/01/interlis-leicht-gemacht-number-31.html[Letzten Herbst] habe ich https://github.com/edigonzales/ili2c-native/releases[_ili2c_], https://github.com/edigonzales/ili2pg-native/releases[_ilivalidator_] und https://github.com/edigonzales/ilivalidator-native/releases[_ili2pg_] mit https://www.graalvm.org/[_GraalVM_] zu einem https://www.graalvm.org/latest/reference-manual/native-image/[Native Image] kompiliert. Daraus resultiert - im Gegensatz zu den https://downloads.interlis.ch[offiziell publizierten] Versionen - eine betriebssystemabhängige Variante, die jedoch keine Java-Installation benötigt. Das Kompilieren übernimmt eine Github Action und somit können mindestens drei Betriebssysteme (Windows, Ubuntu-Linux, macOS) problemlos angeboten werden.
 
