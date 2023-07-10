@@ -18,16 +18,18 @@ Die ersten beiden Fragestellungen lassen sich mit INTERLIS erledigen. Eine Antwo
 
 Was nun CSV mit INTERLIS zu tun hat und wie man eine CSV-Datei in eine Parquet-Datei umwandeln kann, zeige ich anhand meines kleinen Prototypes https://github.com/edigonzales/csv2parquet[_csv2parquet_]. Es handelt sich dabei um eine Java-Kommandozeilenanwendung und dient momentan vor allem Anschauungs- und Testzwecken. Früher oder später würde die Umwandlung bei uns wohl in unserer ETL-Werkzeug https://github.com/sogis/gretl[GRETL] integriert werden. Heruntergeladen werden kann die aktuellste Version https://github.com/edigonzales/csv2parquet/releases/[hier]. Die Zip-Datei entpacken und das Shell-Skript resp. die Batch-Datei auführen:
 
-```
+[source,xml,linenums]
+----
 ./bin/csv2parquet --help
-```
+----
 
 In der Konsole sollte der Hilfetext erscheinen. Die Anforderungen an die Anwendung sind moderat (Java 8 reicht). Leider muss man gefühlt das halbe Internet herunterladen. Die Zip-Datei ist circa 70MB gross. Der Grund dafür sind die - für mich und viele anderen - unnötigen Hadoop-Abhängigkeiten der https://github.com/apache/parquet-mr[Parquet-Bibliothek]. Es gibt einen https://issues.apache.org/jira/browse/PARQUET-1822?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel[Issue] dazu. Vergessen wir das wieder und konzentrieren uns auf die Funktionen und erstellen die erste Parquet-Datei aus einer CSV-Datei. Ausgewählt habe ich die https://raw.githubusercontent.com/edigonzales/csv2parquet/b9172dd298f7b55a45eb89e4deb0b5009de58300/src/test/data/bewilligte_erdwaermeanlagen/bewilligte_erdwaermeanlagen.csv[bewilligten Erdwärmeanlagen]. Das https://afu.so.ch[Amt für Umwelt] stellt viele Daten bereits heute freundlicherweise https://so.ch/verwaltung/bau-und-justizdepartement/amt-fuer-umwelt/umweltdaten/[online]. Der einfachst mögliche Aufruf ist:
 
 
-```
+[source,xml,linenums]
+----
 ./bin/csv2parquet -i bewilligte_erdwaermeanlagen.csv
-```
+----
 
 Damit das einfach so funktioniert, werden Annahmen bezüglich des Trennzeichens (Separator) und des Feldtrenners (Delimiter) getroffen. Standardwert für das Trennzeichen ist ein Semikolon und für den Feldtrenner ein leeres Zeichen (also kein Feldtrenner). Das entspricht dem Output von Excel:
 
@@ -39,11 +41,58 @@ jahr;anfragen;bewilligte_anlagen;durchschnittlicher_oelpreis_pro_1000_liter;bewi
 1993;99;26;;24;2;;;
 ----
 
-Wenn kein Zielverzeichnis (`--output`) angegeben wird, wird versucht die Parquet-Datei in das Quellverzeichnis zu schreiben. Jetzt haben wir zwar eine Paquet-Datei aber kann man sie anschauen? 
+Wenn kein Zielverzeichnis (`--output`) angegeben wird, wird versucht die Parquet-Datei in das Quellverzeichnis zu schreiben. Jetzt haben wir zwar eine Paquet-Datei aber kann man sie anschauen? Für ganz rasches Quick 'n' Dirty reicht mir (eher aus Entwicklersicht) ein Online-Viewer, z.B. https://www.parquet-viewer.com/. Der Viewer hat anscheinend gerade ein Update erfahren und einige Features sind nicht mehr gratis. Es gibt aber auch noch andere Möglichkeiten relativ einfach eine Parquet-Datei anzuschauen: Und zwar mit [https://dbeaver.io/]_dbeaver_. Wenn man es sowieso in Betrieb hat, muss man einmalig einen zusätzlichen https://duckdb.org/docs/guides/sql_editors/dbeaver.html[Treiber installieren] (basierend auf _DuckDB_). Wurde der Treiber installiert, kann man mit einem simplen https://duckdb.org/docs/guides/import/parquet_import[`SELECT`] die Daten anzeigen lassen:
 
+image::../../../../../images/ogd-made-easy-01/dbeaver01.png[alt="Parquet in dbeaver", align="center"]
+
+Mit `DESCRIBE SELECT` kann man Informationen über die Attribute anzeigen und es fällt auf, dass der Datentyp immer Text ist:
+
+image::../../../../../images/ogd-made-easy-01/dbeaver02.png[alt="Describe Parquet in dbeaver", align="center"]
+
+Wie man das ändern kann, zeige ich gleich. Vorher möchte ich erläutern, wie man mit unterschiedlichen Trennzeichen und Feldtrennern umgeht. Als Beispiel verwende ich den gleichen https://raw.githubusercontent.com/edigonzales/csv2parquet/8a8b611928eb03be56d50f30a39ca31360dbfa24/src/test/data/bewilligte_erdwaermeanlagen/bewilligte_erdwaermeanlagen_komma_anfuehrungszeichen.csv[Datensatz] aber mit einem Komma als Trennzeichen und Anführungszeichen als Feldtrenner.
+
+[source,csv,linenums]
+----
+"jahr","anfragen","bewilligte_anlagen","durchschnittlicher_oelpreis_pro_1000_liter","bewilligte_erdsonden","bewilligte_erdkollektoren","sondenlaenge_km","heizleistung_kw","internet_clicks_durchschnitt_pro_monat"
+"1991","28","28","","26","2","","",""
+"1992","67","33","","26","7","","",""
+"1993","99","26","","24","2","","",""
+----
+
+Wenn ich _csv2parquet_ gleich wie im ersten Aufruf verwende, wird das mit einem Fehler (&laquo;org.apache.avro.SchemaParseException&raquo;) quittiert. Das Problem ist eben, dass die Zeilen nicht geparsed werden können. Wir müssen _csv2parquet_ mit dem richtigen Feld- und Trennzeichen konfigurieren. Das geschieht mit einer TOML-Datei:
+
+[source,toml,linenums]
+----
+["ch.so.afu.bewilligte_erdwaermeanlagen"]
+firstLineIsHeader=true
+valueSeparator=","
+valueDelimiter="\""
+----
+
+Was zwischen den eckigen Klammern steht, spielt momentan noch keine Rolle. Wichtig ist jedoch, dass der Text dazwischen immer zwischen Anführungszeichen steht. Die drei Optionen sind selbsterklärend. Das Anführungszeichen als Feldtrenner muss escaped werden. Der Aufruf ändert sich zu:
+
+
+[source,xml,linenums]
+----
+./bin/csv2parquet -i bewilligte_erdwaermeanlagen_komma_anfuehrungszeichen.csv -c config.toml
+----
+
+Es resultiert wiederum eine Parquet-Datei, die aus reinen Text-Attributen besteht. Als weitere Option steht `encoding` zur Verfügung, um z.B. `ISO-8859-1` encodierte CSV-Dateien korrekt lesen zu können.
+
+Was augenfällig sein sollte, ist die Tatsache, dass man immer den Feldtrenner verwenden _muss_. Man kann also keine CSV verwenden, in der z.B. Texte mit Anführungszeichen begrenzt werden, numerische Werte aber nicht. Zuerst fand ich das nicht gut, dann sehr gut, nun eher hin- und hergerissen. Malesh, ist nun mal so und müsste in der darunterliegenden Bibliothek geändert werden und verliert vor allem den Schrecken, wenn wir endlich INTERLIS ins Spiel bringen.
+
+
+
+
+ilidata:
+
+
+
+https://raw.githubusercontent.com/edigonzales/csv2parquet/8a8b611928eb03be56d50f30a39ca31360dbfa24/src/test/data/bewilligte_erdwaermeanlagen/bewilligte_erdwaermeanlagen_komma_anfuehrungszeichen.csv
 
 
 https://duckdb.org/docs/guides/sql_editors/dbeaver.html
+
 
 
 
