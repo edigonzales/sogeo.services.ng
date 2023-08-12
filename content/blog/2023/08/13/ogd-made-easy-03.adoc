@@ -14,7 +14,7 @@ Jeder Kubernetes- oder OpenShift-Leidgeplagte kennt es wohl: https://grafana.com
 
 Unsere OGD-Daten haben wir von CSV nach Parquet und Excel umformatiert. Wie sieht es damit in _Grafana_ aus? Eher mau. Es gibt zwar unzählige Datenquellen, die man anzapfen kann. Aber Parquet ist nicht https://grafana.com/docs/grafana/latest/datasources/[darunter]. Wenn man nicht gleich &laquo;all in&raquo; via https://grafana.com/docs/grafana/latest/datasources/postgres/[PostgreSQL] gehen will, bleibt fast nur noch CSV mit dem https://grafana.com/grafana/plugins/yesoreyeram-infinity-datasource/[Infinity-Plugin]. Hier natürlich sehr nervig, weil man entweder explizit den Datentyp casten muss oder aufpassen muss, dass Grafana resp. das Plugin den Datentyp aus dem CSV korrekt erkennt. Die Gestaltungsmöglichkeiten sind umfrangreich und die Dokumentation ist gut:
 
-Bildli ....
+image::../../../../../images/ogd-made-easy-03/grafana-example.png[alt="Grafana Beispiel", align="center"]
 
 Als Vergleich dazu die Grafik aus der heute bereitgestellten Exceldatei.
 
