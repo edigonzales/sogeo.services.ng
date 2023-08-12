@@ -51,7 +51,7 @@ Die Zeiten sind mit Vorsicht zu geniessen und würden in der Produktion nicht ga
 
 Wie erwähnt hatte ich bereits einige der Strukturen bewusst als JSON-Objekt abbilden lassen. Der Grund dafür war, dass ich mich entschieden hatte, sämtliche Logik zum Herstellen der JSON-Dateien (gemäss STAC-Spezifikation) in der Datenbank mit den https://www.postgresql.org/docs/15/functions-json.html[PostgreSQL-JSON-Funktionen] zu machen. Zu dieser Thematik gibt es https://www.crunchydata.com/blog/generating-json-directly-from-postgres[interessante] https://blog.jooq.org/stop-mapping-stuff-in-your-middleware-use-sqls-xml-or-json-operators-instead/[Artikel]. Die Businesslogik in der Anwendung selber ist nun praktisch inexistent. Es werden nur Controller benötigt.
 
-Weil die Anzahl der DB-Queries dermassen matchentscheidend sind, hat mich getriggert und ich habe ein paar weitere Vergleiche gemacht. Wenn die Anzahl der Queries wichtig ist, ist entsprechend die Geschwindigkeit der Query auch entscheidend. Weniger die Dauer direkt auf dem DB-Server, sondern die Dauer vom Absetzen des Requests in der Anwendung bis zur Antwort. Dazu habe ich bei Digitalocean eine gemanagte Datenbank erstellt und verglich wie lange ein Import meiner 93 Objekte dauert. Als Abbildungsregel habe ich &laquo;alles mit JSON (ausser Items)&raquo; verwendet. Einmal importierte ich die Daten vom lokalen Rechner und einmal von einem Digitalocean-Server im gleichen Rechenzentrum.
+Weil die Anzahl der DB-Queries dermassen matchentscheidend ist, habe ich ein paar weitere Vergleiche gemacht. Wenn die Anzahl der Queries wichtig ist, ist entsprechend die Geschwindigkeit der Query auch entscheidend. Weniger die Dauer direkt auf dem DB-Server, sondern die Dauer vom Absetzen des Requests in der Anwendung bis zur Antwort. Dazu habe ich bei Digitalocean eine gemanagte Datenbank erstellt und verglich wie lange ein Import meiner 93 Objekte dauerte. Als Abbildungsregel habe ich &laquo;alles mit JSON (ausser Items)&raquo; verwendet. Einmal importierte ich die Daten vom lokalen Rechner und einmal von einem Digitalocean-Server im gleichen Rechenzentrum.
 
 [cols="1,1,1"]
 |===
@@ -89,6 +89,6 @@ Conclusion (aus der Sicht eines möglichst schnellen Imports):
 - Falls möglich sollten Strukturen mit JSON abgebildet werden.
 - Die Requests sollten gebatched werden. Dies würde ich aber noch vertiefter prüfen wollen, ggf. hat das auch unter gewissen Umständen einen negativen Impact.
 - `SELECT nextval($1)`: Vielleicht hat jemand eine gute Idee.
-- Entwicklung einer &laquo;smart3Inheritance&raquo;-Methode, die Assoziationen als JSON-Objekte abbilden. 
+- Entwicklung einer &laquo;smart3Inheritance&raquo;-Methode, die Assoziationen als JSON-Objekte abbildet. 
 
 Zu &laquo;smart3Inheritance&raquo;: Keine Ahnung, ob das im grösseren Kontext sinnvoll ist und/oder gut umsetzbar ist. Wenn ich aber z.B. an eine Klasse mit einem Geometrieattribut denke, die eine Beziehung zu Dokumenten hat, könnten die Dokumente als JSON-Objekt in einem JSON-Feld in der Tabelle mit der Geometrie abgebildet werden. Ist wohl sowieso das, was man will, wenn man die Daten bloss anzeigen will (und nicht editieren will).
