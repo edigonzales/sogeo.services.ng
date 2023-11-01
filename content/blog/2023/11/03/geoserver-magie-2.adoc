@@ -6,16 +6,16 @@ Stefan Ziegler
 :jbake-tags: GeoServer,Freemarker,WMS,GetFeatureInfo
 :idprefix:
 
-https://geoserver.org/[_GeoServer_] war schon immer der WMS-Server der Herzen, also meines Herzens. Ganz zu Beginn (muss 2001 oder früher gewesen sein) hatten wir https://mapserver.org/[_MapServer_] erfolgreich im Einsatz. _GeoServer_ haben wir dann ein paar Jahre für das Herstellen von grossformatigen PDF verwendet. Zu guter Letzt sind wir dem Marketing von QGIS-Server erlegen und haben auch diesen WMS-Server in Betrieb genommen. Ein wichtiges Ziel bei der Einführung des neuen Web GIS Clients (2016 - 2018) war die Reduktion der WMS-Server auf einen. Die Wahl fiel auf QGIS-Server. Weil wir früher oder später auch wieder mal beim Web GIS Client und sämtlichen Services und Umsystemen über die Bücher müssen, darf man sich _GeoServer_ wieder ins Gedächtnis rufen. 
+https://geoserver.org/[_GeoServer_] war schon immer der WMS-Server der Herzen, also meines Herzens. Ganz zu Beginn (muss 2001 oder früher gewesen sein) hatten wir https://mapserver.org/[_MapServer_] erfolgreich im Einsatz. _GeoServer_ haben wir dann ein paar Jahre für das Herstellen von grossformatigen PDF verwendet. Zu guter Letzt sind wir dem Marketing von QGIS-Server erlegen und haben auch diesen WMS-Server in Betrieb genommen. Ein wichtiges Ziel bei der Einführung des neuen Web GIS Clients (2016 - 2018) war die Reduktion der WMS-Server auf einen. Die Wahl fiel auf QGIS-Server. Weil wir früher oder später beim Web GIS Client und sämtlichen Services und Umsystemen über die Bücher müssen, darf man sich _GeoServer_ wieder ins Gedächtnis rufen. 
 
-Ich fand bei _GeoServer_ immer gut, dass da bereits viel mitkommt, was wir bei unserer Lösung damals zusätzlich programmieren lassen mussten, z.B.
+Ich fand bei _GeoServer_ immer gut, dass bereits viel mitkommt, was wir bei unserer Lösung damals zusätzlich programmieren lassen mussten, z.B.
 
 - Identity and Access Management
 - GUI für die Administration 
 - Layergruppen zu einem Einzellayer gruppiert
 - Mächtige Konfigurationsmöglichenkeiten bei der GetFeatureInfo-Funktion
 
-Und um diese Konfigurationsmöglichenkeiten geht es hier und jetzt. Ich habe bereits vor http://blog.sogeo.services/blog/2018/09/10/geoserver-magie-1.html[fünf Jahren davon geschwärmt] und immer noch fasziniert. Ich habe unsere Anforderungen an die Objektabfrage (die plusminus der GetFeatureInfo-Abfrage entspricht) als Vergleichsaufgabe hinzugezogen: Wie ginge das mit _GeoServer_?
+Und um diese Konfigurationsmöglichenkeiten geht es hier und jetzt. Ich habe bereits vor http://blog.sogeo.services/blog/2018/09/10/geoserver-magie-1.html[fünf Jahren davon geschwärmt] und bin immer noch fasziniert. Ich habe unsere Anforderungen an die Objektabfrage (die plusminus der GetFeatureInfo-Abfrage entspricht) rausgekramt und will wissen, wie das mit _GeoServer_ ginge?
 
 Anforderungen:
 
