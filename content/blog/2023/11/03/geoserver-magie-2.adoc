@@ -6,6 +6,77 @@ Stefan Ziegler
 :jbake-tags: GeoServer,Freemarker,WMS,GetFeatureInfo
 :idprefix:
 
+https://geoserver.org/[_GeoServer_] war schon immer der WMS-Server der Herzen, also meines Herzens. Ganz zu Beginn (muss 2001 oder früher gewesen sein) hatten wir https://mapserver.org/[_MapServer_] erfolgreich im Einsatz. _GeoServer_ haben wir dann ein paar Jahre für das Herstellen von grossformatigen PDF verwendet. Zu guter Letzt sind wir dem Marketing von QGIS-Server erlegen und haben auch diesen WMS-Server in Betrieb genommen. Ein wichtiges Ziel bei der Einführung des neuen Web GIS Clients (2016 - 2018) war die Reduktion der WMS-Server auf einen. Die Wahl fiel auf QGIS-Server. Weil wir früher oder später auch wieder mal beim Web GIS Client und sämtlichen Services und Umsystemen über die Bücher müssen, darf man sich _GeoServer_ wieder ins Gedächtnis rufen. 
+
+Ich fand bei _GeoServer_ immer gut, dass da bereits viel mitkommt, was wir bei unserer Lösung damals zusätzlich programmieren lassen mussten, z.B.
+
+- Identity and Access Management
+- GUI für die Administration 
+- Layergruppen zu einem Einzellayer gruppiert
+- Mächtige Konfigurationsmöglichenkeiten bei der GetFeatureInfo-Funktion
+
+Und um diese Konfigurationsmöglichenkeiten geht es hier und jetzt. Ich habe bereits vor http://blog.sogeo.services/blog/2018/09/10/geoserver-magie-1.html[fünf Jahren davon geschwärmt] und immer noch fasziniert. Ich habe unsere Anforderungen an die Objektabfrage (die plusminus der GetFeatureInfo-Abfrage entspricht) als Vergleichsaufgabe hinzugezogen: Wie ginge das mit _GeoServer_?
+
+Anforderungen:
+
+- Aliasnamen: Die Attributnamen aus der Datenbank sollen überschrieben werden können.
+- Attribute sollen ausgeblendet resp. nicht angezeigt werden können.
+- Reihenfolge der Attribute muss konfigurierbar sein
+- Attributewerte sollen formatiert werden können. Z.B. &laquo;true&raquo; soll zu &laquo;Ja&raquo; formatiert werden.
+- Neue Attribute sollen hinzugefügt werden können, z.B. ein Link auf eine Fachanwendung. Der Link ist nicht in der Datenquelle vorhanden.
+- Der hinzukonfigurierte Link soll zudem verwendet werden können, um einen Report-Service aufzurufen. Dem Report-Service muss die Objekt-ID und die geklickte Koordinate mitgeliefert werden können.
+- Fotos (Link auf URL) sollen automatisch dargestellt werden (nur HTML-Output).
+- Allfälliges JSON als Attributwert soll als Key-Value gerendert werden (nur HTML-Output).
+- Templating Engine für sehr spezifische Outputs.
+- Beliebige SQL-Query: Das Resultat einer beliebigen SQL-Query wird als Key-Value in der GetFeatureInfo-Antwort zurückgeliefert.
+- Beliebige Businesslogik: Es wird selbst programmierter Code ausgeführt und das Resultat wird als Key-Value in der GetFeatureInfo-Antwort zurückgeliefert. Haben wir wenig überraschend wirklich nicht so gerne und noch weniger gerne als die SQL-Query.
+
+**Templating Engine** 
+
+Wahrscheinlich das Wichtigste gleich zu Beginn: GetFeatureInfo-Antworten werden für die Formate GeoJSON und HTML mittels https://freemarker.apache.org/[Freemarker Templates] https://docs.geoserver.org/stable/en/user/tutorials/freemarker.html[konfiguriert]. Somit ist die Basis für viel Einflussnahme gelegt. Die Templates können global, pro Workspace oder für einen spezifischen Layer definiert werden.
+
+Wünschenswert ist natürlich ein möglichst generisches, globales Template herstellen zu können und nur für die absoluten Spezialfälle ein zusätzliches.
+
+**Aliasnamen / Attribute ausblenden / Reihenfolge**
+
+Diese drei Anforderungen können seit https://geoserver.org/announcements/2022/05/24/geoserver-2-21-0-released.html[Version 2.21.0] leicht umgesetzt werden: 
+
+image::../../../../../images/geoserver-magie-p2/attributes01.png[alt="Customize attributes", align="center"]
+
+Das Attribute &laquo;schoener_Stein&raquo; wird zu &laquo;Schöner Stein&raquo;. Mit den Pfeilen kann man die Reihenfolge ändern und dem roten Kreis, kann man Attribute entfernen. Hat jetzt noch Luft nach oben, was die Benutzerfreundlichkeit betrifft: Ich würde lieber ein Attribut visuell &laquo;disablen&raquo; und nicht löschen. Und die Reihenfolge möchte ich mit Drag 'n' Drop verändern.
+
+Wenn man die Attributnamen verändert, muss man unbedingt wissen, dass der XML/GML-Output nicht mehr zwingend funktioniert. _GeoServer_ sendet eine WFS-FeatureCollection zurück. Attribute landen in XML-Tags. Was natürlich mit Umlauten und Leerzeichen nicht mehr funktioniert. Die erlaubten Antwortformate lassen sich aber in _GeoServer_ konfigurieren.
+
+**Attributwerte formatieren**
+
+Inbesondere bei Boolean-Werten hat man das Bedürfnis diese anders als true/false zu rendern. Hier helfen uns die https://docs.geoserver.org/main/en/user/filter/function_reference.html[Filter-Funktionen]. Mit diesen lassen sich die Attributwerte verändern. Im folgenden Beispiel wird zuerst geprüft, ob der Werte null ist und anschliessend findet das eigentliche Umwandlung in den &laquo;schönen&raquo; String statt:
+
+image::../../../../../images/geoserver-magie-p2/attributes02.png[alt="Customize attributes", align="center"]
+
+**Neue Attribute**
+
+Wozu braucht man das? Wir verlinken regelmässig aus der Antwort einer Objektabfrage zu anderen Fachanwendungen. Ein gutes Beispiel sind die Grundstücke. Klickt man auf das Grundstück, wird zusätzlich ein Link auf die Grundbuch-Webanwenwendung gerendert. Dieser Link soll nicht Bestandteil der eigentlichen Daten sein und er muss dynamisch sein. D.h. Der Query-Parameter des Links ändert sich bei jedem Grundstück, damit man direkt beim angewählten Grundstück in der Fachanwendung landet. Stand heute machen wird das mit einem zusätzlichen, speziellen Jinja-Template. Mit _GeoServer_ geht das einfacher: neue Attribute können mit &laquo;Add attribute&raquo; hinzugefügt werden. Mit den bereits erwähnten Filterfunktionen und dem Zugriff auf andere Attribute (hier &laquo;egrid&raquo;) kann der Link einfach hergestellt werden:
+
+image::../../../../../images/geoserver-magie-p2/attributes03.png[alt="Customize attributes", align="center"]
+
+**Objekt-ID und geklickte Koordinate**
+
+Wir haben einen eigenen Report-Service, der Zusatzinformationen zu Objekten als PDF oder Excel zurückliefert. Dem Report-Service muss man die Objekt-ID (des geklickten Objekts) und/oder die geklickte Koordinate übergeben. Was der Report-Service dann man macht, ist ihm überlassen. Heute können wir in unserer Administrationsanwendung die Reports direkt einem WMS-Layer zuweisen. Mit _GeoServer_ würde man den Link wie oben als zusätzliches Attribut erfassen. Was aber noch fehlt, ist die geklickte Koordinate. Diese müssen als Platzhalter im Link erfasst werden und können anschliessend im Freemarker Template zur Laufzeit berechnet werden. Im Freemarker Template stehen gewisse Informationen immer zur Verfügung. So z.B. die GetFeatureInfo-Request-URL. Aus dieser lässt sich die geklickte Koordinate berechnen und dem Link hinzufügen. Das kann im globalen Template gemacht werden.
+
+**Fotos rendern**
+
+Im globalen Templaten kann geprüft werden, ob eine Link auf ein Foto zeigt. Mehr oder weniger muss nur die Endung geprüft werden. Ist es keine Foto, wird nur der Link gerendert.
+
+**JSON rendern**
+
+Objekte weisen bei uns manchmal Attribute auf, deren Inhalt JSON ist. Das rührt daher, dass einem Objekt z.B. mehrere Dokumente zugewiesen sind. Das lösen wir so, dass wir diese unbekannte Anzahl an Dokumenten als JSON im Attribut kodieren. In der GetFeatureInfo-Antwort soll aber kein JSON-String stehen, sondern wie alle anderen Attribute im Key-Value-Stil gerendert werden. Auch diese Anforderungen kann direkt in einem globalen Template gelöst werden. Herausfordernd ist, herauszufinden, ob es sich um JSON handelt oder um einen normalen String. Freemarker sieht für beide Fälle nur einen String (weil _GeoServer_ das bereits umwandelt). 
+
+
+Ncohmals wegen HTML und JSON...
+
+
+
+
 Daten werden ja häufig - den Regeln der Kunst entsprechend - in einem normalisierten und relationalen Datenmodell erfasst. Da kann die Geometrie als solches auch schon mal die Nebenrolle spielen. Häufig haben wir den Fall, dass einer Geometrie mehrere Fotos oder PDF zugewiesen werden müssen. Soweit noch nichts Aussergewöhnliches und auch die Umsetzung geht rasch: Dank https://qgis.org/[QGIS], http://interlis.ch/[INTERLIS] und dem https://github.com/opengisch/projectgenerator[QGIS-Projektgenerator] ist die Sache in kürzester Zeit modelliert und die generische Fachschale auf Knopfdruck parat.
 
 Die Diskussion startet aber spätestens wenn man dieses normalisierte Erfassungsmodell in eine für die gebräuchlichen WMS-Softwaren (also QGIS-Server, http://geoserver.org/[GeoServer] und https://mapserver.org/[MapServer]) taugliche Struktur bringen muss. Wenn dieser normalisierte und relationale Ansatz mit QGIS-Desktop und seinen mächtigen Formularfunktionen bei der Datenerfassung noch gut funktioniert, geht das nicht mehr so wirklich mit den genannten WMS-Servern. Diese erwarten eher resp. funktionieren am besten mit flachen und &laquo;dummen&raquo; Tabellen. Man möchte ja bloss z.B. im Web GIS Client auf eine Geometrie klicken und dann soll zumindest als Link jedes Foto oder PDF aufgelistet werden. Wie so oft gibt es hier verschiedene Lösungen. Bei uns als Altlast noch häufig verbreitet: man löst es halt für jeden Layer separat in der Objektabfrage. Das heisst, dass mit einem Mischmasch aus einer Skriptsprache (PHP...) und SQL was zusammengebastelt wird, so dass die Objektabfrage etwa das liefert, was man sich vorstellt. Vorteil: man kann sich selber verwirklichen. Nachteil: man verwirklicht sich selber.
