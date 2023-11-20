@@ -72,3 +72,5 @@ SET CONSTRAINT WHERE gewaehlt : INTERLIS.objectCount(ALL) == PARAMETER CH_BFS_Wa
 Wer hätte das gedacht! INTERLIS hilft sogar bei der Publikation korrekter Wahlresultate. Spass beiseite. Ich bin auf den Bericht gespannt, der die ganze Sache untersuchen soll. Jedenfalls dünkt mich viel Optimierungspotenzial vorhanden. Die Vorteile mit INTERLIS liegen auf der Hand. Ein nicht ganz offensichtlicher Vorteil ist die gute Testbarkeit des gesamten Systems. Alles kann mit Testdaten bequem getestet werden und die Businesslogik ist nicht irgendwie verpackt in Skripts und Microservices, sondern in einem bestehenden Kommandozeilen-Werkzeug. Brauche ich wirklich Hipster-Microservices, kann ich die INTERLIS-Programmbibliotheken verwenden.
 
 Die XTF-Datei zum Rumspielen und Provozieren von Fehlern kann https://raw.githubusercontent.com/edigonzales/bfs-fix/f0235d35280177b9f9eb38f60b90e91a74794a5d/fubar.xtf[heruntergeladen] werden.
+
+INTERLIS: ein Angebot auf für das BFS.
