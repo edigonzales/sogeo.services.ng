@@ -1,0 +1,124 @@
+= HTTP-Statuscode 206 - Parquet und DuckDB
+Stefan Ziegler
+2023-12-30
+:jbake-type: post
+:jbake-status: published
+:jbake-tags: Statuscode, status, http, cloud, cloud native, geoparquet, parquet, DuckDB
+:idprefix:
+
+Wie im vorangegangen http://blog.sogeo.services/blog/2023/12/29/statuscode-206-letsgetstarted.html[Blogpost] aufgezeigt, wird WFS dank Cloud Native Formate für gewisse Anwendungsfällte ziemlich überflüssig. Die Frage ist, ob z.B. https://geoparquet.org/[GeoParquet]    auch für Datenanalysen, im einfachsten Fall für Filterabfragen, geeignet ist. Unter Filterabfragen verstehe ich sowas wie ein WMS-GetFeatureInfo und/oder ein klassischer GIS-Nadelstich für Fachanwendungen mittels WFS/Featureservice. Als Abfragesprache eignet sich SQL und als Engine dazu https://duckdb.org/[_DuckDB_]. Gehen tut es natürlich schon, die Frage ist, ob es performant genug ist, ohne die GeoParquet-Datei lokal vorzuhalten. Weil (Geo)Parquet und DuckDB zusammen irgendwie Magie ist und momentan die Antwort auf fast jede Frage, erhoffte ich mir natürlich eine ansprechende Performance. Dank guter https://duckdb.org/docs/extensions/spatial[Dokumentation] hat man die Syntax für die spezfisichen Geokniffe schnell heraus:
+
+[source,sql,linenums]
+----
+SELECT
+    typ_kt
+FROM 
+    'https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v.parquet' AS grundnutzung
+WHERE 
+    ST_Intersects(ST_Point(2596651,1226670), ST_GeomFromWkb(grundnutzung.geometry))
+;
+----
+
+Die Abfrage dauert circa entäuschende 7 Sekunden. Das entspricht mehr oder weniger der Downloadzeit der gesamten Parquet-Datei, was tatsächlich - gemäss Logdatei des Webservers - auch gemacht wurde: `Content-Range=[ "bytes 4-63990494/64006068" ]`. Und ich _glaube_ ich habe langsam ein Bild davon was hinter den Kulissen abgeht (vor allem auch Dank https://medium.com/radiant-earth-insights/the-admin-partitioned-geoparquet-distribution-59f0ca1c6d96[Chris Holmes Beitrag]) und wo man dran schrauben kann resp. muss, damit das schneller geht. Ob es dann tatsächlich einmal gleich schnell wie eine GetFeatureInfo-Abfrage wird, wage ich heute zu bezweiflen. Die GetFeatureInfo-Abfrage dauert bei uns für Grundnutzung und Grundstücke jeweils circa 200ms. Gemeinsam circa 300ms. Es sind einfach andere Prinzipien mit anderen Rahmenbedingungen. Aber der Reihe nach. Am einfachsten bekommt man vielleicht ein Verständnis wie folgt:
+
+Was passiert, wenn ich einen einzelnen Record mit WHERE-Clause anforderte:
+
+[source,sql,linenums]
+----
+SELECT
+    t_ili_tid
+FROM 
+    'https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v.parquet' AS grundnutzung
+WHERE 
+    t_ili_tid = 'e9732511-dbe5-4625-98e1-535c47793fb8'
+;
+----
+
+Die Query dauert circa 0.5 Sekunden. Im Webserver-Log sehe ich vier Einträge. Der erste ist ein HEAD-Request. Die drei folgenden sind Range-Requests, wobei auf den ersten Blick nur der letzte ins Gewicht fällt. Sowohl bei der Antwortzeit wie auch bei der Datenmenge. Wie sieht es auch, wenn ich noch ein weiteres (Sach-)Attribut anfordere:
+
+[source,sql,linenums]
+----
+SELECT
+    t_ili_tid,
+    typ_kt
+FROM 
+    'https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v.parquet' AS grundnutzung
+WHERE 
+    t_ili_tid = 'e9732511-dbe5-4625-98e1-535c47793fb8'
+;
+----
+
+Query wird _nicht_ spürbar langsamer, im Logfile sieht man jedoch einen zusätzlichen Range-Request. Es ist also relevant, wie viele und welche Attribute man in der Query anfordert.
+
+Wenn ich nun noch das Geometrieattribut dauert die Query aber wieder knapp 7 Sekunden:
+
+[source,sql,linenums]
+----
+SELECT
+    t_ili_tid,
+    geometry
+FROM 
+    'https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v.parquet' AS grundnutzung
+WHERE 
+    t_ili_tid = 'e9732511-dbe5-4625-98e1-535c47793fb8'
+;
+----
+
+Parquet-Dateien sind in _row groups_ partitioniert. Gute Erklärung dazu in einem https://duckdb.org/2021/06/25/querying-parquet.html[DuckDB-Blogbeitrag]. Es müssen also mindestens alle _row groups_ heruntergeladen werden, die meiner Query resp. den Filterkriterien entsprechen. Und so wie ich es mir nun zurecht gelegt habe, kann man innerhalb einer _row groups_ die Attribute mittels Range-Request ansprechen. Darum gibt es bei der zweiten und dritten Query einen weiteren Range-Request (für das zweite Attribut). Die vorangegangen Range-Requests dienen dem herunterladen der Metadaten (also v.a. Statistiken zu den _row groups_). Die Metadaten einer Parquet-Datei kann man in _DuckDB_ anschauen:
+
+[source,sql,linenums]
+----
+SELECT 
+    * 
+FROM
+    parquet_metadata('https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v.parquet')
+;
+----
+
+In meiner Parquet-Datei gibt es genau eine _row group_ (mit allen 37'731 Records drin). Interessant sind die beiden letzten Spalten, die den Speicherbedarf der Attributwerte innerhalb der _row group_ ausweist. Wenn ich mir die komprimierte Grösse des Attributes `t_ili_tid` anschaue (1'353'462), entspricht das exakt der Grösse einer Antwort eines Range-Requests (für `t_ili_tid`). Es müssen also zwingend bereits bei der einfachsten Query mit nur einem angeforderten Attribut 1.3MB Daten heruntergeladen werden. Wenn ich   das Geometryattribut anfordere, werden zusätzliche 61MB Daten runtergesaugt. 
+
+Nun gibt es die Möglichkeit die Daten innerhalb der Parquet-Datei in mehreren https://duckdb.org/docs/data/parquet/tips[mehrere _row groups_] aufzuteilen. Dann müsste nur noch die _row group_, die meine Geometrie enthält heruntergeladen werden. Gesagt, getan (siehe &laquo;..._bbox_v3.parquet&raquo;):
+
+[source,sql,linenums]
+----
+SELECT
+    t_ili_tid,
+    geometry
+FROM 
+    'https://stac.sogeo.services/files/test/nutzungsplanung_grundnutzung_v_bbox_v3.parquet' AS grundnutzung
+WHERE 
+    t_ili_tid = 'e9732511-dbe5-4625-98e1-535c47793fb8'
+;
+----
+
+
+
+1353462
+
+Des GIS-Menschen liebster HTTP-Statuscode sollte 206 sein. Warum? 206 heisst Partial Content und bedeutet, dass der angeforderte Teil erfolgreich übertragen wurde. D.h. es wird nicht die komplette Ressource angefordert, sondern nur Teile davon. Der Client teilt dem Server den gewünschten Teil mittels Content-Range-Header mit. Im Geo-Bereich kann das interessant werden, um mit Daten zu arbeiten ohne sie vollständig (z.B. die 50GB grosse Rasterdatei) herunterladen zu müssen. Die Daten müssen jedoch gewisse Bedingungen erfüllen, damit die 206-Magie auch greifen kann. Sie müssen also &laquo;cloud native&raquo; oder &laquo;cloud optimized&raquo; sein.
+
+Als erstes ist mir vor ein 1-2 Jahren das https://www.cogeo.org/[Cloud Optimized GeoTIFF] begegnet. Damals ein wenig rumgespielt und wieder sein gelassen. Wie wahrscheinlich andere auch halten wir unsere Rasterdaten (Orthofotos, LiDAR-Derivate) in einzelnen Kacheln vor. Dazu eine VRT-Datei und für kleinere Massstäbe eine einzelne Übersichtsdatei. Das Handling ist immer ein wenig mühsam: Es sind teilweise mehrere tausend Dateien und man braucht zwingend die Übersichtsdatei für die kleineren Massstäbe. Ich denke, dass man bereits vor dem Cloud Optimized GeoTIFF einfach eine einzige grosse BigTIFF-Datei hätte herstellen können. Damit wäre zumindest unser Handling-Problem kleiner geworden. Andere Benefits hätten wir nicht gehabt. Insbesondere möchten unsere Kunden nicht wirklich 50GB runterladen, wenn sie bloss an einem Ausschnitt interessiert sind. 
+
+Weil das Cloud Optimized GeoTIFF aber wirklich ziemlich genial ist, habe ich nochmals einen Anlauf unternommen und aus unseren tausenden Rasterdaten mit https://gdal.org[_GDAL_] jeweils ein einzelnes GeoTIFF erzeugt. Seit geraumer Zeit gibt es sogar ein spezielles https://gdal.org/drivers/raster/cog.html[`COG`-Profil]. Damit ist die Herstellung kinderleicht. Es werden sogar die internen Overviews erstellt (falls gewünscht). Die resultierenden GeoTIFFs habe ich auf einen Hetzner-Server geschmissen: https://stac.sogeo.services/files/raster/[https://stac.sogeo.services/files/raster/] und zugleich als https://radiantearth.github.io/stac-browser/#/external/stac.sogeo.services/catalog.json?.language=en[STAC-Katalog exponiert].
+
+In QGIS kann man seit längerem GeoTIFFs auch mittels URL laden. Zum Ausprobieren lade ich so z.B das 13GB grosse Orthofoto https://stac.sogeo.services/files/raster/ch.so.agi.orthofoto_2007.rgb.tif[ch.so.agi.orthofoto_2007.rgb.tif] in QGIS. Die Performance ist genial und insbesondere in einem Bereich, in dem bereits relativ viele einzelne Kacheln geladen werden müssen, schneller als der WMS (der immer noch das VRT mit den vielen einzelnen TIFFs verwendet). Mit einer schnellen Internetverbindung beinahe so schnell als würde die Datei lokal vorliegen. 
+
+Was passiert im Hintergrund? Dazu schaue ich mir die Logdatei des Webservers an:
+
+image::../../../../../images/statuscode_206_p1/log01.png[alt="Logfile 206", align="center"]
+
+Man sieht sehr schön den Statuscode (= 206), den Content-Range-Header und die ausgelieferte Grösse der Antwort. Es ist natürlich auch relativ performant, weil die Orthofotos ordentlich komprimiert sind. Wenn man &laquo;richtige&raquo; Rasterdaten (z.B. https://stac.sogeo.services/files/raster/ch.bl.agi.lidar_2018.dtm_slope.tif[ch.bl.agi.lidar_2018.dtm_slope.tif]) verwendet, wird die Menge der herunterzuladenden Daten bei einer Teilanfrage grösser, weil man die Ausgangsdaten nicht gleich stark komprimieren kann wie das Orthofoto. 
+
+Ein wenig störend ist das erstmalige Laden der Datei. Das scheint lange zu dauern. In der Webserver-Logdatei sieht man viele 404er. QGIS (GDAL?) sucht nach verschiedenen Hilfs-/Metadateien (*.aux.xml etc.), die es nicht gibt. Bei mir sind das insgesamt 75 Requests ins Leere. Lokal spielt das weniger eine Rolle. Aber wenn 75 (ich kanns immer noch nicht ganz glauben) HTTP-GET-Requests gemacht werden müssen...
+ 
+Wie sieht es mit Vektordaten aus? Eigentlich ziemlich ähnlich. Es gibt verschiedene Formate, die von sich behaupten (oder andere behaupten es) &laquo;cloude native&raquo; zu sein. Siehe Übersicht unter https://guide.cloudnativegeo.org/[cloudnativegeo.org]. Mit `ogr2ogr` habe ich unsere https://data.geo.so.ch[frei verfügbaren Vektordaten] nach FlatGeobuf und GeoParquet umgewandelt und ebenfalls auf den https://stac.sogeo.services/files[Hetzner-Server] kopiert und als https://radiantearth.github.io/stac-browser/#/external/stac.sogeo.services/catalog.json?.language=en[STAC-Katalog] exponiert. Bei einigen, wenigen Umwandlungen aus der GeoPackage-Datei kam es zu Fehlern. Stand heute ist mir der Grund noch nicht klar. Analog zu Rasterdaten können in QGIS auch Vektordaten mittels URL geladen werden. In der Webserver-Logdatei erscheinen wieder die 206-Statuscodes. FlatGeobuf funktioniert bei mir im Gegensatz zu GeoParquet wunderbar. GeoParquet wird in QGIS unter macOS noch nicht unterstützt, unter Windows ist mir damit QGIS abgestürzt.
+
+Nun muss man aber auf den grundlegenden Unterschied zu den Rasterdaten aufmerksam machen, der bei kleinen Dateigrössen und schneller Internetverbindung zuerst gar nicht auffällt. Im Gegensatz zum Cloud Optimized GeoTIFF haben weder FlatGeobuf noch GeoParquet Overviews. Das bedeutet, dass ich je nach Zoomstufe relativ viele Daten - sprich irgendeinmal alle - herunterladen muss. Abhilfe schafft nur ein Format, dass auch Overviews unterstützt, z.B. https://github.com/protomaps/PMTiles[PMTiles]. Wobei mir nicht klar ist, ob das auch wieder zu verschnittenen Flächengeometrien (weil &laquo;Tile&raquo;) führt und wie man damit gut umgehen soll. Ich meine, wer will verschnittene Grundstücke?
+
+Bei &laquo;anständigen&raquo; Zoomlevels ist die Performance von FlatGeobuf sehr gut. Insbesondere im Vergleich zu einer GeoPackage-Datei, die man ebenfalls als HTTP-Ressource in QGIS anzapfen kann. Zum Ausprobieren habe ich im https://stac.sogeo.services/files/test/[Test-Ordner] sowohl die AV-Bodenbedeckung wie auch die Grundnutzung der Nutzungsplanung in verschiedenen Formaten abgelegt.
+
+Was nun? Im Prinzip kann der WMS für Rasterdaten einpacken. Wobei es vielleicht doch nicht ganz so einfach ist. Es würde zwar zu einer Vereinfachung des technischen Systems führen (kein Server mehr, nur Webspace), aber vielleicht will man die Rasterdaten mit einem Defaultstyle anbieten, oder einen Layer (z.B. Landeskarte) aus verschiedenen einzelnen Layern? Und für den Endbenutzer ist es wohl einfacher (wenn es bloss um die Darstellung geht) alles an einem Ort (also dem WMS) abzuholen. Aber als Ergänzung muss man es allemal anbieten.
+
+Der WFS als dumber Dateidownload hat ausgedient. Ich sehe hier keine Vorteile mehr zur Variante FlatGeobuf/GeoParquet mit STAC (und einfacher und brauchbarer Integration im  QGIS Data Source Manager). Wenn ich die gesamte Bodenbedeckung via WFS herunterlade, klemmt es garantiert irgendwo. Sei es die Last beim WFS selber oder dann irgendwo in QGIS. Als Kunde weiss ich ja nicht einmal, ob der WFS-Server alle angeforderten Features ausgeliefert hat oder bloss die serverseitig eingestellte, maximale Anzahl. Bissle broken by design. Darum lieber FlatGeobuf o.ä. mit STAC.
+
+Interessanter wird es bei gefilterten Requests, also z.B beim klassischen Nadelstich: Welche Grundnutzung gilt an der Koordinate X/Y? Wäre natürlich genial, wenn man auch hier auf einen Featureservice/WFS verzichten könnte und man bloss ein paar Parquet-Files bereitstellen müsste. Der Client könnte mit https://duckdb.org/[_DuckDB_] und SQL die Abfragen machen. Ob und wie das gehen könnte, gibt es in einem weiteren Blogpost zu lesen.
