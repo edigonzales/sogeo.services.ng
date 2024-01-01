@@ -1,23 +1,21 @@
 name: Bake and Deploy
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - uses: actions/checkout@v2
       
       - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - uses: actions/setup-java@v4
         with:
-          java-version: 1.8
+          distribution: 'temurin'
+          java-version: '5'
+          cache: 'gradle'
       
       - name: Bake 
         run: |
