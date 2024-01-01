@@ -1,8 +1,7 @@
 name: Bake and Deploy
 on:
-  push:
+  #push:
   workflow_dispatch:
-
 
 jobs:
   build:
@@ -54,12 +53,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
-
-      # Upload Task ignoriert Subverzeichnisse.
-      # - name: Upload files to S3
-      #   run: ./gradlew upload
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      
+        uses: actions/deploy-pages@v2      
