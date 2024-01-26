@@ -54,7 +54,7 @@ WHERE
 ;
 ----
 
-Man kann das Resulta auch als DuckDB-Tabelle persistieren oder eine View erstellen: `CREATE VIEW v1 AS ...`. Das Resultat als Excel-Datei exportieren, ist auch nur ein `COPY`-Befehl:
+Man kann das Resultat auch als DuckDB-Tabelle persistieren oder eine View erstellen: `CREATE VIEW v1 AS ...`. Das Resultat als Excel-Datei exportieren, ist auch nur ein `COPY`-Befehl:
 
 [source,sql,linenums]
 ----
