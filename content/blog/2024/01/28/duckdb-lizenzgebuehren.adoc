@@ -81,7 +81,7 @@ OBJECTID	FLAECHE	DK_HABS	DK_GEBTYP	DK_GEBNUTZDK_EMPFST	DK_OBERFL	BESCHAEFT	OIDDS
 END
 ----
 
-Scheint mir aber sehr simpel zu sein. Mir fehlt nur der passende https://github.com/claeis/iox-wkf[IoxWriter], den ich dann in https://gretl.app[_GRETL_] ansteuern kann und Daten via SQL exportieren kann. Womit wir wieder bei SQL angekommen sind. PostGIS kann auch Raster und kann auch Raster mit cloud optimized geotiff. Das hat den Vorteil, dass die Datenbank nicht ins unermessliche wächst. Für meinen vorliegenden Fall benötige ich das Geotiff mit den Gebäudehöhen (abgleitet aus LiDAR-Daten). Das https://stac.sogeo.services/files/raster/ch.so.agi.lidar_2019.ndsm_buildings.tif[GeoTIFF] ist 2.1GB gross. Wenn ich die Daten aber nicht komplett in die DB importiere, ist die &laquo;Raster-&raquo;Tabelle bloss 67MB gross. 
+Scheint mir aber sehr simpel zu sein. Mir fehlt nur der passende https://github.com/claeis/iox-wkf[IoxWriter], den ich dann in https://gretl.app[_GRETL_] ansteuern kann und Daten via SQL exportieren kann. Womit wir wieder bei SQL angekommen sind. PostGIS kann auch Raster und kann auch Raster mit cloud optimized geotiff. Das hat den Vorteil, dass die Datenbank nicht ins Unermessliche wächst. Für meinen vorliegenden Fall benötige ich das Geotiff mit den Gebäudehöhen (abgleitet aus LiDAR-Daten). Das https://stac.sogeo.services/files/raster/ch.so.agi.lidar_2019.ndsm_buildings.tif[GeoTIFF] ist 2.1GB gross. Wenn ich die Daten aber nicht komplett in die DB importiere, ist die &laquo;Raster-&raquo;Tabelle bloss 67MB gross. 
 
 Was ich benötige ist der Grundriss eines Gebäude aus der amtlichen Vermessung und die durchschnittliche Gebäudehöhe. Also ein Verschnitt zwischen Vektor und Raster. In PostgreSQL sieht das z.B. so aus:
 
