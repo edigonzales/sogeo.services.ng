@@ -32,7 +32,7 @@ Die PostgreSQL-Datenbank müssen wir in der _DuckDB_ registrieren:
 ATTACH 'dbname=pub user=ddluser password=ddluser host=127.0.0.1 port=54322' AS pg (TYPE postgres);
 ----
 
-Und dann geht es mit goold old SQL bereits los:
+Und dann geht es bereits los mit goold old SQL:
 
 [source,sql,linenums]
 ----
