@@ -1,4 +1,4 @@
-= Oops! I accidentally made an report server
+= Oops! I accidentally made a report server
 Stefan Ziegler
 2024-04-02
 :jbake-type: post
