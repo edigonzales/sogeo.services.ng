@@ -1,14 +1,12 @@
 = HTTP-Statuscode 206 - Cloud Optimized GeoTIFF Benchmark
 Stefan Ziegler
-2024-05-15
+2024-05-13
 :jbake-type: post
 :jbake-status: published
 :jbake-tags: Statuscode, status, http, cloud, serverless, cogtiff, geotiff
 :idprefix:
 
-&laquo;Mach' Cloud Optimized GeoTIFF!&raquo; sagen sie. &laquo;Dann brauchst du keinen WMS mehr!&raquo; behaubten sie. Gesagt, https://blog.sogeo.services/blog/2023/12/29/statuscode-206-letsgetstarted.html[getan]. &laquo;Das macht alles viel einfacher!&raquo; beteuern sie. Zumindest letzteres ist leider nur die halbe Wahrheit, wenn man das Ganze auch in einer kantonalen Inftrastruktur aufbauen will. Aber natürlich bleibe ich grosser Freun von diesem cloud native / cloud optimizeten Geozeugs.
-
-Wo hakt es nun?
+&laquo;Mach' Cloud Optimized GeoTIFF!&raquo; sagen sie. &laquo;Dann brauchst du keinen WMS mehr!&raquo; behaubten sie. Gesagt, https://blog.sogeo.services/blog/2023/12/29/statuscode-206-letsgetstarted.html[getan]. &laquo;Das macht alles viel einfacher!&raquo; beteuern sie. Zumindest letzteres ist leider nur die halbe Wahrheit, wenn man das Ganze auch in einer kantonalen Inftrastruktur aufbauen will. Aber natürlich bleibe ich grosser Freund von diesem cloud native / cloud optimizeten Geozeugs. Wo hakt es nun?
 
 
 Des GIS-Menschen liebster HTTP-Statuscode sollte 206 sein. Warum? 206 heisst Partial Content und bedeutet, dass der angeforderte Teil erfolgreich übertragen wurde. D.h. es wird nicht die komplette Ressource angefordert, sondern nur Teile davon. Der Client teilt dem Server den gewünschten Teil mittels Content-Range-Header mit. Im Geo-Bereich kann das interessant werden, um mit Daten zu arbeiten ohne sie vollständig (z.B. die 50GB grosse Rasterdatei) herunterladen zu müssen. Die Daten müssen jedoch gewisse Bedingungen erfüllen, damit die 206-Magie auch greifen kann. Sie müssen also &laquo;cloud native&raquo; oder &laquo;cloud optimized&raquo; sein.
