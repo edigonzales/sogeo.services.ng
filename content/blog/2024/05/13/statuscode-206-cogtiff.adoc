@@ -39,7 +39,7 @@ image::../../../../../images/statuscode_206_p3/office_hetzner.png[alt="Hetzner O
 
 image::../../../../../images/statuscode_206_p3/office_hetzner_throughput.png[alt="Hetzner Office Throughput", align="center"]
 
-Mit der Inhouse-Variante sieht es düster aus. Im Durchschnitt 3.1 Requests pro Sekunden und ein Maximumg von knapp 5 Requests pro Sekunde: 
+Mit der Inhouse-Variante sieht es düster aus. Im Durchschnitt 3.1 Requests pro Sekunden und ein Maximumg von knapp 5 Requests pro Sekunde. Mit einem Thread erreiche ich ziemlich exakt den gleichen Throughput wie von zu Hause aus:
 
 image::../../../../../images/statuscode_206_p3/office_aio.png[alt="AIO Office", align="center"]
 
