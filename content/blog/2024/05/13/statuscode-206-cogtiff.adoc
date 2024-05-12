@@ -10,7 +10,7 @@ Stefan Ziegler
 
 Wo hakt es nun?
 
-Zum Testen habe ich auf einem Hetzner-Cloud-Server unsere Rasterdaten als Cloud Optimized GeoTIFF deployed und mittels Caddy als Webserver https://stac.sogeo.services/files/raster/[öffentlich verfügbar] gemacht. In QGIS bisschen rumgespielt und mit der Performance absolut zufrieden. Ok, dann lass' es uns in der kantonalen Infrastruktur umsetzen. Wir haben einen einen &laquo;dummen&raquo; Webserver, der die Vektor- und Rasterdaten ähnlich wie bei meinem Hetzner-Test https://files.geo.so.ch/[öffentlich zugänglich] macht. Ich freute mich schon die E-Mail mit den Neuigkeiten rauszuhauen und mit bestem Digitaliserungsboomer-Marketingslang über unsere Cloud-Errungschaften und so zu schreiben. Gott sei Dank noch vorher mit dem Orthofoto (swissimage 2021 kantonale Abdeckung, circa 30GB) getestet und mich gefragt warum das interessanterweise vor allem beim schnellen Zoomen sehr käsig ist. Es ist signifikant langsamer als die Hetzner-Variante, die erst noch weiter entfernt ist. Der Super-GAU ist jedoch, dass QGIS manchmal die Rasterdatei gar nicht als solche erkennt und mit einer Fehlermeldung quittiert. Ob beide Probleme irgendwie zusammenhangen wissen wir, wie so vieles, noch nicht.
+Zum Testen habe ich auf einem Hetzner-Cloud-Server unsere Rasterdaten als Cloud Optimized GeoTIFF deployed und mittels https://caddyserver.com/[_Caddy_] https://stac.sogeo.services/files/raster/[öffentlich verfügbar] gemacht. In QGIS bisschen rumgespielt und mit der Performance absolut zufrieden gewesen. Ok, dann lass' es uns in der kantonalen Infrastruktur umsetzen. Wir haben einen einen &laquo;dummen&raquo; Webserver, der die Vektor- und Rasterdaten ähnlich wie bei meinem Hetzner-Test https://files.geo.so.ch/[öffentlich zugänglich] macht. Ich freute mich schon die E-Mail mit den Neuigkeiten rauszuhauen und mit bestem Digitaliserungsboomer-Marketingsprech über unsere Cloud-Errungschaften und so zu schreiben. Gott sei Dank noch vorher mit dem Orthofoto (swissimage 2021 kantonale Abdeckung, circa 30GB) getestet und mich gefragt warum das interessanterweise vor allem beim schnellen Zoomen sehr käsig ist. Es ist signifikant langsamer als die Hetzner-Variante, die erst noch weiter entfernt ist. Der Super-GAU ist jedoch, dass QGIS manchmal die Rasterdatei gar nicht als solche erkennt und mit einer Fehlermeldung quittiert. Ob beide Probleme irgendwie zusammenhängen wissen wir, wie so vieles, noch nicht.
 
 Letzeres scheint einen Zusammenhang zu haben mit den https://trac.osgeo.org/gdal/wiki/CloudOptimizedGeoTIFF#HowtoreaditwithGDAL[GDAL-Umgebungsvariablen], die verhindern, dass unnötige HTTP-Requests gemacht werden. Und/oder mit dem Umstand, dass unser Webserver keinen HEAD-Request unterstützt. Who knows.
 
@@ -39,7 +39,7 @@ image::../../../../../images/statuscode_206_p3/office_hetzner.png[alt="Hetzner O
 
 image::../../../../../images/statuscode_206_p3/office_hetzner_throughput.png[alt="Hetzner Office Throughput", align="center"]
 
-Mit der Inhouse-Variante sieht es düster aus. Im Durchschnitt 3.1 Requests pro Sekunden und ein Maximumg von knapp 5 Requests pro Sekunde. Mit einem Thread erreiche ich ziemlich exakt den gleichen Throughput wie von zu Hause aus:
+Mit der Inhouse-Variante sieht es düster aus. Im Durchschnitt 3.1 Requests pro Sekunde und ein Maximum von knapp 5 Requests pro Sekunde. Mit einem Thread erreiche ich ziemlich exakt den gleichen Throughput wie von zu Hause aus:
 
 image::../../../../../images/statuscode_206_p3/office_aio.png[alt="AIO Office", align="center"]
 
