@@ -14,7 +14,7 @@ Zum Testen habe ich auf einem Hetzner-Cloud-Server unsere Rasterdaten als Cloud 
 
 Letzeres scheint einen Zusammenhang zu haben mit den https://trac.osgeo.org/gdal/wiki/CloudOptimizedGeoTIFF#HowtoreaditwithGDAL[GDAL-Umgebungsvariablen], die verhindern, dass unnötige HTTP-Requests gemacht werden. Und/oder mit dem Umstand, dass unser Webserver keinen HEAD-Request unterstützt. Who knows.
 
-Ziemlich nervig ist ebenfalls die schlechtere Performance gegenüber der Hetzner-Variante. Das kann doch fast nicht sein, müsste man meinen. Um es aber der zentralen IT, die ausnahmweise diesen File-Webserver für uns betreibt, schwarz auf weiss darlegen zu können, muss ein sauberes Benchmarking her. Grundsätzlich natürlich sofort an https://jmeter.apache.org/[jMeter] gedacht. Wie simuliert man nun aber solche Range Requests? Ein Range Request ist bloss ein normaler HTTP-GET-Request mit einem `Range`-Header, der - nomen est omen - den gewünschten Byterange angibt:
+Ziemlich nervig ist ebenfalls die schlechtere Performance gegenüber der Hetzner-Variante. Das kann doch fast nicht sein, müsste man meinen. Um es aber der zentralen IT, die ausnahmweise diesen File-Webserver für uns betreibt, schwarz auf weiss darlegen zu können, muss ein sauberes Benchmarking her. Grundsätzlich natürlich sofort an https://jmeter.apache.org/[_jMeter_] gedacht. Wie simuliert man nun aber solche Range Requests? Ein Range Request ist bloss ein normaler HTTP-GET-Request mit einem `Range`-Header, der - nomen est omen - den gewünschten Byterange angibt:
 
 [source,bash,linenums]
 ----
