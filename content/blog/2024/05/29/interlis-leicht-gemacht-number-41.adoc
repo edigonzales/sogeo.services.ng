@@ -48,7 +48,7 @@ Als Antwort liefert der Datahub sofort (nachdem die Datei hochgeladen wurde) ein
 http://localhost:8080/api/jobs/B0820978-B325-4C66-87F1-7F21C8DA4819
 ----
 
-Im Gegensatz zu unserer heutigen Lösung spielen die Dateinamen keine Rolle. Die Dateien werden nach erfolgreicher Prüfung automatisch entsprechend dem Operatsnamen umbenannt und in das Themenverzeichnis kopiert. Dort stehen sie für nachgelagerte Prozesse, in diesem Fall für den Import in die Datenbank, zur Verfügung. _Ili2db_ resp. _GRETL_ kann so automatisch die Datei dem richtigen Dataset zuweisen (nämlich dem Dateinamen ohne Extension).
+Im Gegensatz zu unserer heutigen Lösung spielen die Dateinamen keine Rolle. Die Dateien werden nach erfolgreicher Prüfung automatisch entsprechend dem Operatsnamen umbenannt und in das Themenverzeichnis kopiert. Dort stehen sie für nachgelagerte Prozesse, in diesem Fall für den Import in die Datenbank, zur Verfügung. _Ili2db_ resp. _GRETL_ kann so automatisch die Datei dem richtigen Dataset zuweisen (nämlich dem Dateinamen ohne Extension). Oder anders formuliert: Der Gesamtkontext spätere Prozesse bekannt; Thema aufgrund des Verzeichnisnamens und Dataset dank des Dateinamens.
 
 Es wird - auch bewusst - nicht geprüft, ob der Inhalt der Daten dem angegebenen Operat/Dataset entspricht. Wir hatten in fast 20 Jahren ein oder zwei Mal ein solches Malheur in der amtlichen Vermessung. Ein Fehler, der anscheinend nicht häufig vorkommt. Die Auswirkungen wären heute (noch) nicht schlimm und schnell zu beheben. Zudem eine robuste Umsetzung mich noch herausfordernd dünkt.
 
