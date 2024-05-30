@@ -48,7 +48,7 @@ Als Antwort liefert der Datahub sofort (nachdem die Datei hochgeladen wurde) ein
 http://localhost:8080/api/jobs/B0820978-B325-4C66-87F1-7F21C8DA4819
 ----
 
-Im Gegensatz zu unserer heutigen Lösung spielen die Dateinamen keine Rolle. Die Dateien werden nach erfolgreicher Prüfung automatisch entsprechend dem Operatsnamen umbenannt und in das Themenverzeichnis kopiert. Dort stehen sie für nachgelagerte Prozesse, in diesem Fall für den Import in die Datenbank, zur Verfügung. _Ili2db_ resp. https://gretl.app/[_GRETL_] kann so automatisch die Datei dem richtigen Dataset zuweisen (nämlich dem Dateinamen ohne Extension). Hier ein Beispiel mit den Themen `IPW_2020` und `LKMAP_2015` und ein einigen Operaten:
+Im Gegensatz zu unserer heutigen Lösung spielen die Dateinamen keine Rolle. Die Dateien werden nach erfolgreicher Prüfung automatisch entsprechend dem Operatsnamen umbenannt und in das Themenverzeichnis kopiert. Dort stehen sie für nachgelagerte Prozesse, in diesem Fall für den Import in die Datenbank, zur Verfügung. _Ili2db_ resp. https://gretl.app/[_GRETL_] kann so automatisch die Datei dem richtigen Dataset zuweisen (nämlich dem Dateinamen ohne Extension). Hier ein Beispiel mit den Themen `IPW_2020` und `LKMAP_2015` und einigen Operaten:
 
 image::../../../../../images/interlis_leicht_gemacht_p41/target_directory.png[alt="target_directory", align="center"]
 
