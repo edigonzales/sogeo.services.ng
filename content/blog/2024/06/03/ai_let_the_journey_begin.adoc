@@ -118,7 +118,7 @@ DOKUMENTE:
 {documents}
 ----
 
-Anhand der Metadaten (siehe Spalte _metadata_) weiss die Anwendung aus welchen Original-Dokumenten die Information für die Antwort stammen und kann diese dem Benutzer auch mitteilen.
+Anhand der Metadaten (siehe Spalte _metadata_ in der DB-Tabelle) weiss die Anwendung aus welchen Original-Dokumenten die Information für die Antwort stammen und kann diese dem Benutzer auch mitteilen.
 
 Zu korrekten Antworten haben folgende Fragen geführt:
 
