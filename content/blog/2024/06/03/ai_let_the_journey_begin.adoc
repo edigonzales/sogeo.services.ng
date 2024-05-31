@@ -13,11 +13,11 @@ Als NVIDA-Aktionär muss ich das Thema jetzt pushen; die Investition soll sich j
 - Was sind die Rechtsgrundlagen für einen Gemeindegrenzregulierung?
 - Welche Eigentumsbeschränkungen gibt es auf dem Grundstücke 114 in der Gemeinde Zuchwil?
 
-Die LLM können aus verschiedenen Gründen diese Fragen meistens nicht beantworten. Entweder weil sie nicht mit diesen Daten trainiert wurden. Denke kaum, dass sie das &laquo;Das Handbuch der amtlichen Vermessung Kanton Solothurn&raquo; irgendwann zu Gesicht bekommen haben oder aber sie wurden anhand nicht mehr aktueller Daten trainiert (&laquo;knowledge cut off date&raquo;).
+Die LLM können aus verschiedenen Gründen diese Fragen meistens nicht beantworten. Entweder weil sie nicht mit diesen Daten trainiert wurden. Denke kaum, dass sie das &laquo;Das Handbuch der amtlichen Vermessung Kanton Solothurn&raquo; irgendwann zu Gesicht bekommen haben oder aber sie wurden anhand nicht mehr aktueller Daten trainiert (_knowledge cut off date_).
 
 Folgende Beispiele sind mit dem gpt4-Modell durchgespielt. D.h. Informationen landen immer auf einem fremden Server. Aus diesem Grund verwende ich nur frei verfügbare Daten und mein Lieblingsbeispiel &laquo;Wem gehört das Grundstück XY in der Gemeinde YZ?&raquo lasse ich vorderhand im Giftschrankt. Möchte ja meinen Job behalten. Interessant wären in diesem Zusammenhang natürlich lokal / inhouse laufende Modelle wie z.B. https://llama.meta.com/llama3/[llama3]. Auf meinem Notebook macht das keinen Spass.
 
-Eine einfache Variante mit eigenen Daten zu arbeiten, ist &laquo;prompt stuffing&raquo;. Dabei werden die Information einfach mit der Frage mitgeschickt. Ein paar Amtschef habe ich in beispielhaft in einer Markdown-Datei erfasst:
+Eine einfache Variante mit eigenen Daten zu arbeiten, ist _prompt stuffing_. Dabei werden die Information einfach mit der Frage mitgeschickt. Ein paar Amtschef habe ich in beispielhaft in einer Markdown-Datei erfasst:
 
 [source,md,linenums]
 ----
