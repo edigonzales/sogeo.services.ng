@@ -141,10 +141,8 @@ image::../../../../../images/ai_journey_p1/oereb-frage.png[alt="oereb-frage", al
 
 Anscheined wird wirklich zuerst anhand des Gemeindenamens und der GB-Nummer die https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/GrundstueckService.java[Grundstuecks-Funktion] aufgerufen und anschliessend mit dem jetzt bekannten E-GRID die https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/OerebService.java[ÖREB-Funktion], die nur eine https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/GrundstueckService.java#L21[Java-Liste] zurückliefert. Der schön formatierte Text stammt vom LLM. Faszinierend.
 
-Viel Code stammt aus den https://www.youtube.com/playlist?list=PLZV0a2jwt22uoDm3LNDFvN6i2cAVU_HTH[Beispielen] von Dan Vega.
+Links: 
 
-
-https://github.com/edigonzales/spring-ai-demo
-
-
-https://github.com/edigonzales/spring-ai-avdocs
+- Viel Code stammt aus den https://www.youtube.com/playlist?list=PLZV0a2jwt22uoDm3LNDFvN6i2cAVU_HTH[Beispielen] von Dan Vega.
+- https://github.com/edigonzales/spring-ai-demo
+- https://github.com/edigonzales/spring-ai-avdocs
