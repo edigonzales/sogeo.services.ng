@@ -97,7 +97,7 @@ Nach dem Import, der bei mir circa zwei Minuten gedauert (dauert die Vektorberec
 
 image::../../../../../images/ai_journey_p1/vectorstore.png[alt="vectorstore", align="center"]
 
-Stelle ich eine Frage werden zuerst die n ähnlichsten Dokumente(-nteile) in der Datenbank gesucht. Das n darf man selber wählen. Anschliessend wird diese Information wieder in ein Prompt-Template gestopft:
+Stelle ich eine Frage werden zuerst die _n_ ähnlichsten Dokumente(-nteile) in der Datenbank gesucht. Das _n_ darf man selber wählen. Anschliessend wird diese Information wieder in ein Prompt-Template gestopft:
 
 [source,foo,linenums]
 ----
