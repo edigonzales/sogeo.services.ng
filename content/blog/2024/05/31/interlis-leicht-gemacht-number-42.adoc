@@ -72,7 +72,7 @@ image::../../../../../images/interlis_leicht_gemacht_p42/activemq_message_in_que
 
 Interessanterweise überlebten die Nachrichten im Broker einen Restart zuerst nicht. Anscheinend ist es eine Eigenschaft der Nachricht selber, ob sie _persistent_ ist oder eben nicht. Mit STOMP muss das via Header gelöst werden (siehe Zeile 43).
 
-Den Konsumenten bauen wir mit https://camel.apache.org/[_Apache Camel_]. _Apache Camel_ ist ein in Java geschriebenes Open Source Integration Framework. Mit https://www.jbang.dev/[_JBang_] Zuckerguss drüber, kann man mit einer einzigen Datei Java-Code sehr viel erreichen. Die sogenannte Route (siehe Zeile 27 `... extends RouteBuilder`) lädt vom Message Broker die Nachricht herunter (Zeile 38-40), speichert sie in einer Datei (Zeile 41-42) und validiert diese mit _ilivalidator_ (Zeile 46-51). Falls die Nachricht valide ist, wird sie mit _ili2pg_ importiert (nicht implementiert, Zeile 54-55), ansonsten wird eine entsprechende Meldung geloggt.
+Den Konsumenten bauen wir mit https://camel.apache.org/[_Apache Camel_]. _Apache Camel_ ist ein in Java geschriebenes Open Source Integration Framework. Mit https://www.jbang.dev/[JBang]-Zuckerguss drüber, kann man mit einer einzigen Datei Java-Code sehr viel erreichen. Die sogenannte Route (siehe Zeile 27 `... extends RouteBuilder`) lädt vom Message Broker die Nachricht herunter (Zeile 38-40), speichert sie in einer Datei (Zeile 41-42) und validiert diese mit _ilivalidator_ (Zeile 46-51). Falls die Nachricht valide ist, wird sie mit _ili2pg_ importiert (nicht implementiert, Zeile 54-55), ansonsten wird eine entsprechende Meldung geloggt.
 
 [source,python,linenums]
 ----
