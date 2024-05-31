@@ -143,5 +143,8 @@ Anscheined wird wirklich zuerst anhand des Gemeindenamens und der GB-Nummer die 
 
 Viel Code stammt aus den https://www.youtube.com/playlist?list=PLZV0a2jwt22uoDm3LNDFvN6i2cAVU_HTH[Beispielen] von Dan Vega.
 
+
 https://github.com/edigonzales/spring-ai-demo
+
+
 https://github.com/edigonzales/spring-ai-avdocs
