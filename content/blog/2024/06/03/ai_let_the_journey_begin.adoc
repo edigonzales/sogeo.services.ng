@@ -13,7 +13,7 @@ Als NVIDA-Aktionär muss ich das Thema jetzt pushen; die Investition soll sich j
 - Was sind die Rechtsgrundlagen für einen Gemeindegrenzregulierung?
 - Welche Eigentumsbeschränkungen gibt es auf dem Grundstücke 114 in der Gemeinde Zuchwil?
 
-Die LLM können aus verschiedenen Gründen diese Fragen meistens nicht beantworten. Entweder weil sie die Daten nicht verwendet haben. Denke kaum, das sie das &laquo;Das Handbuch der amtlichen Vermessung Kanton Solothurn&raquo; irgendwann verwendet haben oder aber sie wurden anhand nicht mehr aktueller Daten trainiert.
+Die LLM können aus verschiedenen Gründen diese Fragen meistens nicht beantworten. Entweder weil sie die Daten nicht verwendet haben. Denke kaum, dass sie das &laquo;Das Handbuch der amtlichen Vermessung Kanton Solothurn&raquo; irgendwann zu Gesicht bekommen haben oder aber sie wurden anhand nicht mehr aktueller Daten trainiert.
 
 
 
