@@ -3,12 +3,12 @@ Stefan Ziegler
 2024-10-15
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: Java, GeoServer, GraalVM, GeoScript
+:jbake-tags: Java, GeoServer, GraalVM, OpenJDK, GeoScript
 :idprefix:
 
-https://blog.sogeo.services/tags/GraalVM.html[Ich] mag https://www.graalvm.org/[_GraalVM_]. Sei es um Java-Anwendungen zu einem Native Image runterzukompilieren oder Python mit Java zu verheiraten. Ein weiterer spannender Punkt ist der eigene Graal JIT Compiler. Dieser kann zu einer Performancesteigerung der Java-Anwendung führen und zwar ohne, dass man an dieser überhaupt was ändern muss. Nur die Runtime (&laquo;Java-Variante&raquo;) austauschen und gut ist. So hat der Wechsel zum Graal JIT Compiler z.B. bei der https://www.morling.dev/blog/one-billion-row-challenge/[1BRC] eine https://x.com/gunnarmorling/status/1843649474545287202/photo/3[Performancesteigerung von acht Prozent] gebracht. Bei mir selber habe ich solche Unterschiede noch keine festgestellt. Vor https://blog.sogeo.services/blog/2021/11/28/interlis-leicht-gemacht-number-27.html[ein paar Jahren] habe ich mit https://github.com/claeis/ilivalidator[_ilivalidator_] und https://github.com/claeis/ili2db[_ili2pg_] ein paar Benchmarks gemacht, die aber nicht sonderlich aussagekräftig waren und nicht gezeigt hätten, dass _GraalVM_ bedeutend schneller ist. Weil wir uns zur Zeit überlegen von _QGIS Server_ auf https://geoserver.org[_GeoServer_] zu wechseln, wäre das jedenfalls ein Anwendungfall, den man untersuchen könnte, da der Server zu Bürozeiten relativ stark beansprucht wird und somit genügend Dauerlast produziert wird. Obwohl wir relativ viele Java-Anwendungen in Betrieb haben, hat keine davon eine ähnliche Last zu tragen wie der Kartendienst.
+https://blog.sogeo.services/tags/GraalVM.html[Ich] mag https://www.graalvm.org/[_GraalVM_]. Sei es um Java-Anwendungen zu einem Native Image runterzukompilieren oder Python mit Java zu verheiraten. Ein weiterer spannender Punkt ist der eigene https://www.graalvm.org/latest/reference-manual/java/compiler/[Graal JIT Compiler]. Dieser kann zu einer Performancesteigerung der Java-Anwendung führen und zwar ohne, dass man an dieser überhaupt was ändern muss. Nur die Runtime (&laquo;Java-Variante&raquo;) austauschen und gut ist. So hat der Wechsel zum Graal JIT Compiler z.B. bei der https://www.morling.dev/blog/one-billion-row-challenge/[1BRC] eine https://x.com/gunnarmorling/status/1843649474545287202/photo/3[Performancesteigerung von acht Prozent] gebracht. Bei mir selber habe ich solche Unterschiede noch keine festgestellt. Vor https://blog.sogeo.services/blog/2021/11/28/interlis-leicht-gemacht-number-27.html[ein paar Jahren] habe ich mit https://github.com/claeis/ilivalidator[_ilivalidator_] und https://github.com/claeis/ili2db[_ili2pg_] ein paar Benchmarks gemacht, die aber nicht sonderlich aussagekräftig waren und nicht gezeigt hätten, dass _GraalVM_ bedeutend schneller ist. Weil wir uns zur Zeit überlegen von _QGIS Server_ auf https://geoserver.org[_GeoServer_] zu wechseln, wäre das jedenfalls ein Anwendungfall, den man untersuchen könnte, da der Server zu Bürozeiten relativ stark beansprucht wird und somit eine genügend hohe Dauerlast besteht. Obwohl wir relativ viele Java-Anwendungen in Betrieb haben, hätte keine davon eine ähnliche Last zu tragen wie der Kartendienst.
 
-Jetzt benötigte ich ein Testszenario, das aus mehr als bloss vier Flächen und zwei Punkten besteht. Ich habe mich entschieden die Nutzungsplanung und ein Orthofoto (swissimage 2021) zu verwenden. Die Nutzungsplanung steht als Vektordatensatz in einzelnen INTERLIS-Transferdateien, die ich https://github.com/edigonzales/geoserver-benchmarks/blob/461afff02f2b9bf1e96dd9339eb39ddccc2a95da/gretl/build.gradle[ruckzuck] mit https://gretl.app[_GRETL_] in eine gedockerte PostgreSQL/PostGIS-Datenbank importieren kann. Die SLD-Datei hatte ich noch von früheren Spielereien rumliegen:
+Jetzt benötige ich ein Testszenario, das aus mehr als bloss vier Flächen und zwei Punkten besteht. Ich habe mich dazu entschieden die Nutzungsplanung und ein Orthofoto (swissimage 2021) zu verwenden. Die Nutzungsplanung steht als Vektordatensatz in einzelnen INTERLIS-Transferdateien https://files.geo.so.ch/ch.so.arp.nutzungsplanung.kommunal/aktuell/[zur Verfügung], die ich https://github.com/edigonzales/geoserver-benchmarks/blob/461afff02f2b9bf1e96dd9339eb39ddccc2a95da/gretl/build.gradle[ruckzuck] mit https://gretl.app[_GRETL_] in eine gedockerte PostgreSQL/PostGIS-Datenbank importieren kann. Die SLD-Datei hatte ich noch von früheren Spielereien rumliegen:
 
 image::../../../../../images/geoserver_on_steroids/npl_wms.png[alt="WMS-Bild Nutzungsplanung", align="center"]
 
@@ -16,7 +16,7 @@ Das Orthofoto liegt als 30 GB grosses cloud optimized GeoTIFF _lokal_ vor:
 
 image::../../../../../images/geoserver_on_steroids/ortho_wms.png[alt="WMS-Bild Orthofoto", align="center"]
 
-Wie bei meinen anderen Service-Benchmarks habe ich https://jmeter.apache.org/[_jMeter_] verwendet. Hat man es halbwegs durchschaut und hat noch alte Konfigurationen rumliegen, ist es durchaus halb-angenehm damit zu arbeiten. Der wichtige Konfigurationartefakt von _jMeter_ ist die CSV-Datei mit den unterschiedlichen Werten zu Width, Height, Boundingbox und Layer. In _jMeter_ definiere ich die URL zum WMS-Server mit Platzhaltern für besagte Werte. _JMeter_ ersetzt nun bei jedem Request diese Platzhalter mit den Werten aus der CSV-Datei:
+Für das eigentliche Benchmarking verwendete ich https://jmeter.apache.org/[_JMeter_]. Man definiert in _JMeter_ sowas wie eine Basis-URL (also in unserem Fall einen WMS-GetMap-Request) mit Platzhaltern für die Parameter (WIDTH, HEIGHT, BBOX und LAYERS), die bei jedem von _JMeter_ gemachten Request dynamisch befüttert werden. Die Werte für die Platzhalter können in einer CSV-Datei gespeichert werden:
 
 [source,bash,linenums]
 ----
@@ -31,63 +31,76 @@ width;height;bbox;layer
 ...
 ----
 
-Wie habe ich die CSV-Datei hergestellt? Als Grundlage diente mir ein https://github.com/edigonzales-dumpster/geoserver-tests/blob/35e7010a6ca6eb246c4d5612b23c269904ed1afc/benchmark/scripts/wms_request.py[Python-Skript] von den legendären https://wiki.osgeo.org/wiki/FOSS4G_Benchmark[FOSS4G Performance Shoot-outs]. Das Skript hat verschiedene Parameter mit dem man den Output steuern kann: So ist es möglich einen Range für Width und Height anzugeben und die übergeordnete Region (als Bounding Box). Zusätzlich lässt sich ein Auflösungsrange angeben, was nichts anderes ist als Massstabsbereiche. Als letztes Zückerchen kann man eine Shapedatei angeben, um sicherzustellen, dass die berechnete Bounding Box entweder komplett innerhalb der Shapefilegeometrien liegt oder mindestes schneidet. Für diese Geometrieoperationen verwendet das Python-Skript Bindings für OGR/GDAL. Das war mir ein (Installations-)Graus. Ich habe das Skript _ChatGPT_ geschickt mit der Bitte um eine Umwandlung nach https://github.com/geoscript/geoscript-groovy[GeoScript Groovy]. Das hat sogar https://github.com/edigonzales/geoserver-benchmarks/blob/e7ee9c96372d67a0db8b862300fab824fdd99df6/scripts/wms_requests.groovy[halbwegs gut] funktioniert und weil es für GeoScript eine https://jericks.github.io/geoscript-groovy-cookbook/#uber-jar[Uber Jar] gibt, ist die Installation nur ein Download dieser Jar-Datei. Der Aufruf des Skriptes ist simpel: `java -jar geoscript-groovy-app-1.22.0.jar script wms_requests.groovy`. Maximal so kompliziert sollte &laquo;geo-scripting&raquo; sein. Dünkt mich angenehmer als Python-Bindings installieren und auf Teufel komm raus die passenden OGR/GDAL-Libs (mit _Conda_ oder dergleichen).
+Wie habe ich die CSV-Datei hergestellt? Als Grundlage diente mir ein https://github.com/edigonzales-dumpster/geoserver-tests/blob/35e7010a6ca6eb246c4d5612b23c269904ed1afc/benchmark/scripts/wms_request.py[Python-Skript] von den legendären https://wiki.osgeo.org/wiki/FOSS4G_Benchmark[FOSS4G Performance Shoot-outs]. Das Skript hat verschiedene Parameter mit dem man den Output steuern kann: So ist es möglich einen Range für Width und Height anzugeben und die übergeordnete Region (als Bounding Box). Zusätzlich lässt sich ein Auflösungsrange angeben, was nichts anderes ist als Massstabsbereiche. Als letztes Zückerchen kann man eine Shapedatei angeben, um sicherzustellen, dass die berechnete Bounding Box entweder komplett innerhalb der Shapefilegeometrien liegt oder diese mindestes schneidet (intersects). Für diese Geometrieoperationen verwendet das Python-Skript Bindings für OGR/GDAL. Das war mir ein (Installations-)Graus. Ich habe das Skript _ChatGPT_ geschickt mit der Bitte um eine Umwandlung nach https://github.com/geoscript/geoscript-groovy[_GeoScript Groovy_]. Das hat sogar https://github.com/edigonzales/geoserver-benchmarks/blob/e7ee9c96372d67a0db8b862300fab824fdd99df6/scripts/wms_requests.groovy[halbwegs gut] funktioniert und weil es für _GeoScript_ eine https://jericks.github.io/geoscript-groovy-cookbook/#uber-jar[Uber Jar] gibt, ist die Installation nur ein Download dieser Jar-Datei. Der Aufruf des Skriptes ist simpel: `java -jar geoscript-groovy-app-1.22.0.jar script wms_requests.groovy`. Maximal so kompliziert sollte &laquo;geo-scripting&raquo; sein. Dünkt mich angenehmer als Python-Bindings installieren und auf Teufel komm raus die passenden OGR/GDAL-Libs (mit _Conda_ oder dergleichen).
  
+Ich habe mich dazu entschieden, dass ich für Width und Height einen Range von 3840x2160 Pixel und 1920x1080 Pixel zulasse und einen Massstab von circa 1:350'000 bis 1:350. Da ich nur zwei Layer zur Auswahl habe, wählt das Skript wahlweise einen der beiden aus und schreibt ihn in die CSV-Datei.
 
+Bei der Hardware habe ich mich für https://www.hetzner.com/de/cloud/[Hetzner-Server] entschieden. Ich habe die Benchmarks auf zwei unterschiedlichen Servern durchgeführt. Einmal auf einem Server mit shared vCPU und einmal mit dedicated vCPU. Shared bedeutet, dass die vCPU mit anderen VM geteilt wird. Mit wie vielen ist nicht klar. Bei den VM mit dedicated vCPU muss sich die VM die vCPU nicht mit anderen teilen. Die Preise sind entsprechend sehr unterschiedlich. Ich habe mich jeweils für 16 Kerne und 32 GB RAM entschieden. Die Shared-Variante (ARM-Prozessoren) kostet 26.70 Euro, die Dedicated-Variante 103.77 Euro (pro Monat). Also viermal so viel.
 
+Die Datenbank läuft gedockert auf der gleichen VM. _GeoServer_ läuft ungedockert in _Tomcat_. Bezüglich CPU-Zuweisung habe ich weder bei der Datenbank noch bei _GeoServer_ etwas gemacht. Tomcats Heap Memory habe ich beim Start resp. als Maximum auf 4GB beschränkt.
 
-
-https://www.youtube.com/watch?v=ZiqWi6SpqOg[&laquo;Talent borrows, Genius steals&raquo;]: Das https://www.zh.ch/de/direktion-der-justiz-und-des-innern/statistisches-amt.html[Statistische Amt] des Kantons Zürich hat einen sehr interessanten https://github.com/machinelearningZH/simply-simplify-language[Prototypen] zur Vereinfachung von Texten in https://www.edi.admin.ch/dam/edi/de/dokumente/gleichstellung/E-Accessibility/empfehlungen_informationen_leichtesprache_gebaerdensprache.pdf.download.pdf/Empfehlungen%20f%C3%BCr%20Verwaltungen%20zur%20Erstellung%20von%20Informationen%20in%20Leichter%20Sprache%20und%20Geb%C3%A4rdensprache.pdf[einfache und leichte] Sprache entwickelt. (Meine Eselsbrücke: Die leichte Sprache ist noch einfacher, als die einfache Sprache.) Für mich war klar, das will ich auch ausprobieren. Was mich jedoch besonders interessiert, ist, wie gut ein frei verfügbares LLM (_Llama3_) die Aufgabe meistert. Das Ganze hat sich natürlich aufwändiger als geplant herausgestellt. Aber der Reihe nach:
-
-Der ZH-Prototyp ist mit Python und https://streamlit.io/[_Streamlit_] umgesetzt. Ich habe mit beidem wenig bis keine Erfahrung und darum dachte ich, dass ich den GUI-Teil schnell mit https://vaadin.com/[_Vaadin_] umsetzen kann. Das eigentlich GUI ging tatsächlich schnell, es stellte sich jedoch heraus, dass die Anwendung auch noch einen beträchtlichen Teil an Businesslogik beinhaltet: Nämlich die Analyse resp. Bewertung der Texte. Letzten Endes läuft es auf die Einstufung der Texte (vorher/nachher) in ein https://en.wikipedia.org/wiki/Common_European_Framework_of_Reference_for_Languages[CEFR-Level] hinaus. Die Anwendung verwendet https://spacy.io/[_spaCy_], eine NLP-Bibliothek, um https://github.com/machinelearningZH/simply-simplify-language/blob/main/_streamlit_app/sprache-vereinfachen.py#L153[bestimmte Parameter] zu berechnen. Mit diesen Parametern wird anschliessend die https://github.com/machinelearningZH/simply-simplify-language/blob/main/_streamlit_app/sprache-vereinfachen.py#L232[Verständlichkeit] eines Textes berechnet. Die Formel haben sie mittels eines Logistic Regression Modelles hergeleitet. Dieses spaCy-Teil gibt es natürlich nicht 1:1 in Java. Ich habe mit https://dev.languagetool.org/[languagetool] eine Java-Bibliothek gefunden, die ähnliche Funktionen aufweist. Verschiedene Parameter weisen beim Ausprobieren die exakt gleichen Werte aus, andere - z.B. der https://github.com/machinelearningZH/simply-simplify-language/blob/main/_streamlit_app/sprache-vereinfachen.py#L161[common word score] - nicht. Soweit ich es nachvollziehen kann, liegt es daran, dass unterschiedlich &laquo;lemmatized&raquo; wird. Das führt natürlich zur Frage, ob die erwähnte Formel auch in meinem Stack stimmt. Wahrscheinlich weniger gut, als im Original. Trotzdem führt es meines Erachtens zu plausiblen und sinnvollen (leicht unterschiedlichen) Punktzahlen.
-
-Neben dieser Analyse-Logik hat der Kanton Zürich sicher auch einiges an Zeit in die https://github.com/edigonzales/simply-simplify-language-java/tree/main/src/main/resources/prompts[Prompts] investiert, die für die guten Resultat unabdingbar sind. Auch hier: Ehre, wem Ehre gebührt.
-
-Mein Prototyp mit Vaadin und einem Resultat mit GPT-4o:
-
-image::../../../../../images/ai_behoerdensprache_ade_p2/prototyp01.png[alt="prototyp01", align="center"]
-
-Die Resultate dünken mich ziemlich gut. Mit GPT-4o scheint mir schneller als GPT-4 zu sein und häufiger mit Aufzählungn zu arbeiten als GPT-4.
-
-Wie sieht es mit _Llama3_ aus? Die Herausforderung war eine brauchbare Testumgebung zu finden. Lokal mit meinem M1-Prozessor macht es wirklich gar keinen Spass. Ein Mitarbeiter hat auf seinem Gamer-PC mit einer _RTX 4080 Super_ Grafikkarte gezeigt, dass die (gefühlte) Geschwindigkeit nahe an ChatGPT 4 ist. Machte ich mich also auf die Suche nach einem Cloud-Anbieter, der GPU-Rechner im Programm hat. Die wirklich grossen Hyperscaler waren mir entweder zu kompliziert (Azure, weil noch nie was gemacht mit) oder dermassen undurchschaubar im Angebot (AWS), dass ich nicht wusste, welche Instanz nun geeignet ist für meine Tests. Hetzner hat zwar einen GPU-Rechner im Angebot, jedoch mit hohen Setup-Gebühren. OVHCloud hätte zwar viele unterschiedliche GPU-Rechner im Angebot. Als Neukunde kann man diese jedoch, trotz hinterlegter Kreditkarte, nicht verwenden. Eine Anfrage wurde abgelehnt. Keine Ahnung warum. Als halber Freund von DigitalOcean bin ich über Paperspace gestolpert. Die wurden vor kurzem von DigitalOcean aufgekauft und haben GPU-Rechner im Angebot. Auch hier muss man sich mittels Ticket die Rechner freischalten lassen aber danach kann man frisch fröhlich verschiedenste GPU-Rechner auswählen. 
-
-Ich habe mich für einen Rechner mit einer Ampere A4000 Nvidia Karte für $0.76/h entschieden. Die richtige Coolen würden A100-80Gx8 für $25.44/h wählen... 
-
-_Ollama_ installieren geht eigentlich ganz passabel, es installiert jedoch einen neuen Kernel (soweit ich es verstanden habe) und dauert darum ein Weilchen und die VM muss gerebootet werden. Anschliessend reicht:
+Den Benchmark habe ich mit 2, 4, 8, 12 und 16 Threads laufen lassen. Er sollte unbedingt nicht im GUI gestartet werden, sondern in der Konsole, z.B.:
 
 [source,bash,linenums]
 ----
-ollama run llama3
+./bin/jmeter -n -t benchmark.jmx  -l graal-17-g1gc-v1.jtl -e -o graal-17-g1gc-v1
 ----
 
-Das startet _Ollama_ mit _Llama3_ als LLM. Man muss _Ollama_ beibringen, dass er nicht bloss auf 127.0.0.1 hören soll, sondern auf allen lokalen Interfaces. Dazu muss die Env-Variable `OLLAMA_HOST=0.0.0.0` in der Datei _/etc/systemd/system/ollama.service_ gesetzt werden. _Ollama_ ist nun auch von extern ansprechbar (so natürlich nie in Produktion gehen). Prüfen kann man es mit curl:
+Der Befehl erzeugt einen HTML-Report mit allerlei Grafiken. Leider ist mir zu spät in den Sinn gekommen, dass ich v.a. the Throughput auch gerne als Daten hätte, damit ich sie gemeinsam in einem Diagramm darstellen kann. So bleiben mir nur die automatisch generierten Grafiken pro Run, die man halt visuell vergleichen muss.
 
-[source,bash,linenums]
-----
-curl http://74.82.28.177:11434/api/generate -d '{
-  "model": "llama3",
-  "prompt": "Why is the sky blue?"
-}'
-----
+Getestet habe ich folgende Java-/GraalVM-Versionen:
 
-Die Geschwindigkeit kann sich wirklich https://youtu.be/V87j4nev-_Q[sehen lassen]. 
+- GraalVM 17
+- GraalVM 21
+- OpenJDK 11
+- OpenJDK 17
 
-Wie gut funktioniert es aber mit unserem Behördensprache-ade-Tool? Die Geschwindigkeit ist trotz umfangreicherer Prompts auf GPT-4o-Niveau. Die Qualität der vereinfachten Texte ist jedoch weniger gut resp. sie erreichen nur Punktzahlen zwischen 10 und 15 (der Ausgangstext hat eine Punktzahl von 1). Das ist zwar ein wenig ernüchternd aber soweit ich es nachvollziehen konnte, ist _Llama3_ nicht wirklich auf die deutsche Sprache trainiert. Es gibt auf HuggingFace Llama3-basierte Modelle, die mit https://huggingface.co/DiscoResearch/Llama3-German-8B[deutschen Token] feingetuned wurden. Ob mit einem solchen Modell bessere Ergebnisse erzielt werden können, müsste man noch ausprobieren.
+Auf der Dedicated-vCPU-VM habe ich den Benchmark für jede Version vier Mal laufen lassen. Zusätzlich kommen noch Varianten mit unterschiedlichen Garbage Collector (G1GC vs ParallelGC). Auf der Shared-vCPU-VM habe ich nicht im gleichen Umfang getestet.
 
-image::../../../../../images/ai_behoerdensprache_ade_p2/prototyp02.png[alt="prototyp02", align="center"]
+Und finally habe ich einen Anwendungsfall, bei dem GraalVM signifikant schneller ist und mehr Throughput schafft. Wobei GraalVM 17 und 21 praktisch identisch sind mit leichten Vorteil von GraalVM 21 (visuell verglichen).
 
-Nichtsdestotrotz finde ich es wichtig, dass es frei verfügbare LLM gibt. Für Organisationen werden sie spannend, wenn man &laquo;KI machen&raquo; will und keine Kompromisse beim Datenschutz und der digitalen Souveränität eingehen will/kann. 
+GraalVM 21 (dedicated, G1GC):
 
-Ausprobieren:
+image::../../../../../images/geoserver_on_steroids/graal-21-g1gc_.png[alt="Resultat GraalVM 21", align="center"]
 
-[source,bash,linenums]
-----
-docker run -p8080:8080 -e OPENAI_API_KEY=123456789 edigonzales/simply-simplify-language
-----
+GraalVM 17 (dedicated, G1GC):
 
-Für _Llama3_ müssen die https://github.com/edigonzales/simply-simplify-language-java/blob/main/src/main/resources/application.properties#L17[zwei Env-Variablen] gesetzt werden.
+image::../../../../../images/geoserver_on_steroids/graal-17-g1gc_.png[alt="Resultat GraalVM 17", align="center"]
+
+Die Sprünge zwischen der Anzahl Threads ist klar ersichtlich. Einzig beim Sprung von 12 auf 16 Threads ist mit nicht viel mehr Throughput zu rechnen.
+
+GraalVM 17 (dedicated, ParallelGC):
+
+image::../../../../../images/geoserver_on_steroids/graal-17-parallelgc_.png[alt="Resultat GraalVM 17 (parallelgc)", align="center"]
+
+Die Verwendung vom ParallelGC bringt hier (im Gegensatz zur https://blog.sogeo.services/blog/2021/11/28/interlis-leicht-gemacht-number-27.html[INTERLIS-Validierung mit _ilivalidator_]) nichts.
+
+OpenJDK 17 (dedicated, G1GC):
+
+image::../../../../../images/geoserver_on_steroids/temurin-17-g1gc_.png[alt="Resultat OpenJDK 17", align="center"]
+
+Wenn GraalVM bei 16 Threads immer um die 20 requests/second pendelt, so sind es bei OpenJDK klar weniger (circa 17.5 requests/second).
+
+OpenJDK 11 (dedicated, G1GC):
+
+image::../../../../../images/geoserver_on_steroids/temurin-11-g1gc_.png[alt="Resultat OpenJDK 11", align="center"]
+
+OpenJDK 11 ist praktisch identisch zu OpenJDK 17.
+
+Interessant sind ebenfalls die Resultate der Shared-vCPU-VM.
+
+GraalVM 17 (shared, G1GC):
+
+image::../../../../../images/geoserver_on_steroids/graal-17-g1gc-arm_.png[alt="Resultat GraalVM 17 (shared)", align="center"]
+
+OpenJDK 17 (shared, G1GC):
+
+image::../../../../../images/geoserver_on_steroids/temurin-17-g1gc-arm_.png[alt="Resultat OpenJDK 17 (shared)", align="center"]
+
+Einerseits zeigt sich das gleiche Bild: GraalVM vs OpenJDK. Spannend ist aber der Throughput bei 12 und 16 Threads. Da kommt GraalVM beinahe an die Resultate von OpenJDK auf der Dedicated-vCPU-VM heran. Und sowieso sind die Resultate nicht übel, wenn man bedenkt, dass man nur einen Viertel bezahlt.
+
+Fazit: Use GraalVM! Grob geschätzt sind es 15% mehr Durchsatz. Aber Achtung: Den RAM-Verbrauch habe ich z.B. nicht angeschaut. Dazu kann ich gar keine Aussage machen. 
 
 Links:
 
- - Original: https://github.com/machinelearningZH/simply-simplify-language/
- - Shameless plug: https://github.com/edigonzales/simply-simplify-language-java/
+ - https://github.com/edigonzales/geoserver-benchmarks/tree/main/results
