@@ -57,7 +57,7 @@ Getestet habe ich folgende Java-/GraalVM-Versionen:
 
 Auf der Dedicated-vCPU-VM habe ich den Benchmark für jede Version vier Mal laufen lassen. Zusätzlich kommen noch Varianten mit unterschiedlichen Garbage Collector (G1GC vs ParallelGC). Auf der Shared-vCPU-VM habe ich nicht im gleichen Umfang getestet.
 
-Und finally habe ich einen Anwendungsfall, bei dem GraalVM signifikant schneller ist und mehr Throughput schafft. Wobei GraalVM 17 und 21 praktisch identisch sind mit leichten Vorteil von GraalVM 21 (visuell verglichen).
+Und finally habe ich einen Anwendungsfall, bei dem _GraalVM_ signifikant schneller ist und mehr Throughput schafft. Wobei GraalVM 17 und 21 praktisch identisch sind mit leichten Vorteil von GraalVM 21 (visuell verglichen).
 
 GraalVM 21 (dedicated, G1GC):
 
@@ -97,9 +97,9 @@ OpenJDK 17 (shared, G1GC):
 
 image::../../../../../images/geoserver_on_steroids/temurin-17-g1gc-arm_.png[alt="Resultat OpenJDK 17 (shared)", align="center"]
 
-Einerseits zeigt sich das gleiche Bild: GraalVM vs OpenJDK. Spannend ist aber der Throughput bei 12 und 16 Threads. Da kommt GraalVM beinahe an die Resultate von OpenJDK auf der Dedicated-vCPU-VM heran. Und sowieso sind die Resultate nicht übel, wenn man bedenkt, dass man nur einen Viertel bezahlt.
+Einerseits zeigt sich das gleiche Bild: _GraalVM_ vs _OpenJDK_. Spannend ist aber der Throughput bei 12 und 16 Threads. Da kommt _GraalVM_  beinahe an die Resultate von _OpenJDK_ auf der Dedicated-vCPU-VM heran. Und sowieso sind die Resultate nicht übel, wenn man bedenkt, dass man nur einen Viertel bezahlt.
 
-Fazit: Use GraalVM! Grob geschätzt sind es 15% mehr Durchsatz. Aber Achtung: Den RAM-Verbrauch habe ich z.B. nicht angeschaut. Dazu kann ich gar keine Aussage machen. 
+Fazit: Use _GraalVM_! Grob geschätzt sind es 15% mehr Durchsatz. Aber Achtung: Den RAM-Verbrauch habe ich z.B. nicht angeschaut. Dazu kann ich gar keine Aussage machen. 
 
 Links:
 
