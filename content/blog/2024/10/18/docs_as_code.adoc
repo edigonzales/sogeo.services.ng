@@ -124,4 +124,4 @@ image::../../../../../images/docs_as_code/referencedoc.png[alt="Referenzdokument
 
 Die Webseite https://gretl.app[gretl.app] zeigt weiterhin nur eine Version und wird auch weiterhin in einem separaten Repo verwaltet. Die Pipeline, welche die Webseite herstellt, wird nur bei Bedarf (manuell) ausgelöst (oder z.B. aus dem main-Branch von GRETL getriggert). Die Pipeline muss auch den GRETL-Quellcode auschecken und die Referenzdokumentation als Teil der Webseite herstellen.
 
-Soweit meine Idee zur Organisation. Gibt es bessere Ideen?
+Soweit meine Idee zur Organisation. Gibt es weitere Vorschläge?
