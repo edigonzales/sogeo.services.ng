@@ -12,7 +12,7 @@ Für letzteres (technisches) Problem hatte ich relativ schnell eine Idee: Mit _J
 
 Das Doclet zu implementieren war nicht allzu schwierig. Trotzdem gab es eine Herausforderung zu meistern: Eigentlich ist sonnenklar, was von der Java-Klasse (welche den Task implementiert) in der Tabelle landen soll. Nämlich die Properties, die für den Anwender später relevant sind (wieder das Beispiel mit dem Namen der Datei, die geprüft werden soll). Die Java-Klasse (weil vererbt) hat noch viele andere Properties resp. Fields und Methoden, die für meinen Anwendungsfall nicht relevant sind. Im einfachsten Fall sieht der Quellcode eines Custum-Gradle-Tasks so aus:
 
-[source,bash,linenums]
+[source,java,linenums]
 ----
 public class S3Download extends DefaultTask {
     /**
@@ -49,7 +49,7 @@ public class S3Download extends DefaultTask {
 
 Man sieht, dass die Properties annotiert sind. Man findet dank den Annotationen genau die Properties, die man will. Hat das Property einen Kommentar, kann man auch diesen mit der Doclet-API auslesen. Leicht komplizierter wird es, weil es auch noch weitere Arten gibt einen Task zu schreiben:
 
-[source,bash,linenums]
+[source,java,linenums]
 ----
 public class S3Upload extends DefaultTask {
     private String accessKey;
@@ -89,9 +89,9 @@ public class S3Upload extends DefaultTask {
 
 Die Annotationen stehen bei dieser Variante nicht mehr bei den Properties, sondern bei der Getter-Methode. Eine dritte Variante kennt gar keine Properties (im Quellcode) mehr, sondern es wird nur noch ein abstrakter Getter geschrieben:
 
-[source,bash,linenums]
+[source,java,linenums]
 ----
-public class S3Upload extends DefaultTask {
+public abstract class S3Upload extends DefaultTask {
     /**
     * AWS Access Key
     */
