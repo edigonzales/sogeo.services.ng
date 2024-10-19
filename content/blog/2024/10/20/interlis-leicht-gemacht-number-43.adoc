@@ -65,7 +65,7 @@ Die INTERLIS-Datenmodelle lagen alle lokal vor und es mussten keine Requests zu 
 - OpenJDK 11
 - OpenJDK 8
 
-Das Resultat habe ich in einem Matplotlib-Chart (ChatGPT sei dank) zusammengestellt. Eigentlich wollte ich bloss Punkte zeichnen, das habe ich jedoch nicht hingekriegt. Darum gibts jetzt pseudo-wissenschaftliche Boxplots:
+Das Resultat habe ich in einem Matplotlib-Chart zusammengestellt. Eigentlich wollte ich bloss Punkte zeichnen, das habe ich jedoch nicht hingekriegt. Darum gibts jetzt pseudo-wissenschaftliche Boxplots:
 
 image::../../../../../images/interlis_leicht_gemacht_p43/ilivalidator-benchmark-jvm.png[alt="Chart", align="center"]
 
