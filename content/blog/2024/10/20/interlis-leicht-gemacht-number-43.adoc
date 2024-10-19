@@ -74,3 +74,7 @@ Es scheint als gäbe es einen klaren Gewinner in meinem Testszenario: GraalVM mi
 Die JVM verwendete die Hälfte des vorhandenen RAM: 16 GB. Ich habe die Variante GraalVM 21 (ParallelGC) mit 4 GB Heap laufen lassen und komme auf ein minimal schlechteres Resultat. Der Versuch mit 2 GB war nicht erfolgreich und führte zu Out of Memory Fehlern. Der RAM-Verbrauch ist relativ gering, steigt jedoch rapide an bei AREA-Validierungen (soweit meine Beobachtung).
 
 Eine allgemein gültige Empfehlung ist schwierig anhand dieses Testes. Letztes Mal hat INTERLIS 1 eine leicht andere Resultatcharakteristik gezeigt als INTERLIS 2. Eventuell führen stark unterschiedliche Datensätze (viele oder wenig Geometrien, AREA- oder keine AREA-Prüfung, viele oder wenig Constraints) zu unterschiedlichen Resultaten. Aber bis auf weiteres würde ich (für institutionaliserte Betreiber) eine aktuelle JVM empfehlen (ab 21) und ParallelGC.
+
+Links:
+
+- https://github.com/edigonzales/ilivalidator-benchmark
