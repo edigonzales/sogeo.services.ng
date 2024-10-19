@@ -55,7 +55,7 @@ public class run_ilivalidator {
 }
 ----
 
-Die 100-fache Ausführung (= 100 x ~40s) der Validierung innerhalb der gleichen JVM sollte vorhandene Performanceunterschiede hervorheben. Für jede verwendete JVM habe ich den Benchmark 4 Mal durchgeführt. Verwendet wurden folgende JVM:
+Die INTERLIS-Datenmodelle lagen alle lokal vor und es mussten keine Requests zu anderen Repos gemacht werden. Die 100-fache Ausführung (= 100 x ~40s) der Validierung innerhalb der gleichen JVM sollte vorhandene Performanceunterschiede hervorheben. Für jede verwendete JVM habe ich den Benchmark 4 Mal durchgeführt. Verwendet wurden folgende JVM:
 
 - GraalVM 23
 - GraalVM 21
