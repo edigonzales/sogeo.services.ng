@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ilivalidator,JVM,GraalVM,OpenJDK
 :idprefix:
 
-Angespornt durch mein https://blog.sogeo.services/blog/2024/10/15/geoserver_on_steroids.html[GeoServer-Benchmarking] wollte ich  https://blog.sogeo.services/blog/2021/11/28/interlis-leicht-gemacht-number-27.html[wieder] das Verhalten von https://github.com/claeis/ilivalidator[_ilivalidator_]  mit verschiedenen JVM-Varianten unter die Lupe nehmen. Gibt es irgendwelche Kombinationen von JVM-Version, RAM-Zuteilung, Garbage-Collector, die besonders schnell oder langsam sind?
+Angespornt durch mein https://blog.sogeo.services/blog/2024/10/15/geoserver_on_steroids.html[GeoServer-Benchmarking] wollte ich https://blog.sogeo.services/blog/2021/11/28/interlis-leicht-gemacht-number-27.html[ein weiteres Mal] das Verhalten von https://github.com/claeis/ilivalidator[_ilivalidator_]  mit verschiedenen JVM-Varianten unter die Lupe nehmen. Gibt es irgendwelche Kombinationen von JVM-Version, RAM-Zuteilung, Garbage-Collector, die besonders schnell oder langsam sind?
 
 Für das Benchmarking habe ich die Nutzungsplanung des Kantons Thurgau verwendet. Diese ist als einzelne XTF-Datei auf https://geodienste.ch/downloads/npl_nutzungsplanung?data_format=xtf_canton[geodienste.ch] bereitgestellt und hat darum eine entsprechende Grösse und https://github.com/claeis/ilivalidator[_ilivalidator_] hat einiges zu rechnen. Letztes Mal habe ich noch INTERLIS-1-Datensätze geprüft. Das lasse ich sein, das sollte langsam Geschichte sein. 
 
