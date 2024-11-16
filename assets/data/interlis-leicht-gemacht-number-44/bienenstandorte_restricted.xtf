@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><TRANSFER xmlns="http://www.interlis.ch/INTERLIS2.3">
+<HEADERSECTION SENDER="ili2gpkg-5.1.0-58fc980cc6639b2c16a3cff8a0fa19ef1484b11c" VERSION="2.3"><MODELS><MODEL NAME="SO_ALW_Bienenstandorte_restricted_20241113" VERSION="2024-11-13" URI="https://alw.so.ch"></MODEL></MODELS></HEADERSECTION>
+<DATASECTION>
+<SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte BID="SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte">
+<SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort TID="3A9A45D8-4A47-46E3-BDAF-DE4EAC716EDC"><Nummer>123456</Nummer><Honigsorte>Bluetenhonig</Honigsorte><Standort><COORD><C1>2607635.090</C1><C2>1228597.525</C2></COORD></Standort><Name>Hans Müller</Name><Telefonnummer>032 627 55 44</Telefonnummer></SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort>
+<SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort TID="7DCB3C7B-2EBE-470B-8ED4-F5FC38E0F065"><Nummer>332211</Nummer><Honigsorte>Bluetenhonig</Honigsorte><Standort><COORD><C1>2607742.739</C1><C2>1228643.213</C2></COORD></Standort><Name>Thomas Meier</Name><Telefonnummer>041 111 22 33</Telefonnummer></SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort>
+<SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort TID="4E3AE4DC-8877-43FC-BD43-FFD183EDB63C"><Nummer>987654</Nummer><Honigsorte>Waldhonig</Honigsorte><Standort><COORD><C1>2607672.642</C1><C2>1228795.925</C2></COORD></Standort><Name>Ruedi Schmid</Name><Telefonnummer>061 511 66 77</Telefonnummer></SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte.Bienenstandort>
+</SO_ALW_Bienenstandorte_restricted_20241113.Bienenstandorte>
+</DATASECTION>
+</TRANSFER>
