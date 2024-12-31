@@ -136,7 +136,7 @@ betroffen AS
         FROM 
             gemeinde 
             INNER JOIN themadaten 
-            ON ST_Overlaps(gemeinde.geometrie, themadaten.geom)
+            ON ST_Intersects(gemeinde.geometrie, themadaten.geom)
     ) AS foo
     LEFT JOIN gemeinde
     ON 1=1
