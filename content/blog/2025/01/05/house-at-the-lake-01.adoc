@@ -186,3 +186,4 @@ Links:
 - https://www.upsolver.com/blog/apache-iceberg-vs-parquet-file-formats-vs-table-formats
 - https://medium.com/@ajanthabhat/iceberg-catalogs-choosing-the-right-one-for-your-needs-77ff6dcfaec0
 - https://medium.com/snowflake/polaris-catalog-if-you-have-been-napping-9005909dc1fa
+- Geospatial Support: https://github.com/apache/iceberg/issues/10260
