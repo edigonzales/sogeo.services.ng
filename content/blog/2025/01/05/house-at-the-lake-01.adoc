@@ -177,7 +177,7 @@ import spark.implicits._
 spark.sql("CREATE TABLE local.default.sample_table (id INT, name STRING) USING iceberg")
 ----
 
-Dabei darf man sich nicht irritieren lassen, dass die SQlite-Datenbank erst nach dem Erstellen einer ersten Iceberg-Tabelle erzeugt wird.
+Dabei darf man sich nicht irritieren lassen, dass die SQlite-Datenbank erst nach dem Erstellen einer ersten Iceberg-Tabelle erzeugt wird (Hallo Zukunfts-Stefan).
 
 Mein Lakehouse-Zwischenfazit: Abklären, was man eigentlich will und was die Anforderungen sind, sollte man schon noch vor der Realisierung eines Data Lakehouses. Vielleicht reicht auch wie fast immer eine PostgreSQL-Datenbank und bisschen Parquet-Dateien und DuckDB. Wir werden wohl nicht so schnell hunderte von Petabytes an Daten vorliegen haben.
 
