@@ -1,0 +1,37 @@
+services:
+  pub-db:
+    image: sogis/postgis:16-3.4-bookworm
+    environment:
+      POSTGRES_DB: pub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "54322:5432"
+    volumes:
+      - type: volume
+        source: pgdata_pub
+        target: /var/lib/postgresql/data
+  iceberg-db:
+    image: sogis/postgis:16-3.4-bookworm
+    environment:
+      POSTGRES_DB: iceberg
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "54324:5432"
+    volumes:
+      - type: volume
+        source: pgdata_iceberg
+        target: /var/lib/postgresql/data
+  trino:
+    image: trinodb/trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: /Users/stefan/tmp/trino
+        target: /etc/trino
+volumes:
+  pgdata_pub:
+  pgdata_iceberg:
+
