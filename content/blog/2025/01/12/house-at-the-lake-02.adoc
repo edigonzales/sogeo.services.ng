@@ -3,10 +3,10 @@ Stefan Ziegler
 2025-01-12
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: Iceberg,Lakehouse,Data Lake,Parquet,Spark,DuckDB,Trinio,JDBC,Python
+:jbake-tags: Iceberg,Lakehouse,Data Lake,Parquet,Spark,DuckDB,Trino,JDBC,Python
 :idprefix:
 
-Nachdem wir uns im https://blog.sogeo.services/blog/2025/01/05/house-at-the-lake-01.html[ersten Teil] um das Speichern der Daten in unserem Data Lakehouse gekümmert haben, möchten wir jetzt mit den Daten arbeiten, d.h. wir brauchen eine Compute oder Query Engine. Es gibt verschiedene Engines, die auf https://iceberg.apache.org/[_Iceberg_] Tables zugreifen können. Anschliessend drei Beispiele dazu. Es sei nochmals darauf hingewiesen, dass man es nicht mit drei verschiedenen Datenbankklienten vergleichen kann. In DB-Fall verursachen die Klienten die (gleiche) Last auf dem Datenbankserver. Augrund der Trennung von Speichern und Compute in einem Data Lakehouse, liegt die Rechenlast bei der Query Engine selber.
+Nachdem wir uns im https://blog.sogeo.services/blog/2025/01/05/house-at-the-lake-01.html[ersten Teil] um das Speichern der Daten in unserem Data Lakehouse gekümmert haben, möchten wir jetzt mit den Daten arbeiten, d.h. wir brauchen eine Compute oder Query Engine. Es gibt verschiedene Engines, die auf https://iceberg.apache.org/[_Iceberg_] Tables zugreifen können. Anschliessend drei Beispiele dazu. Es sei nochmals darauf hingewiesen, dass man es nicht mit drei verschiedenen Datenbankklienten vergleichen kann. In DB-Fall verursachen die Klienten die (gleiche) Last auf dem Datenbankserver. Aufgrund der Trennung von Speichern und Compute in einem Data Lakehouse, liegt die Rechenlast bei der Query Engine selber.
 
 Die erste Möglichkeit haben wir bereits im https://blog.sogeo.services/blog/2025/01/05/house-at-the-lake-01.html[vorangegangenen Blogbeitrag] kennengelernt: https://spark.apache.org/[_Spark_]. _Spark_ diente mir hauptsächlich zum Anlegen der Iceberg-Tabellen. Man kann damit aber auch beliebige Analysen machen. Es gibt drei Benutzerinterfaces: SQL, Scala und Python. Die beiden letzten würde man wohl verwenden, wenn man für seine Analyse weitere Bibliotheken verwende möchte oder muss. Ich setze mir als Ziel die Tabelle der Steuerfüsse der natürlichen Personen, die ich in mein Data Lakehouse importiert habe, in eine Excel-Datei zu exportieren. Ich verwende für dieses Beispiel _pyspark_ und muss zuerst noch weitere Bibliotheken herunterladen:
 
