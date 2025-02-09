@@ -1,4 +1,4 @@
-= The house at the lake #3 - The Dashboard Diaries
+= The house at the lake #3 - The dashboard diaries
 Stefan Ziegler
 2025-01-26
 :jbake-type: post
