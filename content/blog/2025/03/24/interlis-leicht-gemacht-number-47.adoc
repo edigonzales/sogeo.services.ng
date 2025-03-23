@@ -19,7 +19,7 @@ Ich hätte ja gerne ein Ausrufezeichen im Titel verwendet. Nur so allgemeingült
 }
 ----
 
-Der Service hat zwei Funktionen: eine liefert für eine Koordinaten einen Höhenwert, die zweite Funktion liefert Höhenwerte entlang eines Linestrings.
+Der Service hat zwei Funktionen: eine liefert für eine Koordinate einen Höhenwert, die zweite Funktion liefert Höhenwerte entlang eines Linestrings.
 
 Das dazugehörige Schema ist schon um einiges umfangreicher:
 
