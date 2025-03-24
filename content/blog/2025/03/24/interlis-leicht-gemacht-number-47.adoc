@@ -6,7 +6,7 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,JSON,iox,Java,ilivalidator
 :idprefix:
 
-Ich hätte ja gerne ein Ausrufezeichen im Titel verwendet. Nur so allgemeingültig ist die Aussage wohl nicht. Jedoch für uns könnte sie passen. Im https://blog.sogeo.services/blog/2025/02/09/interlis-leicht-gemacht-number-46.html[letzten Blogbeitrag] habe ich geschrieben, dass bei uns viel Konfiguration anfällt. Ein Teil wird (zukünftig) originär in JSON von Mitarbeitern erfasst. Die Konfiguration der vielen Microservices im Umfeld des Web GIS Clients ist ebenfalls JSON. Diese ist teilweise sehr umfangreich und wird in der Regel nicht mehr von Hand erstellt. Zu jeder dieser Microservice-Konfiguration gibt es ein JSON-Schema, das die Konfiguration definiert. Im Fall des &laquo;elevation&raquo;-Services ist die Konfiguration maximal simpel:
+Ich hätte ja gerne ein Ausrufezeichen im Titel verwendet. Nur so allgemeingültig ist die Aussage wohl nicht. Jedoch für uns könnte sie passen. Im https://blog.sogeo.services/blog/2025/02/09/interlis-leicht-gemacht-number-46.html[letzten Blogbeitrag] habe ich geschrieben, dass bei uns viel Konfiguration anfällt. Ein Teil wird (zukünftig) originär in JSON von Mitarbeitern erfasst. Die Konfiguration der vielen Microservices im Umfeld des Web GIS Clients ist ebenfalls JSON. Diese ist teilweise sehr umfangreich und wird in der Regel nicht mehr von Hand erstellt. Zu jeder dieser Microservice-Konfiguration gibt es ein JSON-Schema, das die Konfiguration definiert. Im Fall des https://github.com/qwc-services/qwc-elevation-service[&laquo;elevation&raquo;-Services] ist die Konfiguration maximal simpel:
 
 [source,json,linenums]
 ----
@@ -19,7 +19,7 @@ Ich hätte ja gerne ein Ausrufezeichen im Titel verwendet. Nur so allgemeingült
 }
 ----
 
-Der Service hat zwei Funktionen: eine liefert für eine Koordinate einen Höhenwert, die zweite Funktion liefert Höhenwerte entlang eines Linestrings.
+Der Service hat zwei Funktionen: eine liefert für eine Koordinate einen Höhenwert zurück, die zweite Funktion liefert Höhenwerte entlang eines Linestrings als Antwort.
 
 Das dazugehörige Schema ist schon um einiges umfangreicher:
 
@@ -64,7 +64,7 @@ Das dazugehörige Schema ist schon um einiges umfangreicher:
 }
 ----
 
-Für JSON-Liebhaber mag das Kunst sein, für mich sieht es eher leicht chaotisch aus. Inhaltlich dürfte so ein Schema wohl viele Anforderungen abdecken. Man kann z.B. Konstanten oder Default-Werte definieren. Oder auch URL verlangen. Wobei man anscheinend zwei Aussagen dazu braucht: Das URL-Attribut muss vom Typ &laquo;string&raquo; sein und gemäss einer &laquo;uri&raquo; formattiert sein. Scheint mir irgendwie umständlich. Was wäre, wenn wir das JSON-Schema als einfach lesbares INTERLIS-Modell definieren könnten?
+Für JSON-Liebhaber mag das Kunst sein, für mich sieht es eher leicht chaotisch aus. Inhaltlich dürfte so ein Schema wohl viele Anforderungen abdecken. Man kann z.B. Konstanten oder Default-Werte definieren. Irgendwie noch schick. Oder auch URL verlangen. Wobei man anscheinend zwei Aussagen dazu braucht: Das URL-Attribut muss vom Typ &laquo;string&raquo; sein und gemäss einer &laquo;uri&raquo; formatiert sein. Scheint mir irgendwie umständlich. Was wäre aber, wenn wir das JSON-Schema als einfach lesbares INTERLIS-Modell definieren könnten?
 
 [source,json,linenums]
 ----
@@ -88,9 +88,9 @@ MODEL Elevation (de) AT "mailto:edigonzales@localhost" VERSION "20250324" =
 END Elevation.
 ----
 
-Und ja, im Modell fehlen die Kommentare (&laquo;description&raquo;), im JSON-Schema vorhanden sind. Ebenfalls können keine Default-Werte und Konstanten gesetzt werden. Für beide Fragestellungen könnten z.B. Constraints verwenden werden. Und die Sache mit Modell -> Topic -> Class macht es auf den ersten Blick auch ziemliche _verbose_. Auch wenn wir Kommentare und Constraints noch einpflegen würden, dünkt es mich klarer, aussagekräftiger und sauberer strukturiert. Schlichtweg eleganter. Aber da gibt es wahrscheinlich auch andere Meinungen. 
+Und ja, im Modell fehlen die Kommentare (&laquo;description&raquo;), die im JSON-Schema vorhanden sind. Ebenfalls können keine Default-Werte und Konstanten gesetzt werden. Für beide Fragestellungen könnten z.B. Constraints verwenden werden. Und die Sache mit Modell -> Topic -> Class macht es auf den ersten Blick auch ziemlich _verbose_. Und trotzdem: Auch wenn wir Kommentare und Constraints noch einpflegen würden, dünkt es mich klarer, aussagekräftiger und sauberer strukturiert. Schlichtweg eleganter. Aber dazu gibt es wahrscheinlich auch gegenteilige Meinungen. 
 
-Die JSON-Datei sieht wie folgt aus / muss wie folgt aussehen:
+Die zum INTERLIS-Modell passende JSON-Datei sieht wie folgt aus / muss wie folgt aussehen:
 
 [source,json,linenums]
 ----
@@ -115,7 +115,7 @@ Bereits mit der ersten Version von https://gretl.app[_GRETL_] wollten wir neben 
 
 Vor einiger Zeit haben wir ebensolche https://github.com/claeis/iox-wkf/tree/master/src/main/java/ch/interlis/ioxwkf/json[JsonReader und GeoJsonReader] programmieren lassen. Jetzt ist die Zeit gekommen diese in Wert zu setzen und sie als Basis für einen JsonValidator zu verwenden. Der JsonValidator wird als https://github.com/sogis/gretl/blob/V3_1_ili2duckdb/gretl/src/main/java/ch/so/agi/gretl/tasks/JsonValidator.java[GRETL-Task] umgesetzt. Ein Standalone-Werkzeug wäre aber mit minimalen Aufwand auch möglich.
 
-Zurück zum hässlichen &laquo;INTERLIS-JSON&raquo;: Um möglichst viel von der Sprache INTERLIS verwenden zu können und Daten in JSON transportieren zu können, braucht es diese Metaattribute in der JSON-Datei. Man muss wissen welcher Basket geliefert wird, um welchen Klassentyp es sich beim konkreten Objekt handelt etc. pp. Für unseren momentanen Anwendungsfall/Spezialfall ist aber nur das Attribut `@type` notwendig. D.h. ich möchte die JSON-Datei nicht unnötig aufblasen. Das löse ich, indem ich fehlende Metaattribute vor der Validierung https://github.com/sogis/gretl/blob/V3_1_ili2duckdb/gretl/src/main/java/ch/so/agi/gretl/tasks/impl/JsonValidatorImpl.java#L70[hinzufüge]. Ebenso ein allfällig fehlendes Toplevel-Array. Den JsonReader lasse ich diesbezüglich so sein, wie er ist. Unsere Konfigurationsdatei sieht abgespeckt so aus:
+Zurück zum hässlichen &laquo;INTERLIS-JSON&raquo;: Um möglichst viel von der Sprache INTERLIS verwenden zu können und Daten in JSON transportieren zu können, braucht es diese Metaattribute in der JSON-Datei. Man muss wissen welcher Basket geliefert wird, um welchen Klassentyp es sich beim konkreten Objekt handelt etc. pp. Für unseren momentanen Anwendungsfall/Spezialfall ist aber nur das Attribut `@type` notwendig. D.h. ich möchte die JSON-Datei nicht unnötig aufblasen. Das löse ich, indem ich fehlende Metaattribute vor der Validierung https://github.com/sogis/gretl/blob/V3_1_ili2duckdb/gretl/src/main/java/ch/so/agi/gretl/tasks/impl/JsonValidatorImpl.java#L70[hinzufüge]. Ebenso ein allfällig fehlendes Toplevel-Array. Den JsonReader lasse ich so sein, wie er ist. Unsere Konfigurationsdatei sieht abgespeckt so aus:
 
 [source,json,linenums]
 ----
