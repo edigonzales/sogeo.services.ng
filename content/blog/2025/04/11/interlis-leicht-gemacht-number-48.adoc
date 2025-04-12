@@ -1,10 +1,31 @@
-= INTERLIS leicht gemacht #48 - Der INTERLIS-Super-Gau 
+= INTERLIS leicht gemacht #48 - Der INTERLIS-Super-GAU 
 Stefan Ziegler
 2025-04-11
 :jbake-type: post
 :jbake-status: published
 :jbake-tags: INTERLIS,Java,Infomaniak,Github
 :idprefix:
+
+Was ist passiert? Ich wollte ein nachgeführtes Modell in unsere https://geo.so.ch/models[INTERLIS-Modellablage] publizieren. Wie es sich gehört, ist dieser Prozess automatisiert. Wir müssen bloss die Modelldatei in ein https://github.com/sogis/sogis-interlis-repository[Github-Repository] einchecken und dann beginnt die Pipeline / die Github-Action zu laufen. Ein Gradle-Plugin sucht alle Modelldateien im Repository und liest die notwendigen Informationen aus diesen aus und erstellt die _ilimodels.xml_-Datei und ein Dockerimage, das automatisch in unseren OpenShift-Cluster deployed wird. Das Dockerimage wird vor dem Pushen in die Registry in der Pipeline mit `--check-repo-ilis` geprüft.
+
+Das Unheil fing am 27. April 2025 an: Die Pipeline lief nicht mehr durch. Das kann schon mal vorkommen, kleiner Schluckauf irgendwo. Im konkreten Fall war es auch nicht super tragisch, da ich das das nachgeführte Modell einfach temporär dort speichern kann, wo es auch verwendet wird. Damit konnte ich immerhin weiterarbeiten. Am nächsten Morgen geschaut, ob die Pipeline nun durchläuft. Mmmh, immer noch nicht. Die Logdatei der Action meldet folgendes:
+
+image::../../../../../images/interlis_leicht_gemacht_p48/gh_action_log.png[alt="Github Action Logfile", align="center"]
+
+Meine Gradle-Plugin findet die Mutter aller INTERLIS-Modellablagen nicht. Das Plugin muss das https://models.interlis.ch/core/IliRepository20.ili[IliRepository20] kompilieren, um die _ilimodels.xml_-Datei herstellen zu können. Ich hatte den Compiler in https://github.com/sogis/interlis-repository-creator/blob/ee9196c4eb8cce1e8b86fa70ecf25da64c6e52e7/src/main/java/ch/so/agi/tasks/ModelRepositoryCreator.java#L312[meinem Code] so konfiguriert, dass er nicht lokale Modelle verwendet, sondern das Modell in den externen Repositories sucht. Und genau das Repository mit dem gewünschten Modell war aus der Github Action nicht mehr erreichbar. Sonst schien mit dem Repository alles in Ordnung. Mit dem Browser konnte ich darauf zugreifen.
+
+Was machen? Eine E-Mail in die Runde ohne grosse Erkenntnisse und im Forum nachgeschaut. Immerhin hatten https://interlis.discourse.group/t/models-interlis-ch-down/364[andere auch Probleme]. Ok, uncool aber noch handlebar und sowieso: Ich kann das Modell zu meinem Code kopieren und bin nicht mehr auf ein externes Repository angewiesen.
+
+
+Also mal eine E-Mail in die Runde. An 
+
+
+
+- ah ich konnte das plugin nicht mehr neu builden wegen den jars, die nicht erreibach waren.  
+
+- herausfordernd, wo irgendwie eine Funktionen Repos anzieht.
+- dann konnte jar.interlis.ch auch nicht mehr erreicht werden (weiss nicht mehr, ob es das modell repo war oder ein was anderes)
+
 
 Ich hätte ja gerne ein Ausrufezeichen im Titel verwendet. Nur so allgemeingültig ist die Aussage wohl nicht. Jedoch für uns könnte sie passen. Im https://blog.sogeo.services/blog/2025/02/09/interlis-leicht-gemacht-number-46.html[letzten Blogbeitrag] habe ich geschrieben, dass bei uns viel Konfiguration anfällt. Ein Teil wird (zukünftig) originär in JSON von Mitarbeitern erfasst. Die Konfiguration der vielen Microservices im Umfeld des Web GIS Clients ist ebenfalls JSON. Diese ist teilweise sehr umfangreich und wird in der Regel nicht mehr von Hand erstellt. Zu jeder dieser Microservice-Konfiguration gibt es ein JSON-Schema, das die Konfiguration definiert. Im Fall des https://github.com/qwc-services/qwc-elevation-service[&laquo;elevation&raquo;-Services] ist die Konfiguration maximal simpel:
 
