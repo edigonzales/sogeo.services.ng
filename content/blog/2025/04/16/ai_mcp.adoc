@@ -8,147 +8,106 @@ Stefan Ziegler
 
 So, ich steig' jetzt ebenfalls auf den fahrenden MCP-Zug auf. Der neueste KI-Hype. Was ist das Model Context Protocol? Ich glaube, vereinfacht darf man sagen, dass es sich um eine standardisierte Variante von Function-Calling handelt. Der LLM erlaubt/ermöglicht man das Aufrufen bestimmer (zur Verfügung gestellter) Funktionen. Was die Funktionen machen und was sie zurückliefern, ist völlig offen. Erfunden hat das Protokoll https://www.anthropic.com/news/model-context-protocol[Anthropic], die Firma hinter _claude.ai_.
 
-Ich denke schon, dass man gewisse Mehrwerte mit LLM schaffen kann. Vor allem, wenn man auf eigene Daten zugreifen kann. Nun ist das so eine Sache. Bei uns ist halt in der Regal halb richtig, ganz falsch. Wem gehört ein Grundstück? Da gibt es eine richtige Antwort.
+Ich denke schon, dass eine öffentliche Verwaltung gewisse Mehrwerte mit LLM schaffen kann. Vor allem, wenn man auf eigene Daten zugreifen kann. Nun ist das so eine Sache. Bei uns ist halt in der Regel halb richtig, ganz falsch. Wem gehört ein Grundstück? Da gibt es eine richtige Antwort. Bei der Verwendung von LLM für die Beantwortung dieser und ähnlicher Fragen kann MCP sehr gut helfen. Das LLM entscheidet selbständig, dass es auf die Frage nicht mit seinem Basiswissen antworten kann und macht eine Anfrage via MCP. Die MCP-Funktion frägt dann z.B. beim Grundbuch (via GBDBS-Schnittstelle) nach und liefert den Namen des Eigentümers / der Eigentümerin. Das LLM macht anschliessend einen überzeugenden, toll klingenden Satz daraus.
 
+Um bei Demos nicht gleich zu riskieren, dass die Leute wegen &laquo;LLM und Grundbuch&raquo; in Ohnmacht fallen, wähle ich andere Testfragen. Zum Aufwärmen soll mir das LLM alle Gemeindenamen des Kantons zurückliefern. Ich möchte auch fragen können, ob es in einer Gemeinde schützenswerte Ortsbilder (ISOS) gibt. Und zu guter Letzt soll es mir sagen, von welchen ÖREB-Themen ein Grundstück in einer Gemeinde betroffen ist.
 
+Dazu braucht es einen MCP-Server und einen MCP-Client. Ich weiss nicht, ob es korrekt formuliert ist, aber ich würde sagen, dass der https://modelcontextprotocol.io/introduction#general-architecture[MCP-Client auch als LLM-Inferencer] wirkt. Client und Server können gemäss Standard unterschiedlich https://modelcontextprotocol.io/docs/concepts/transports[miteinander kommunizieren]: STDIO und Server-Sent Events. Für meine Tests reicht STDIO locker aus. Als Client wähle ich die https://claude.ai/download[Claude-Desktop-Anwendung]. Für die Implementierung des Servers wähle ich natürlich https://spring.io/projects/spring-boot[_Spring Boot_], https://spring.io/projects/spring-ai[_Spring AI_] und ein https://www.danvega.dev/blog/creating-your-first-mcp-server-java[Video] von His Masters Voice Dan Vega. Im Grunde genommen, muss man in Spring nur eine Service-Klasse mit einer Methode erstellen, welche die Businesslogik (im folgenden Beispiel eine Datenbankabfrage) enthält und diese korrekt annotieren, z.B.:
 
-Als NVIDA-Aktionär muss ich das Thema jetzt pushen; die Investition soll sich ja lohnen. Wie jeder andere auch verwende ich hin- und wieder ChatGPT und freue mich über sinnvolle Antworten vor allem als Hilfe zum Programmieren. Der Zugang zum Thema fällt mir aber schwer: LLM, Tokens, RAG, Prompt Engineering, Fine Tuning... WTF? Um das Thema nicht nur den Luftikussen und Verkäufern zu überlassen, muss ich mich hier auch minimal schlau machen. Und wie gelingt mir das am besten? Ich brauche eine (halb-)konkrete Fragestellung und Werkzeuge, mit denen ich was anstellen kann. Welcome https://spring.io/projects/spring-ai[_Spring AI_] und https://docs.langchain4j.dev/[_LangChain4j_]. Beides sind Java-Frameworks, die das Arbeiten mit den unterschiedlichsten LLM und AI-Diensten vereinfachen, in dem sie als Abstraktionsschicht dienen. Das hilft ungemein in Zeiten, in denen gefühlt jeden Tag das neue, beste LLM entsteht. Man will also das LLM austauschen können, ohne den Code ändern zu müssen. _Spring AI_ - nomen est omen - dient vor allem im Spring-Umfeld und _LangChain4j_ ganz allgemein im Java-Umfeld. Die konkrete Fragestellung ist jetzt nicht so originell: Ich will mit eigenen Daten arbeiten und Antworten bekommen auf Fragen wie:
-
-- Wer ist Amtschef im Amt für Raumplanung im Kanton Solothurn?
-- Müssen Obstkulturen in der amtlichen Vermessung aufgenommen werden?
-- Was sind die Rechtsgrundlagen für eine Gemeindegrenzregulierung?
-- Welche Eigentumsbeschränkungen gibt es auf dem Grundstück 114 in der Gemeinde Zuchwil?
-
-Die LLM können aus verschiedenen Gründen diese Fragen meistens nicht beantworten. Entweder weil sie nicht mit diesen Daten trainiert wurden. Denke kaum, dass sie das &laquo;Das Handbuch der amtlichen Vermessung Kanton Solothurn&raquo; irgendwann zu Gesicht bekommen haben oder aber sie wurden anhand nicht mehr aktueller Daten trainiert (knowledge cut off date).
-
-Folgende Beispiele sind mit dem gpt4-Modell durchgespielt. D.h. Informationen landen immer auf einem fremden Server. Aus diesem Grund verwende ich nur frei verfügbare Daten und mein Lieblingsbeispiel &laquo;Wem gehört das Grundstück XY in der Gemeinde YZ?&raquo; lasse ich vorderhand im Giftschrank. Möchte ja meinen Job behalten. Interessant wären in diesem Zusammenhang natürlich lokal / inhouse laufende Modelle wie z.B. https://llama.meta.com/llama3/[llama3]. Auf meinem Notebook macht das keinen Spass und die https://www.hetzner.com/de/dedicated-rootserver/matrix-gpu/[200 Euro pro Monat für einen Hetzner-Server] waren mir dann doch zu viel.
-
-Eine einfache Variante mit eigenen Daten zu arbeiten, ist _prompt stuffing_. Dabei werden die Information einfach mit der Frage mitgeschickt. Ein paar Amtschefs habe ich in beispielhaft in einer Markdown-Datei erfasst:
-
-[source,md,linenums]
+[source,java,linenums]
 ----
-## Bau- und Justizdepartement (BJD)
+@Service
+public class GemeindeService {
+    private static final Logger log = LoggerFactory.getLogger(GemeindeService.class);
 
-- Amt für Umwelt (AfU): Gabriel Zenklusen
-- Amt für Raumplaung (ARP): Sacha Peter
-- Amt für Denkmalpflege und Archäologie (ADA): Stefan Blank
-- Amt für Verkehr und Tiefbau (AVT): Roger Schibler
-- Hochbauamt (HBA): Guido Keune
-- Motorfahrzeugkontrolle (MFK): Kenneth Lützelschwab
-- Amt für Geoinformation (AGI): Stefan Ziegler
-
-## Volkwirtschaftsdepartement (VWD)
-
-- Amt für Landwirtschaft (ALW): Felix Schibli
-- Amt für Wald, Jagd und Fischerei (AWJF): Rolf Manser
-- Amt für Gemeinden (AGEM): Grolimund André 
-- Amt für Militär und Bevölkerungsschutz (AMB): Diego Ochsner
-- Amt für Wirtschaft und Arbeit (AWA): R. Frei
-
-## Departement des Innern (DDI)
-
-- Amt für Gesellschaft und Soziales (AGS): Sandro Müller
-- Gesundheitsamt (GESA): Peter Eberhard
-- Migrationsamt: Johanna Schwegler
-- Amt für Justizvollzug (AJUV): Michael Leutwyler
-----
-
-Diese Daten müssen irgendwie zum LLM gelangen. Dazu wird ein Prompt-Template mit Einleitung und Platzhaltern für den Kontext (aka unseren eigenen Daten) und der eigentliche Frage benötigt:
-
-[source,foo,linenums]
-----
-Verwende den folgenden Inhalt, um die Frage am Ende zu beantworten. 
-Wnn du die Antwort nicht kennst, antworte mit 
-"Ich kenne die Antwort leider nicht".
-
-{context}
-
-Frage: {question}
-----
-
-Mit _Spring AI_ kann ich einen Restcontroller schreiben und aus dem Prompt-Template einen Prompt machen:
-
-[source,md,linenums]
-----
-
-@Value("classpath:/docs/organisation-kanton-solothurn.md")
-private Resource docsToStuffResource;
-
-....
-
-@GetMapping("/api/output/stuff/organisation")
-public String getOrganisationInfo(
-        @RequestParam(value = "message", defaultValue = "Wer ist Amtschef oder Amtschefin im Amt für Umwelt des Kantons Solothurn") String message
-        ) {
-            
-    PromptTemplate promptTemplate = new PromptTemplate(organisationKantonSolothurnResource);
-    Map<String,Object> map = new HashMap<>();
-    map.put("question", message);
-    map.put("context", docsToStuffResource);
+    private final JdbcClient jdbcClient;
     
-    Prompt prompt = promptTemplate.create(map);
-    ChatResponse response = chatClient.call(prompt);
+    public GemeindeService(@Qualifier("pubJdbcClient") JdbcClient jdbcClient) {
+        this.jdbcClient = jdbcClient;
+    }
     
-    return response.getResult().getOutput().getContent();
+    @Tool(name = "sogis_get_area_of_municipalities", description = "Alle offiziellen Namen der Gemeinden des Kantons Solothurn mit ihrer Fläche / ihrem Flächenmass in Quadratmeter.")
+    public List<Gemeinde> getGemeinden() {
+        return jdbcClient.sql("SELECT gemeindename AS name,ST_Area(geometrie) AS flaeche FROM agi_hoheitsgrenzen_pub_v1.hoheitsgrenzen_gemeindegrenze")
+                .query(Gemeinde.class)
+                .list();
+    }
 }
 ----
 
-Die Platzhalter werden mit der Frage (`message`-Parameter) und dem Inhalt der Markdown-Datei (`docsToStuffResource`) ersetzt und anschliessend wird das Ganze zu OpenAI hochgeladen und GPT-4 liefert mir die korrekte Antwort. Auch die Frage der Anzahl Departemente wird richtig beantwortet.
+Matchentscheidend ist die Beschreibung der Methode. Anhand dieser wird das LLM entscheiden für welche Frage es die Methode aufruft. Die Methoden müssen zusätzlich registriert werden:
 
-Was kann man machen, wenn wir nicht nur eine einzelne Markdown-Datei vorliegen haben, sondern 100 oder 1000 PDF, E-Mails, Word-Dateien etc.? Das Prinzip bleibt das gleiche, nur dass wir nicht alle Dokumente hochladen, sondern nur den (hoffentlich) relevanten Teil. Wir können/sollten aus zwei Gründen nicht alle Dokumente hochladen: Einerseits sind die sogenannten Tokens die Währung in diesem AI-Zirkus. D.h. es wird pro Input- und Output-Token abgerechnet. Es ist massiv teurer 100 PDF-Seiten hochzuladen als bloss einen Paragraphen daraus. Tokens entsprechend Wortteilen und man rechnet mit circa https://platform.openai.com/tokenizer[1.25 Token pro Wort]. Andererseits können die LLM nicht mit unendlich vielen Tokens umgehen. Hier gibt es grosse Unterschiede zwischen den LLM und die maximale Anzahl wächst ständig mit neuen Generationen der LLM.
-
-Die Lösung für dieses Problem heisst RAG (Retrieval Augmented Generation) und Embeddings. Kann ich nicht richtig erklären, ergoogelt sich man besser. Kurzum: Unsere 1000 Dateien werden in einen Vektorstore importiert und bei einer Anfrage wird zuerst nach den zur Frage möglichst passendsten Inhalten gesucht und nur diese werden zum LLM geschickt. Vektorstores gibt es wie Sand am Meer. _Spring AI_ hat zum rumpröbeln einen filebasierten Store, ich verwende PostgreSQL mit der https://github.com/pgvector/pgvector[pgvector-Extension]. Für viele Anwendungsfälle reicht PostgreSQL wohl. Bei meinen Beispielen war die Dokumentensuche in der Datenbank jedenfalls nicht der zeitlimitierende Faktor. _Spring AI_ bietet für den Import von Dateien verschieden Reader an. Ich habe für drei Dokumente der amtlichen Vermessung den PDF-Reader verwendet. Es handelt sich um das circa https://s3.eu-central-1.amazonaws.com/ch.so.agi.av.lnf.handbuch/handbuch-2.6.zip[190-seitige Handbuch der amtlichen Vermessung Kanton Solothurn], sowie um die https://so.ch/fileadmin/internet/bjd/bjd-agi/pdf/AmtlicheVermessung/Weisungen/Weisung_Vermarkung_150122.pdf[Vermarkungsweisung] und die Weisung betreffend https://so.ch/fileadmin/internet/bjd/bjd-agi/pdf/AmtlicheVermessung/Weisungen/Weisung_Regulierung_Gemeindegrenzen_230310.pdf[Gemeindegrenzregulierungen]. Es kann auch mal vorkommen, dass die PDF-Datei nicht gelesen werden kann oder dass komische Meldungen wegen Fonts im Log erscheinen. Warum ist mir nicht ganz klar. Entweder ist die PDF-Datei korrupt oder es liegt am PDF-Reader. _Spring AI_ verwendet zum Lesen der PDF-Dateien https://pdfbox.apache.org/[_Apache PDFBox_] und es gibt ergänzend einen https://docs.spring.io/spring-ai/docs/current/api/org/springframework/ai/reader/tika/TikaDocumentReader.html[Tika-Reader] mit dem man https://tika.apache.org/2.9.0/formats.html[alles mögliche lesen] kann. 
-
-Nach dem Import, der bei mir circa zwei Minuten gedauert (dauert die Vektorberechnung so lange?) hat, sieht es in der Datenbank so aus:
-
-image::../../../../../images/ai_journey_p1/vectorstore.png[alt="vectorstore", align="center"]
-
-Stelle ich eine Frage werden zuerst die https://github.com/edigonzales/spring-ai-avdocs/blob/02214c8/src/main/java/dev/edigonzales/avdocs/SpringAssistantCommand.java#L55[_n_ ähnlichsten Dokumente(-nteile) in der Datenbank gesucht]. Das _n_ darf man selber wählen. Anschliessend wird diese Information wieder in ein https://github.com/edigonzales/spring-ai-avdocs/blob/02214c8/src/main/java/dev/edigonzales/avdocs/SpringAssistantCommand.java#L39[Prompt-Template gestopft]:
-
-[source,foo,linenums]
+[source,java,linenums]
 ----
-Sie sind ein hilfreicher und freundlicher KI-Assistent, 
-der Fragen zur amtlichen Vermessung des Kantons Solothurn 
-beantworten kann. Verwenden Sie die Informationen aus dem 
-Abschnitt DOKUMENTE, um genaue Antworten zu geben. 
-Wenn sie unsicher sind oder die Antwort nicht im Abschnitt 
-DOKUMENTE zu finden ist, geben sie einfach an, dass sie
-die Antwort nicht kennen.
-
-Bitte verwenden sie in der Antwort keine "ß", sondern "ss".
-
-FRAGE:
-{input}
-
-DOKUMENTE:
-{documents}
+@Bean
+public List<ToolCallback> sogisTools(
+        GemeindeService gemeindeService, 
+        IsosService isosService,
+        GrundstueckService grundstueckService,
+        OerebService oerebService) {
+    return List.of(ToolCallbacks.from(gemeindeService, isosService, grundstueckService, oerebService));
+}
 ----
 
-Anhand der Metadaten (siehe Spalte _metadata_ in der DB-Tabelle) weiss die Anwendung aus welchen Original-Dokumenten die Information für die Antwort stammen und kann diese dem Benutzer auch mitteilen.
+Weil die Kommunikation über STDIO geschieht, darf die Anwendung nichts loggen und keinen Banner in die Konsole rendern:
 
-Zu korrekten Antworten haben folgende Fragen geführt:
+[source,yml,linenums]
+----
+spring.main.banner-mode=off
+logging.pattern.console=
+----
 
-- Müssen Obstkulturen aufgenommen werden?
-- Müssen Apfelbäume aufgenommen werden?
-- Dürfen Kunststoffzeichen für die Vermarkung verwendet werden?
-- Was sind die Rechtsgrundlagen für eine Gemeindegrenzregulierung?
+Das ist aber auch schon alles. Den vollständigen Quellcode gibt es im https://github.com/edigonzales/sogis-mcp-poc[Github-Repo]. Die Konfiguration des MCP-Clients / von Claude-Desktop geschieht über die JSON-Datei _claude_desktop_config.json_. Diese kommt im Claude-Applikations-Verzeichnis zu liegen:
 
-Bei anderen Fragen wurde halluziniert:
+[source,yml,linenums]
+----
+{
+    "mcpServers" : {
+        "sogis-mcp" : {
+            "command" : "/Users/stefan/.sdkman/candidates/java/21.0.4-graal/bin/java",
+            "args" : [
+                "-jar",
+                "/Users/stefan/sources/sogis-mcp-poc/build/libs/sogis-mcp-poc-0.0.1-SNAPSHOT.jar"
+            ]
+        } 
+    }
+}
+----
 
-- Wie ist die Gebäudedefinition?
-- Was gehört bei einer Gemeindegrenzregulierung auf den Regulierungsplan?
-- Wann kommt es zu einer Gemeindegrenzregulierung?
+Wenn alles so ist, wie es sein soll, sollte das GUI wie folgt aussen:
 
-Eingangs habe ich die Frage &laquo;Welche Eigentumsbeschränkungen gibt es auf dem Grundstück 114 in der Gemeinde Zuchwil?&raquo; beispielhaft aufgeführt. Ist sowas möglich? Ja. Verschiedene LLM kennen das Prinzip des https://platform.openai.com/docs/guides/function-calling[Function]  https://docs.spring.io/spring-ai/reference/api/functions.html[Callings]. Dabei können vom Entwickler beliebige Funktionen eingehängt werden. Die Funktion führt beliebigen Code aus und liefert eine Antwort zurück, die das LLM verwenden kann. In meinem Fall sind es sogar zwei Funktionen. Eine liefert den E-GRID eines Grundstückes anhand des Gemeindenamens und der Grundstücksnummer. Die zweite Funktion ruft mit dem E-GRID als Identifier den ÖREB-Webservice auf, liest aus dem XML die betroffenen Themen aus und liefert diese als Liste zurück. Die LLM sind dahingehend trainiert, dass sie möglichst gut wissen, wann sie die Funktion(en) aufrufen müssen. Das Ganze ist aber schon bisschen magisch. Mir ist noch nicht ganz klar, was und wie genau hier rein spielt. Die Funktionen werden https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/GrunstueckFunctionConfiguration.java#L12[annotiert] und es hilft sicher hier was sinnvolles reinzuschreiben (rede ich mir jedenfalls ein).
+image::../../../../../images/ai_mcp/claude01.png[alt="claude01", align="center"]
 
-Die Frage nach den Eigentumsbeschränkungen konnte beantwortet werden:
+Wichtig ist das Hammer-Symbol mit der Zahl Vier. Das bedeutet, dass es vier verfügbare MCP Tools (Funktionen) gibt:
 
-image::../../../../../images/ai_journey_p1/oereb-frage.png[alt="oereb-frage", align="center"]
+image::../../../../../images/ai_mcp/claude02.png[alt="claude02", align="center"]
 
-Anscheinend wird wirklich zuerst anhand des Gemeindenamens und der GB-Nummer die https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/GrundstueckService.java[Grundstuecks-Funktion] aufgerufen und anschliessend mit dem jetzt bekannten E-GRID die https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/OerebService.java[ÖREB-Funktion], die nur eine https://github.com/edigonzales/spring-ai-demo/blob/4d89fa7/src/main/java/dev/edigonzales/demo/functions/GrundstueckService.java#L21[Java-Liste] zurückliefert. Der schön formatierte Text stammt vom LLM. Faszinierend.
+Wie man auf dem Screenshot erkennt, habe ich vier MCP-Funktionen implementiert. Bis auf die Letzte sind alles Datenbankabfragen. Die ÖREB-Funktion ruft natürlich den ÖREB-Webservice auf und wertet die zurückgelieferte XML-Datei aus.
 
-Links: 
+Was liefert _Claude_ bei der einfachsten Frage? Freude herrscht: _Claude_ frägt, ob er den MCP-Server benutzen darf. Das kann so eingestellt werden, dass nicht bei jeder gestellten Frage wieder nachgefragt wird:
 
-- Viel Code stammt aus den https://www.youtube.com/playlist?list=PLZV0a2jwt22uoDm3LNDFvN6i2cAVU_HTH[Beispielen] von Dan Vega.
-- https://github.com/edigonzales/spring-ai-demo
-- https://github.com/edigonzales/spring-ai-avdocs
+image::../../../../../images/ai_mcp/claude03.png[alt="claude03", align="center"]
+
+Die Antwort des MCP-Servers kann man sich anzeigen lassen:
+
+image::../../../../../images/ai_mcp/claude04.png[alt="claude04", align="center"]
+
+Das Resultat überzeugt. Er listet alle 106 Gemeinden auf. Lustigerweise hat _Claude_ auch schon 107 Gemeinden gelistet gehabt (Drei Höfe 2x). Der MCP-Server liefert natürlich immer das korrekte Resultat. 
+
+Jetzt möchte ich wissen, ob es in Grenchen ein schützenswertes Ortsbild gibt:
+
+image::../../../../../images/ai_mcp/claude05.png[alt="claude05", align="center"]
+
+Die Antwort ist tiptop. _Claude_ listet mir sogar die von der MCP-Funktion gelieferten Links zum PDF-Objektblatt und zum Web GIS Client auf. Ich will noch wissen, ob es in Messen schützenswerte Ortsbilder gibt (ja, zwei) und in Kyburg-Buchegg, wobei ich bewusst den Gemeindenamen falsch schreibe:
+
+image::../../../../../images/ai_mcp/claude06.png[alt="claude06", align="center"]
+
+image::../../../../../images/ai_mcp/claude07.png[alt="claude07", align="center"]
+
+_Claude_ erfüllt die Aufgabe auch hier. Nun zur Champions League: Ich möchte wissen, von welchen ÖREB-Themen das Grundstück 4497 in Grenchen betroffen ist. Dazu muss _Claude_ zweimal eine MCP-Funktion aufrufen. Zuerst muss er aus Grundbuchnummer und Gemeindename den E-GRID ausfindig machen und anschliessend mit dem E-GRID eine andere MCP-Funktion aufrufen. Faszinierend ist für mich bereits, dass er Grundbuchnummer und Gemeindename korrekt der Funktion übergeben kann (und sie z.B. nicht vertauscht). Auch diese Aufgabe meistert _Claude_ problemlos:
+
+image::../../../../../images/ai_mcp/claude08.png[alt="claude08", align="center"]
+
+Wahrscheinlich lässt sich noch was rausholen, wenn man mit System-Prompts arbeiten würde/könnte und so ggf. die Themen selber besser beschreiben kann.
+
+Löst MCP alle Probleme? Nein, insbesondere muss man aufpassen, dass man den Spagat hinkriegt zwischen sehr allgemeinen GIS-Fragestellungen und sehr spezifischen, die man mittels Funktionen beantworten will. Sind sie zu spezifisch, implementiert man sich wohl den Wolf. Sind sie zu allgemein, kann die LLM doch wieder keine schlüssige Antwort daraus formulieren.
