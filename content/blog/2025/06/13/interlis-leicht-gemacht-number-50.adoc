@@ -44,6 +44,9 @@ Woher die Liste mit den Versionen stammt? Ich verwende die https://jars.interlis
 Nächstes Thema: https://code.visualstudio.com/[_Visual Studio Code_] wird dank der https://github.com/GeoWerkstatt/vsc_interlis2_extension[INTERLIS-Extension] von https://www.geowerkstatt.ch/[GeoWerkstatt] gerne zum Schreiben von INTERLIS-Modellen verwendet. Wie cool wäre es, wenn ich das Modell auch gleich mit dem INTERLIS-Compiler prüfen könnte und zwar ohne den Compiler installieren zu müssen?
 
 
+- Kann auch einfach in der eigenen Organisation betrieben werden.
+- Mehrere Versionen (noch herausfordernd, darum WAR-Deployment)
+
 
 Der UML/INTERLIS-Editor wird völlig zu unrecht schlechtgeredet. Was gibt es daran auszusetzen? Spass beiseite. Aber so übel wie immer darüber gesprochen wird (von den Leuten, die eh nicht modellieren), ist er nicht. Es ist vielleicht nicht das sexieste Werkzeug ever aber interessanterweise kann ich auch seine positiven Seiten wertschätzen. Grundsätzlich denke ich, dass er logisch aufgebaut ist und entsprechend (halb-)intuitiv zu bedienen ist. Wenn man INTERLIS halt gar nicht versteht, kann man auch mit dem Editor keine Modelle erstellen. Mich dünkt, dass er mich das eine oder andere Mal definitiv was gelehrt hat aufgrund seines logischen Aufbaues. Was mich schaurig stört ist, dass Änderungen manchmal nicht übernommen werden. 
 
