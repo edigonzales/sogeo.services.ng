@@ -3,7 +3,7 @@ Stefan Ziegler
 2025-06-13
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: INTERLIS,UML-Editor,UML,Java,DevEx,ilivalidator,ili2c,Compiler
+:jbake-tags: INTERLIS,UML-Editor,UML,Java,DevEx,ilivalidator,ili2c,Compiler,PlantUML,Mermaid
 :idprefix:
 
 Zum https://geobeer.ch[Geobeer]-Jubiläum (50. Ausgabe coming soon) gehe ich in Vorleistung und schreibe den 50. INTERLIS-leicht-gemacht-Beitrag. Es gibt ein paar Dinge, die mich beim täglichen Arbeiten mit INTERLIS und den Werkzeugen stören. Und ein paar Dinge, die ich zwar nicht wirklich benötige aber trotzdem hilfreich fände.
