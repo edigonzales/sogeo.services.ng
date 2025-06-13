@@ -3,14 +3,14 @@ Stefan Ziegler
 2025-06-13
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: INTERLIS,UML-Editor,UML,Java,DX,ilivalidator,ili2c,Compiler
+:jbake-tags: INTERLIS,UML-Editor,UML,Java,DevEx,ilivalidator,ili2c,Compiler
 :idprefix:
 
 Zum https://geobeer.ch[Geobeer]-Jubiläum (50. Ausgabe coming soon) gehe ich in Vorleistung und schreibe den 50. INTERLIS-leicht-gemacht-Beitrag. Es gibt ein paar Dinge, die mich beim täglichen Arbeiten mit INTERLIS und den Werkzeugen stören. Und ein paar Dinge, die ich zwar nicht wirklich benötige aber trotzdem hilfreich fände.
 
-Beginnen wir mit den störenden Dingen: Ich habe verschiedenste Versionen der verschiedenen INTERLIS-Tools installiert. Das kann zum Debuggen von Bugs manchmal ganz hilfreich sein (&laquo;Das ging doch noch mit Version XY&raquo;). Das Herunterladen und in den korrekten Ort kopieren, ist jetzt nicht so ein Ding. Was mich grundsätzlich eher stört, ist dass ich immer `java -jar /Users/stefan/apps/ili2c-5.5.3/ili2c.jar fubar.ili` tippen muss. Ja, jede Sekunde des Kantonsangestellten zählt. Ich bin grosser Fan von https://sdkman.io/[_SDKMAN!_]. Damit lassen sich einfach verschiedenste JDK und andere Java-Software installieren. Etwas Ähnliches für die INTERLIS-Werkzeuge habe ich mir immer gewünscht. Gescheitert ist es an meinem Unvermögen brauchbare Bash-Skripte zu schreiben. Times have changed: Nein, ich kann immer noch keine Bash-Skripte schreiben, aber ChatGPT kann es. Welcome https://github.com/edigonzales/ilitools-manager[_ilitools-manager_] (sehr origineller Name...).
+Beginnen wir mit den störenden Dingen: Ich habe verschiedenste Versionen der verschiedenen INTERLIS-Tools installiert. Das kann zum Debuggen von Bugs manchmal ganz hilfreich sein (&laquo;Das ging doch noch mit Version XY&raquo;). Das Herunterladen und in den korrekten Ordner kopieren, ist jetzt nicht so ein Ding. Was mich grundsätzlich eher stört, ist dass ich immer `java -jar /Users/stefan/apps/ili2c-5.5.3/ili2c.jar fubar.ili` tippen muss. Ja, jede Sekunde des Kantonsangestellten zählt. Ich bin grosser Fan von https://sdkman.io/[_SDKMAN!_]. Damit lassen sich einfach verschiedenste JDK und andere Java-Software installieren. Etwas Ähnliches für die INTERLIS-Werkzeuge habe ich mir immer gewünscht. Gescheitert ist es an meinem Unvermögen brauchbare Bash-Skripte zu schreiben. Times have changed: Nein, ich kann immer noch keine Bash-Skripte schreiben, aber ChatGPT kann es. Welcome https://github.com/edigonzales/ilitools-manager[_ilitools-manager_] (sehr origineller Name...).
 
-Wie installiert man _ilitools-manager_? Als erstes muss erwähnt werden, dass es nur in einer Shell unter Linux oder macOS funktioniert resp. unter Windows mit WSL2. Jedoch nicht in der Powershell. Zudemm muss _curl_ und _unzip_ installiert sein. Unter macOS ist das bereits dabei, in meiner nackten Ubuntu-Installation musste ich glaube _unzip_ installieren. Wenn diese Rahmenbedingungen erfüllt sind, reicht:
+Wie installiert man _ilitools-manager_? Als erstes muss gesagt werden, dass es nur in einer Shell unter Linux oder macOS funktioniert resp. unter Windows mit WSL2. Jedoch nicht in der Powershell. Zudem muss _curl_ und _unzip_ installiert sein. Unter macOS ist das bereits dabei, in meiner nackten Ubuntu-Installation musste ich glaube _unzip_ installieren. Wenn diese Rahmenbedingungen erfüllt sind, reicht:
 
 [source,bash,linenums]
 ----
@@ -25,7 +25,7 @@ _ilitools_ kennt drei Befehle: Man kann sich für ein bestimmtes Werkzeug die vo
 
 image::../../../../../images/interlis_leicht_gemacht_p50/ilitools02.png[alt="ilitools 2", align="center"]
 
-Zurzeit werden die Werkzeuge _ili2c_, _ilivalidator_ und &laquo;oldie but goldie&raquo;_UML/INTERLIS-Editor_ unterstützt. Zum Installieren einer Version reicht folgender Befehl:
+Zurzeit werden die Werkzeuge _ili2c_, _ilivalidator_ und &laquo;oldie but goldie&raquo; _UML/INTERLIS-Editor_ unterstützt. Zum Installieren einer Version reicht folgender Befehl:
 
 image::../../../../../images/interlis_leicht_gemacht_p50/ilitools03.png[alt="ilitools 3", align="center"]
 
@@ -41,62 +41,54 @@ Mit `ilitools u ili2c 5.6.2` kann ich die zu verwendende Version ändern.
 
 Woher die Liste mit den Versionen stammt? Ich verwende die https://jars.interlis.ch/ch/interlis/ili2c-tool/maven-metadata.xml[maven-metadata.xml-Datei] aus dem Maven-Repository.
 
-Nächstes Thema: https://code.visualstudio.com/[_Visual Studio Code_] wird dank der https://github.com/GeoWerkstatt/vsc_interlis2_extension[INTERLIS-Extension] von https://www.geowerkstatt.ch/[GeoWerkstatt] gerne zum Schreiben von INTERLIS-Modellen verwendet. Wie cool wäre es, wenn ich das Modell auch gleich mit dem INTERLIS-Compiler prüfen könnte und zwar ohne den Compiler installieren zu müssen?
+Nächstes Thema: https://code.visualstudio.com/[_Visual Studio Code_] wird dank der https://github.com/GeoWerkstatt/vsc_interlis2_extension[INTERLIS-Extension] von https://www.geowerkstatt.ch/[GeoWerkstatt] gerne zum Schreiben von INTERLIS-Modellen verwendet. Wie cool wäre es, wenn ich das Modell auch gleich mit dem INTERLIS-Compiler prüfen könnte und zwar ohne den Compiler installieren zu müssen? Wie soll das gehen? Viele Möglichkeiten dazu gibt es ja nicht. Ich habe mich dazu entschieden einen Webservice zu schreiben, der eine Datei entgegen nimmt, mit _ili2c_ die Datei kompiliert und das Logfile zurückschickt. Eingebettet in eine Visual Studio Code Extension. Es gibt einen global verfügbaren Webservice, der standardmässig in der Extension konfiguriert ist. Man kann den Service jedoch auch einfach in der eigenen Organisation betreiben, damit die Modelle nicht irgendwo in einem schwarzes Loch (auf einem Hetzner-Server in Deutschland) verschwinden.
 
+Eine besondere Anforderung habe ich an den Webservice gestellt: Er soll zukünftig fähig sein mit verschiedenen Compiler-Versionen umgehen zu können. Wie kann ich das mit _Spring Boot_ umsetzen? Frägt man unbedarft das Internet, kommt als erstes natürlich das Stichwort &laquo;Microservice&raquo; zurück. D.h. für jede Version des Compilers einen eigenen Webservice. Das ist mir aber irgendwie zu mühselig. Am anderen Ende der Fahnestange wäre die Variante mit einer Spring Boot Anwendung und dem dynamischen Laden der korrekten Version der ili2c-Abhängigkeiten. Das Stichwort hier ist &laquo;Class Loader Isolation&raquo;. Das wiederum scheint mir zu heikel zu sein, da mein Verständnis dafür auch eher beschränkt ist. Den Mittelweg, den ich eingeschlagen habe, ist das WAR-Deployment. Dabei wird anstelle einer Fat-JAR-Datei (inkl. embedded Tomcat) eine WAR-Datei klassisch in einer Tomcat-Instanz deployed. D.h. ich kann für zukünftige Compiler-Versionen eine neue WAR-Datei erstellen und in der gleichen Tomcat-Instanz deployen (innerhalb eines https://github.com/edigonzales/ili-web-service-docker/blob/main/Dockerfile#L11[Dockerfiles]). Der Nachteil bei dieser Variante mit _Spring Boot_ ist, dass jeweils das gesamte _Spring Boot_ Framework ebenfalls in die WAR-Datei gepackt wird. Wenn man z.B. mit Jakarta EE unterwegs wäre, würde nur genau die Business-Logik (inkl. deren Abhängigkeiten) in die WAR-Datei gepackt. Es gäbe zwar verschiedene Workarounds für solche Thin-WAR-Dateien aber es sind halt Workarounds.
 
-- Kann auch einfach in der eigenen Organisation betrieben werden.
-- Mehrere Versionen (noch herausfordernd, darum WAR-Deployment)
+Zusätzlich zum Compiler möchte ich auch einen https://blog.sogeo.services/blog/2025/04/13/interlis-leicht-gemacht-number-49.html[INTERLIS-Modell-Pretty-Print-Service] anbieten und weil wir gerade dabei sind, möchte ich aus dem _iliprettyprint_ mehr machen als bloss Modelle schön formatieren. Weil ich dazu die Bibliotheken vom UML/INTERLIS-Editor verwende, habe ich mir vorgestellt, dass man sicher relativ einfach auch UML-Diagramme erstellen kann. Das Modell ist nach dem Einlesen dahingehend interpretiert und strukturiert, dass das Herstellen von z.B. https://plantuml.com/[_PlantUML_]- und https://mermaid.js.org/[_Mermaid_]-Code relativ einfach sein sollte. D.h. ich erstelle auch aus dem erweiterten iliprettyprint-Code eine WAR-Datei und deploye sie in einer Tomcat-Instanz.
 
+In der Tomcat-Instanz laufen also zwei Anwendungen mit ingesamt drei API-Endpunkten:
 
-Der UML/INTERLIS-Editor wird völlig zu unrecht schlechtgeredet. Was gibt es daran auszusetzen? Spass beiseite. Aber so übel wie immer darüber gesprochen wird (von den Leuten, die eh nicht modellieren), ist er nicht. Es ist vielleicht nicht das sexieste Werkzeug ever aber interessanterweise kann ich auch seine positiven Seiten wertschätzen. Grundsätzlich denke ich, dass er logisch aufgebaut ist und entsprechend (halb-)intuitiv zu bedienen ist. Wenn man INTERLIS halt gar nicht versteht, kann man auch mit dem Editor keine Modelle erstellen. Mich dünkt, dass er mich das eine oder andere Mal definitiv was gelehrt hat aufgrund seines logischen Aufbaues. Was mich schaurig stört ist, dass Änderungen manchmal nicht übernommen werden. 
+- http://localhost:8080/ili2c/api/compile 
+- http://localhost:8080/iliprettyprint/api/prettyprint
+- http://localhost:8080/iliprettyprint/api/uml
 
-Wo Licht ist, ist auch Schatten: Wie oft habe ich schon den Dateinamen der ILI-Datei geändert und auf &laquo;Apply&raquo; oder &laquo;OK&raquo; geklickt und nichts ist passiert resp. der alte Namen stand wieder drin. Herrje. Oder wenn die Änderungen tatsächlich übernommen werden, dafür aber der komplette Element-Tree links zusammengeklappt wird. Übel. Und die Diagramme funktionieren zwar, das automatische Anordnen bei grösseren Modellen ist aber schlecht.
+Zu guter Letzt müssen wir uns um die Visual Studio Code Extension kümmern. Dazu muss ich - wie beim _ilitools manager_ - ChatGPT verwenden. Erstes kann ich überhaupt kein TypeScript programmieren und zweitens wüsste ich nicht wo beginnen mit der Extension und wie das gepackt und publiziert wird. Auch mit der Hilfe von ChatGPT war es bisschen hakelig. Aber am Ende hat es dann doch relativ wenig Aufwand benötigt. Die Extension hat den fantasievollen Namen &laquo;INTERLIS Tools&raquo;:
 
-Ich wurde innerhalb kurzer Zeit zweimal gefragt, warum wir überhaupt mit dem UML/INTERLIS-Editor die Modelle erstellen. In unserer INTERLIS-Anfangszeit wäre die Antwort wohl gewesen, weil es man so macht. Jahre später war die Antwort: vor allem damit die Modelldateien immer gleich und schön formatiert sind. Immerhin erstellen bei uns circa acht Personen Datenmodelle (und nicht nur der/die Lernende oder der Praktikant), was wahrscheinlich etwa der Hälfte aller UML/INTERLIS-Editor-Benutzern weltweit entspricht. Wenn es nur noch das ist, könnte man dann nicht einfach den Code aus dem UML/INTERLIS-Editor dazu nutzen, einen Pretty-Printer (als CLI-Tool) zu erstellen, der die ILI-Datei liest und schön formatiert wieder speichert?
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode01.png[alt="vscode 1", align="center"]
 
-Zuerst muss man den entsprechenden Code im Github-Repository finden. Dank der guten Suche wird man relativ schnell fündig. Es sind vor allem zwei resp. vier Klassen, die sich um den Import und Export von ILI-Dateien kümmern:
+Wenn man eine INTERLIS-Modell-Datei im Editor lädt, fällt auf - jedenfalls ist es bei mir so -, dass die GeoWerkstatt-Extension automatisch ein UML-Diagramm (Mermaid) erstellt. Als zweites fällt auf, dass das Diagramm Fehler aufweist. Ich glaube, das hat damit zu tun, dass im Mermaid-Code für ein Objekt nicht ein eindeutiger Identifikator verwendet wird, sondern es wird nur der Name verwendet. So auch bei der Definition von Vererbungen. Aus diesem Grund zeigen alle Vererbungen irgendwie auf sich selber.
 
-- https://github.com/claeis/umleditor/blob/master/src/ch/ehi/umleditor/interlis/iliimport/ImportInterlis.java[ImportInterlis.java] und https://github.com/claeis/umleditor/blob/master/src/ch/ehi/umleditor/interlis/iliimport/TransferFromIli2cMetamodel.java[TransferFromIli2cMetamodel.java]
-- https://github.com/claeis/umleditor/blob/master/src/ch/ehi/umleditor/interlis/iliexport/ExportInterlis.java[ExportInterlis.java] und https://github.com/claeis/umleditor/blob/master/src/ch/ehi/umleditor/interlis/iliexport/TransferFromUmlMetamodel.java[TransferFromUmlMetamodel.java]
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode02.png[alt="vscode 2", align="center"]
 
-Die Schwerstarbeit übernehmen die &laquo;Transfer&raquo;-Klassen. Nomen est Omen: Beim Import wandeln sie das Ili2c-Metamodell in ein internes UML-Editor-Metamodell um und umgekehrt. Somit muss man für meinen Pretty-Printer nur diese Klassen verwenden. Ein paar kleine Hürden gab es natürlich trotzdem:
+Für meine Extension kann man verschiedene Einstellungen vornehmen. Für jeden Service kann man den Endpunkt definieren und man kann zwischen zwei UML-Varianten wählen: _PlantUML_ und _Mermaid_. Bei _PlantUML_ schickt der Service die gerenderte PNG-Datei zurück, bei Mermaid den _Sourcecode_. Dieser wird in Visual Studio Code in einem eingebetteten Browser zu SVG gerendert.
 
-Die Jar-Datei des UML/INTERLIS-Editors sind im Maven-Repository https://jars.interlis.ch publiziert und man kann sie in seinem Projekt ganz normal als Abhängigkeit definieren. Leider erschien eine Fehlermeldung:
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode03.png[alt="vscode 3", align="center"]
 
-[source,groovy,linenums]
-----
-FAILURE: Build failed with an exception.
+Das Kompilieren des INTERLIS-Modelles muss erstmalig mit `Ctrl+Shift+P` ausgewählt werden:
 
-* What went wrong:
-Configuration cache state could not be cached: field `classpath` of task `:compileJava` of type `org.gradle.api.tasks.compile.JavaCompile`: error writing value of type 'org.gradle.api.internal.artifacts.configurations.DefaultUnlockedConfiguration'
-> Could not resolve all files for configuration ':compileClasspath'.
-   > Could not resolve ch.interlis:umleditor:3.10.3.
-     Required by:
-         root project :
-      > Could not resolve ch.interlis:umleditor:3.10.3.
-         > Could not parse POM https://jars.interlis.ch/ch/interlis/umleditor/3.10.3/umleditor-3.10.3.pom
-            > Missing required attribute: dependency groupId
-----
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode04.png[alt="vscode 4", align="center"]
 
-Ich gehe davon aus, dass es damit zusammenhängt, dass beim UML/INTERLIS-Editor nicht alle Abhängigkeiten aus einem Maven-Repository bezogen werden, sondern auch lokale verwendet werden (Mmmh, https://github.com/claeis/umleditor/blob/master/lib/jhotdraw53.jar[jhotdraw53] ist 23 Jahre alt gemäss https://sourceforge.net/projects/jhotdraw/files/JHotDraw/[SourceForge]... und wo ist wohl der Quellcode dieser lokalen Libraries?). D.h. ich muss neben einigen der lokalen Libraries zusätzlich die UML/INTERLIS-Editor-Abhängigkeit in meinem Pretty-Printer https://github.com/edigonzales/iliPrettyPrint/tree/main/lib[lokal vorhalten].
+Allfällige Fehler werden in einem separaten Fenster geloggt:
 
-Eine weitere Unschönheit ist, dass ich für den Export die Klasse `TransferFromUmlMetamodel` copy/pasten musste und ein paar wenige Veränderungen vornehmen musste. Die Klasse ruft das https://github.com/edigonzales/iliPrettyPrint/blob/main/src/main/java/ch/so/agi/pprint/TransferFromUmlMetamodel.java#L333[GUI auf], das es bei mir nicht gibt. Und ich möchte von aussen steuern können, wo die schön formatierte ILI-Datei gespeichert wird. Letzten Endes aber Kleinigkeiten. Der Aufruf ist wie folgt:
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode05.png[alt="vscode 5", align="center"]
 
-[source,groovy,linenums]
-----
-java -jar iliprettyprint-0.0.11-all.jar --ili ../sources/iliPrettyPrint/src/test/data/SO_ARP_SEin_Konfiguration_20250115.ili --out ../tmp
-----
+Die Modell-Datei wird anschliessend bei jedem Speichern geprüft:
 
-Es gibt zudem eine `--modeldir`-Option, um Modell-Repositories wählen zu können. Herunterladen kann man den Pretty-Printer auf der https://github.com/edigonzales/iliPrettyPrint/releases[Github-Seite]. Funktional ist er mit dem UML/INTERLIS-Editor-Prozess &laquo;Modell-Import mit anschliessendem Modell-Export&raquo; identisch. Wenn es in diesem Workflow https://github.com/claeis/umleditor/issues/82[Probleme gibt], gibt es sie auch beim _IliPrettyPrinter_. Den Praxistest mit ein paar Modellen hat er bestanden. Erwähnenswert ist:
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode06.png[alt="vscode 6", align="center"]
 
-- Ein https://geo.so.ch/models/AGI/GeoW_FunctionsExt_23.ili[Funktionsmodell] hat zu jeder Funktion einige Metaattribute und einen normalen Kommentar `!!sample = "..."`. Dieser normale Kommentar verschwindet.
-- Beim https://vsa.ch/models/2020/VSADSSMINI_2020_2_d_LV95-20230807.ili[Endgegner-Modell] verschwinden die Metaattribute `!!@ comment = "..."` bei der Einheiten-Definition `UNIT`.
-- Constraints werden auf einer Zeile geschrieben. Bei langen Expressions ergibt das https://geo.so.ch/models/ARP/SO_Nutzungsplanung_20171118_Validierung_20231101.ili[sehr lange Zeilen]. Um diesen Umstand zu verbessern, bräuchte es zuerst Stilvorgaben.
+Ähnlich verhalten sich die Dienste für das Pretty Printing und das Herstellen des UML-Diagramms:
 
-_IliPrettyPrinter_ ist als Tool eigentlich überflüssig. Diese Funktion sollte in den Compiler eingebaut werden (aber besser ohne Editor-Abhängigkeiten) im Sinne einer Entwicklung zu einem Linter o.ä. Was ich mir ebenfalls noch anschauen möchte ist, ob der Export in eine https://plantuml.com/[PlantUML]- oder https://mermaid.js.org/[Mermaid]-Datei einfach möglich ist. Dann entschärft sich eventuell auch die Diagramm-Situation. Ein andere Variante UML-Diagramme schöner (?) darzustellen, ist der Umweg über den https://de.wikipedia.org/wiki/XML_Metadata_Interchange[XMI-Output] des Compilers und einem Werkzeug, das diese XMI-Datei darstellen kann. So richtig erfolgreich bin ich damit noch nicht geworden. Mit https://eclipse.dev/papyrus/[_Eclipse Papyrus_] ging was, scheint mir aber zu kompliziert zu sein. Jedenfalls schaffe ich es momentan nicht mehr.
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode07.png[alt="vscode 7", align="center"]
 
-Was ich mir definitiv auch noch anschauen möchte, ist eine neue Theme für den UML/INTERLIS-Editor. Mit https://www.formdev.com/flatlaf/[_FlatLaf_] gibt es eine ansprechende Java-Swing-Theme. Ein quick 'n' dirty Test zeigt, dass es funktioniert, jedoch die Icons ersetzt werden müssten. Diese sehen nun noch steinzeitlicher aus:
+image::../../../../../images/interlis_leicht_gemacht_p50/vscode08.png[alt="vscode 8", align="center"]
 
-image::../../../../../images/interlis_leicht_gemacht_p49/umleditor.png[alt="UML/INTERLIS-Editor mit neuer Theme", align="center"]
+So und jetzt das Ganze auch noch für https://www.jedit.org/[_jEdit_]?
 
-Und zu guter Letzt noch der pixelige Splashscreen ersetzen und die Hilfe mit einer funktionierenden und nachführten Online-Hilfe ersetzen und ich bin schon fast wieder richtig Fan vom UML/INTERLIS-Editor.
+Links:
+
+- https://hub.docker.com/repository/docker/sogis/ili-web-service/general
+- https://github.com/edigonzales/ili-web-service-docker
+- https://github.com/edigonzales/ili2c-web-service
+- https://github.com/edigonzales/iliPrettyPrint
+- https://github.com/edigonzales/ili-vscode
