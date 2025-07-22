@@ -27,7 +27,7 @@ const result = ili2c.compileModel("test/Test1.ili", "ili2c.log");
 
 Damit wäre der Grundstein gelegt, um das ili2c-Modul auch in der VS Code Extension zu verwenden. Der Weg dahin war aber nicht ganz so einfach und trivial und straight forward wie erwünscht. Es gab einige Hürden überwinden:
 
-Der erste Schritt ist der einfachste. Das Herstellen der Native Shared Library. Ich habe das bereits ausführlich mit https://blog.sogeo.services/blog/2022/12/11/interlis-leicht-gemacht-number-33.html[_ilivalidator_ und Python durchgespielt]. Es gibt für die Java-Methoden, die in der Shared Library landen sollen, verschiedene Rahmenbedingungen. Eine davon ist, dass sie statisch sein muss und man kann nur beschränkt Objekte als Parameter übergeben und zurückliefern. Im vorliegenden Fall ist das alles nicht tragisch, ich möchte z.B. die Modelldatei und eine Logdatei (resp. der jeweilige Pfad als String) übergeben:
+Der erste Schritt ist der einfachste. Das Herstellen der Native Shared Library. Ich habe das bereits ausführlich mit https://blog.sogeo.services/blog/2022/12/11/interlis-leicht-gemacht-number-33.html[_ilivalidator_ und Python durchgespielt]. Es gibt für die Java-Methoden, die in der Shared Library landen sollen, verschiedene Rahmenbedingungen. Eine davon ist, dass sie statisch sein muss und man kann nur beschränkt Objekte als Parameter übergeben und zurückliefern. Im vorliegenden Fall ist das alles nicht tragisch kompliziert, ich möchte z.B. die Modelldatei und eine Logdatei (resp. der jeweilige Pfad als String) übergeben:
 
 [source,java,linenums]
 ----
@@ -118,7 +118,7 @@ Napi::Value CompileModel(const Napi::CallbackInfo& info) {
 }
 ---- 
 
-Der JavaScript-Code, der mittels Node-API meine Libs anspricht und gegen aussen ein einfaches API definiert, ist eher trivial
+Der JavaScript-Code, der mittels Node-API meine Libs anspricht und gegen aussen ein einfaches API definiert, ist eher trivial:
 
 [source,javascript,linenums]
 ----
@@ -196,7 +196,7 @@ Man muss aufpassen, dass die Native Shared Libraries vor dem Paketieren der VS C
   }
 ----
 
-Mit der Version https://marketplace.visualstudio.com/items?itemName=edigonzales.ili2c[0.0.10 der Extension] wird nun auf den Webservice komplett verzichtet und für das Pretty Printing und das Kompilieren des Modelles wird mein ili2c-Node-Modul mit den Native Shared Libraries verwendet. Das Herstellen des UML-Diagramms habe ich aus der Extension entfernt. Soweit funktioniert es bei mir unter macOS tadellos, ob es unter Linux und Windows gleich gut funktioniert, kann ich nicht prüfen:
+Mit Version https://marketplace.visualstudio.com/items?itemName=edigonzales.ili2c[0.0.10 der Extension] wird nun auf den Webservice komplett verzichtet und für das Pretty Printing und das Kompilieren des Modelles wird mein ili2c-Node-Modul mit den Native Shared Libraries verwendet. Das Herstellen des UML-Diagramms habe ich aus der Extension entfernt. Soweit funktioniert es bei mir unter macOS tadellos, ob es unter Linux und Windows gleich gut funktioniert, kann ich nicht prüfen:
 
 image::../../../../../images/interlis_leicht_gemacht_p53/vscode01.png[alt="vscode 01", align="center"]
 
