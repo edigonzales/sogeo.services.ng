@@ -42,7 +42,15 @@ So einfach geht es eigentlich weiter. Es gibt auch eine Art Dependency Injection
 
 Was habe ich alles für INTERLIS implementiert? Als allererstes habe ich das Syntax-Highlightung für INTERLIS 2.4 upgedatet. Dabei habe ich eine kleine funktionale Änderung bei den Kommentare vorgenommen. Neu werden Metaattribute separat behandelt. Die Farben wiederum sind nicht Bestandteil der Konfiguration, sondern kann individuell in _jEdit_ vorgenommen werden.
 
-Als zweites wollte ich die Syntax des Modells kontrollieren indem ich das Modell mit _ili2c_ kompiliere.
+Als zweites wollte ich die Syntax des Modells kontrollieren indem ich das Modell mit _ili2c_ kompiliere. Das geht natürlich sehr einfach aber ich wollte das Resultat (also der eigentlich Kommandozeilenoutput von _ili2c_) auch irgendwie in _jEdit_ sichbar machen. Für solche Fälle ist das https://plugins.jedit.org/plugindoc/Console/[Console-Plugin] zweckdienlich. Man kann damit beliebige Shells implementieren. In meinem Fall wollte ich die Logmeldungen von _ili2c_ reinschreiben:
+
+image::../../../../../images/interlis_leicht_gemacht_p56/jedit-console.png[alt="jedit-console", align="center"]
+
+
+
+
+
+errorlist... mit fehler
 
 
 _Ili2pg_ hat bekanntlich ein Wahnsinns-GUI:
