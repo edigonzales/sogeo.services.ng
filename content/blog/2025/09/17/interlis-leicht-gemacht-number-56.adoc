@@ -46,6 +46,11 @@ Als zweites wollte ich die Syntax des Modells kontrollieren indem ich das Modell
 
 image::../../../../../images/interlis_leicht_gemacht_p56/jedit-console.png[alt="jedit-console", align="center"]
 
+Es gibt die Möglichkeit, das Kompilieren an eine Tastenkombination zu binden, oder das Plugin bietet die Einstellung, dass die Datei nach jedem Speichern automatisch kompiliert wird (&laquo;Toggle compile on save&raquo;).
+
+Was passiert wenn Fehler gefunden werden? Die Fehler werden natürlich in der Konsole geloggt. Es wird zusätzlich ein Fenster mit den Fehlern geöffnet. Mittels Klick auf eine dieser Fehlerzeile, landet man am korrekten Ort in der Datei. Diese Fehlerliste hat leider noch einen Fehler: Wenn _ili2c_ mehrere Fehler pro Zeile meldet, stimmt irgendwas nicht.
+
+image::../../../../../images/interlis_leicht_gemacht_p56/jedit-console-error.png[alt="jedit-console-error", align="center"]
 
 
 
