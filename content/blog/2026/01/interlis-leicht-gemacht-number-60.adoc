@@ -6,7 +6,9 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,ili2c,LSP,Theia,IDE,ili2gpkg
 :idprefix:
 
-Auch im neuen Jahr
+Auch im neuen Jahr heisst das Motto wieder &laquo;INTERLIS macht Spass&raquo; und es gibt auch zukünftig viel Neues und Tolles über das man berichten kann und selber ausprobieren darf.
+
+Ich habe die Tage an https://edigonzales.github.io/interlis-ide/[meiner INTERLIS IDE] gearbeitet. Dabei rausgekommen ist die Version https://github.com/edigonzales/interlis-ide/releases/tag/v0.0.5[0.0.5] und als einfaches _VS Code_ Plugin die Version https://marketplace.visualstudio.com/items?itemName=edigonzales.interlis-editor[0.0.21].
 
 Ich denke, dass man jetzt aufhören sollte mit dem Projekt &laquo;neuer UML/INTERLIS Editor&raquo;. Warum noch viel Geld und Stunden verlochen, wenn es - tadaaa - meine https://edigonzales.github.io/interlis-ide/[_INTERLIS IDE_] gibt.
 
