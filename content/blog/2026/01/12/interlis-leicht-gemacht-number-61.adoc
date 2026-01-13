@@ -6,11 +6,11 @@ Stefan Ziegler
 :jbake-tags: INTERLIS,Java,MCP,Theia,AI,KI,Agent
 :idprefix:
 
-Während man noch darüber diskutiert, ob der Jurist in einer UML-Klassendiagramm selber Hand an ein INTERLIS-Datenmodell anlegen würde und die Monate ins Land ziehen lässt, bin ich einen Schritt weiter: Warum überhaupt in einem GUI rumklicken oder INTERLIS-&laquo;Code&raquo; schreiben? Warum das nicht gleich der KI überlassen? Ich habe bereits im Oktober mit https://blog.sogeo.services/blog/2025/10/18/interlis-leicht-gemacht-number-58.html[meinem INTERLIS-MCP-Server angefangen] und wolle ihn nun weiterentwicklen Richtung _brauchbar_. _Brauchbar_ heisst für mich, dass er ein korrektes Datenmodell zurückliefern kann resp. das LLM fähig ist aus Snippets ein korrektes Datenmodell zu erstellen und dass er selbstverständlich die meist genutzten Anwendungsfälle abdecken kann. Letzteres bleibt noch die Achillessehne, weil halt schon sehr umfangreiche Sprache. Genauso wichtig für _brauchbar_ ist das Tooling drum herum. Da habe ich im Oktober eigentlich nicht viel gemacht, ausser hingekriegt, dass die MCP Tools aufgerufen werden.
+Während man noch darüber diskutiert, ob der Jurist in einem UML-Klassendiagramm selber Hand an ein INTERLIS-Datenmodell anlegen würde und so die Monate ins Land ziehen lässt, bin ich einen Schritt weiter: Warum überhaupt in einem GUI rumklicken oder INTERLIS-&laquo;Code&raquo; schreiben? Warum das nicht gleich der KI überlassen? Ich habe bereits im Oktober mit https://blog.sogeo.services/blog/2025/10/18/interlis-leicht-gemacht-number-58.html[meinem INTERLIS-MCP-Server angefangen] und wollte ihn nun weiterentwicklen Richtung _brauchbar_. _Brauchbar_ heisst für mich, dass er ein korrektes Datenmodell zurückliefern kann resp. das LLM fähig ist aus Snippets ein korrektes Datenmodell zu erstellen und dass er selbstverständlich die meist genutzten Anwendungsfälle abdecken kann. Letzteres bleibt noch die Achillesferse, weil die Sprache halt schon sehr umfangreich ist. Genauso wichtig für _brauchbar_ ist das Tooling drum herum. Da habe ich im Oktober eigentlich nicht viel gemacht, ausser hingekriegt, dass die Tools des MCP-Servers aufgerufen werden.
 
 Den INTERLIS-MCP-Server gibt es als Docker Image https://hub.docker.com/repository/docker/sogis/interlis-mcp/general[hier]. Der Quellcode zum Selberbauen https://codeberg.org/sogis/mcp-interlis[hier].
 
-Meine Idee wie man damit arbeiten kann, ist immer noch folgende: Ich habe in _VS Code_ oder _Eclipse Theia_ ein INTERLS-Modell geöffnet und ein Chatfenster. Im Chatfenster kann ich mit Prosaeingaben das Modell ergänzen oder verändern wie es mir beliebt. Aber beginnen wir beim Tooling noch einen Schritt vorher. Ich habe mich immer ein wenig gefragt, was bei einem MCP-Server eigentlich rauskommt? Die https://modelcontextprotocol.io/specification/2025-11-25[Spezifikation] erklärt das zwar aber man will es sehen. Dazu gibt es den https://modelcontextprotocol.io/docs/tools/inspector[MCP Inspector]. In meinem Fall rufe ich den Inspector wie mit diesem Befehl auf:
+Meine Idee wie man damit arbeiten kann, ist immer noch folgende: Ich habe in _VS Code_ oder _Eclipse Theia_ ein INTERLS-Modell geöffnet und ein Chatfenster. Im Chatfenster kann ich mit Prosaeingaben das Modell ergänzen oder verändern wie es mir beliebt. Aber beginnen wir beim Tooling noch einen Schritt vorher. Ich habe mich immer ein wenig gefragt, was bei einem MCP-Server eigentlich rauskommt? Die https://modelcontextprotocol.io/specification/2025-11-25[Spezifikation] erklärt das zwar aber man will es sehen. Dazu gibt es den https://modelcontextprotocol.io/docs/tools/inspector[MCP Inspector]. In meinem Fall rufe ich den Inspector mit diesem Befehl auf:
 
 [source]
 ----
@@ -21,7 +21,7 @@ Der Inspector bietet z.B. die Möglichkeit sämtliche Tools des Servers aufzulis
 
 image::../../../../../images/interlis_leicht_gemacht_p61/mcp-inspector.png[alt="mcp-inspector", align="center"]
 
-So bleibt das nicht irgendeine schwarze Magie, sondern man sieht wie Client und Server kommunizieren können. Der nächste Schritt ist das Erfassen des Servers in _VS Code_. Das geht mit dem Kommando `MCP: Add Server ...`. Da klickt man sich durch, gibt das Startkommando des MCP-Servers an (siehe Inspector) und gibt dem Server einen eindeutigen Namen. Es öffnet sich die Datei _mcp.json_:
+So bleibt das nicht irgendeine schwarze Magie, sondern man sieht wie Client und Server miteinander kommunizieren können. Der nächste Schritt ist das Erfassen des Servers in _VS Code_. Das geht mit dem Kommando `MCP: Add Server ...`. Da klickt man sich durch, gibt das Startkommando des MCP-Servers an (siehe Inspector) und gibt dem Server einen eindeutigen Namen. Es öffnet sich die Datei _mcp.json_:
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode01.png[alt="vscode01", align="center"]
 
@@ -29,7 +29,9 @@ Man sieht im grauen Kleingedruckten, dass der Server bereits gestartet ist und 2
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode02.png[alt="vscode02", align="center"]
 
-Die Konfiguration ist denkbar einfach, man muss den Provider aussuchen und den API-Key eintöggelen. Aber einen Drittanbieter (z.B. Infomaniak) mit einer OpenAI-kompatiblen API geht nicht. Modelle kann man einzeln freischalten (im Screenshot nur GPT-5-mini). Der letzte Schritt ist das Erzeugen eines Custom Agents (Befehl: `Chat: New Custom Agent ...`). Es öffnet sich eine Markdown-Datei mit _<Namen>.agent.md>_:
+Die Konfiguration ist denkbar einfach, man muss den Provider aussuchen und den API-Key eintöggelen. Aber einen Drittanbieter (z.B. Infomaniak) mit einer OpenAI-kompatiblen API geht nicht. Modelle kann man einzeln freischalten (im Screenshot nur GPT-5-mini). 
+
+Der letzte Schritt ist das Erzeugen eines Custom Agents (Befehl: `Chat: New Custom Agent ...`). Es öffnet sich eine Markdown-Datei mit _<Namen>.agent.md>_:
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode03.png[alt="vscode03", align="center"]
 
@@ -37,7 +39,7 @@ Im Header beschreibt man den Agenten und definiert auf welche Tools er Zugriff h
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode04.png[alt="vscode04", align="center"]
 
-In der restlichen Datei macht man nun dem Agenten Vorgaben was er tun soll und was nicht. Bei mir sind das jetzt https://codeberg.org/sogis/mcp-interlis/src/commit/81ff7370e23a3aef8fc1cd47a675766dd6dd01d8/docs/INTERLIS.agent.md[circa 330 Zeilen] geworden, wobei ich sicher noch ein wenig ausmisten kann:
+In der restlichen Datei macht man nun dem Agenten Vorgaben was er tun soll und was nicht. Bei mir sind das https://codeberg.org/sogis/mcp-interlis/src/commit/81ff7370e23a3aef8fc1cd47a675766dd6dd01d8/docs/INTERLIS.agent.md[circa 330 Zeilen] geworden, wobei ich sicher noch ein wenig ausmisten kann:
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode05.png[alt="vscode05", align="center"]
 
@@ -47,7 +49,7 @@ image::../../../../../images/interlis_leicht_gemacht_p61/vscode06.png[alt="vscod
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode07.png[alt="vscode07", align="center"]
 
-Testen wir den Agenten und wollen alle INTERLIS-Text-Funktionen sehen. Er fragt zuerst nach, ob er überhaupt den MCP-Server verwendet darf. Das kann man relativ feingranular einstellen. Ich erlaube es ihm ohne nachzufragen für diese Session:
+Testen wir den Agenten und wollen alle INTERLIS-Text-Funktionen sehen. Er fragt zuerst nach, ob er überhaupt den MCP-Server verwendet darf. Das kann man relativ feingranular einstellen. Ich erlaube es ihm ohne ständig nachzufragen für diese Session:
 
 image::../../../../../images/interlis_leicht_gemacht_p61/vscode08.png[alt="vscode08", align="center"]
 
