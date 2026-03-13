@@ -39,7 +39,7 @@ Die Kartenkomponente ist noch nicht allzu umfrangreich. So kann man das Aussehen
 
 Am Schwierigsten war interessanterweise der Umgang mit dem nativen Geometrietyp. Dieser existiert zwar, aber er existiert nur als Plugin. Und soweit ich es verstanden haben, führt das zu Problemen, weil mehrere Plugins diesen Geometrietyp als Bibliothek mitliefern: Das ogr-Plugin streamt Records mit diesem Geometrietypen. Das Geometry-Inspector-Plugin erwartet einen solchen Geometrietypen zum Rendern. Weil aber die beiden Plugins in einem unterschiedlichen Classloader geladen werden, sind es eben nicht die identischen Java-Klassen. D.h. `instanceof` funktioniert nicht so wie man sich das vorstellen würde. Würde sich aber in Wohlwollen auflösen, wenn der Geometrietyp in den Hop-Kern wandern würde.
 
-Propiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem Geometry-Inspector upgedatet.
+Probiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem Geometry-Inspector upgedatet.
 
 [source,linenums,bash]
 ----

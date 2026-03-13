@@ -121,4 +121,4 @@ HOP_OPTIONS="--enable-native-access=ALL-UNNAMED -Xmx2048m" \
 ./hop-gui.sh
 ----
 
-Propiert es aus und meldet Fehler.
+Probiert es aus und meldet Fehler.

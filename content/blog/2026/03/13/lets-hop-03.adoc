@@ -1,45 +1,52 @@
-= Let\'s Hop #3 - Die Idee ist gut, die Vorschau ist besser
+= Let\'s Hop #3 - A native ili2db Integration for Apache Hop
 Stefan Ziegler
-2026-03-09
+2026-03-13
 :jbake-type: post
 :jbake-status: published
-:jbake-tags: ogr, gdal, apache hop, hop, java, geotools
+:jbake-tags: interlis, apache hop, hop, java, ili2db
 :idprefix:
 
-Nachdem wir Import und Export von https://blog.sogeo.services/blog/2026/03/06/lets-hop-01.html[Geodatenformaten erledigt haben], könnte man auf die Idee kommen, dass man die Geometrien innerhalb einer Pipeline auch anschauen möchte. In _Apache Hop_ nennt sich das _Preview_:
+Es musste ja soweit kommen. Here it is, ein https://github.com/edigonzales/hop-ili2db-plugin[ili2db-Plugin] für _Apache Hop_. Es gibt das Plugin als Action wie auch als Transform. Korrekterweise müsste es wahrscheinlich &laquo;ili2db Input&raquo; heissen, da es sich momentan nur um den Import kümmert. 
 
-image::../../../../../images/lets-hop-02/preview-text.png[alt="Apache Hop", align="center"]
+Die Idee ist, dass es nicht für jeden Flavor ein Plugin gibt, sondern ein ili2db-Plugin, welches die unterschiedlichen Flavor beinhaltet. Wie immer scheint mir eine der Herausforderung die schiere Fülle an möglichen Usecases und die sehr hohe Anzahl an Optionen zu sein. Wie man das sinnvoll dem Benutzer bereitstellt? Schwierig. Notfalls argumentiert man (aka Ausrede) einfach mit: &laquo;Profi-Software&raquo;.
 
-Dank des https://github.com/edigonzales/hop-geometry-type-plugin/[nativen Geometriedatentypes] erscheinen die Geometrien in tabellarischer Form in EWKT. Das ist zwar schön und gut aber Geometrien will ich in der Regel nicht als blossen Text anschauen müssen, sondern tatsächlich auch sehen: Hallo https://github.com/edigonzales/hop-geometry-inspector-plugin/[Geometry-Inspector-Plugin].
+Was das Plugin (in Teilen kann) erkläre ich am Besten mit einem Transform-Beispiel: Ich möchte alle XTF-Dateien in einem Verzeichnis mit _ili2gpkg_ in GeoPackages umwandeln. Die Pipeline sieht am Ende so aus (&laquo;Text file output&raquo; ist nur noch fürs Debuggen):
 
-Das Geometry-Inspector-Plugin bettet sich neben den bereits bestehenden Preview-Funktionen ein:
+image::../../../../../images/lets-hop-03/ili2db01.png[alt="Apache Hop", align="center"]
 
-image::../../../../../images/lets-hop-02/preview01.png[alt="Apache Hop", align="center"]
+Als erstes lesen wir alle Dateinamen mit der Endung .xtf aus einem Verzeichnis und bilden den Stream:
 
-Wählt man die Inspect Geometries Aktion, erscheint ein zweites Fenster mit verschiedenen Optionen:
+image::../../../../../images/lets-hop-03/ili2db02.png[alt="Apache Hop", align="center"]
 
-image::../../../../../images/lets-hop-02/preview02.png[alt="Apache Hop", align="center"]
+In unserem Fall aus dem Verzeichnis _/Users/stefan/tmp/xtf/_. Man darf ja nicht vergessen, nach der Auswahl des Verzeichnisses den &laquo;Add&raquo;-Button zu drücken. Sonst passiert nämlich nichts. Als nächstes fügen wir diesem Stream eine Spalte hinzu: Nämlich den Speicherort inkl. Dateinamen der GeoPackage-Datei, die aus jedem XTF erstellt werden soll:
 
-- Geometry source: `Auto` | `Output` | `Input`. Das ist notwendig, weil nicht jeder Transformer Output-Geometrien hat. Entsprechend müssen auch Input-Geometrien verwendet werden können.
-- Geometry field: Falls es mehrere Geometrieattribute hat, kann man das gewünschte wählen.
-- Sample size: Die Anzahl der Features, die gerendert werden sollen.
-- Sampling mode: `FIRST` | `LAST` | `RANDOM`. Welche Features sollen verwendet werden.
+image::../../../../../images/lets-hop-03/ili2db03.png[alt="Apache Hop", align="center"]
 
-Zusätzlich kann man _einen_ Hintergrundkarten-WMS verwenden:
+Im Feld `Formula` schreibt man die Expression, die es braucht, um aus dem XTF-Dateinamen den Speicherort inkl. GPKG-Dateinamen pro Row zu erzeugen. Es ist halt so ein klassischer Feldrechner (interessanterweise basierend auf _Apache POI_. Leider fehlt sowas wie ein Extension Point, um eigene Funktionen registrieren zu können):
 
-image::../../../../../images/lets-hop-02/preview03.png[alt="Apache Hop", align="center"]
+image::../../../../../images/lets-hop-03/ili2db04.png[alt="Apache Hop", align="center"]
 
-Klickt man den Start-Button, sollte die Preview-Karte inkl. Featureinfo-Abfrage erscheinen:
+Nun kommt das Spannende. Der Import der Daten in eine GeoPackage-Datei:
 
-image::../../../../../images/lets-hop-02/preview04.png[alt="Apache Hop", align="center"]
+image::../../../../../images/lets-hop-03/ili2db05.png[alt="Apache Hop", align="center"]
 
-Die Karte wurde mit https://geotools.org/[_GeoTools_] umgesetzt. _GeoTools_ kennt zwar einige High Level Komponenten, wie z.B. https://docs.geotools.org/stable/userguide/unsupported/swing/jmapframe.html[JMapFrame], diese sind aber unsupported und passen nicht wirklich zu einem https://eclipse.dev/eclipse/swt/[SWT]-basiertem GUI wie _Apache Hop_. Aus diesem Grund habe ich nur das eigentliche Rendering und die Kommunikation mit dem WMS von _GeoTools_ übernommen.
+Die ersten beiden Optionen dürften klar sein. Es stehen alle Funktionen zur Verfügung ausser - wie bereits erwähnt - Export. `Connection` kann nur ausgewählt werden, falls man den ili2pg-Flavor wählt. Bei GeoPackage oder anderen (zukünftigen) dateibasierten Datenbanken muss man den Namen der zu erstellenden Datei angeben. Das kann entweder statisch sein oder eben aus einem Feld aus dem Stream stammen. Wir wählen das im vorangegangenen Schritt erzeugte Feld `gpkgPath`. Ähnlich verhält es sich beim zu importierenden XTF. Auch hier kann man entweder statisch was hinschreiben oder wieder ein Feldname aus dem Stream wählen. Die XTF-Dateien müssen nicht lokal vorliegen, sondern sie können auch in einem INTERLIS-Datenrepository publiziert sein. In diesem Fall muss es einfach die ID des Datensatzes sein (`ilidata:xxxx`). Die anderen Optionen dürften wieder klar sein. Ich habe im Haupt-Tab noch die für mich wichtigsten (sehr subjektiv) Optionen exponiert. Man hat aber im zweiten Tab Zugriff auf alle Optionen:
 
-Die Kartenkomponente ist noch nicht allzu umfrangreich. So kann man das Aussehen der Geometrien oder das Koordinatensystem nicht ändern. Vom WMS wird jeweils das Koordinatensystem der Geometrien requestet. Ein Transformation findet aber nie statt. Ein komplettes Desktop-GIS nachbauen, will man zwar nicht, aber das eine oder andere Feature hat sicher noch Platz.
+image::../../../../../images/lets-hop-03/ili2db06.png[alt="Apache Hop", align="center"]
 
-Am Schwierigsten war interessanterweise der Umgang mit dem nativen Geometrietyp. Dieser existiert zwar, aber er existiert nur als Plugin. Und soweit ich es verstanden haben, führt das zu Problemen, weil mehrere Plugins diesen Geometrietyp als Bibliothek mitliefern: Das ogr-Plugin streamt Records mit diesem Geometrietypen. Das Geometry-Inspector-Plugin erwartet einen solchen Geometrietypen zum Rendern. Weil aber die beiden Plugins in einem unterschiedlichen Classloader geladen werden, sind es eben nicht die identischen Java-Klassen. D.h. `instanceof` funktioniert nicht so wie man sich das vorstellen würde. Würde sich aber in Wohlwollen auflösen, wenn der Geometrietyp in den Hop-Kern wandern würde.
+Man kann auch mit Datasets arbeiten. Hier müsste ich noch schauen, ob das so implementiert ist, dass man es auch sinnvoll verwenden kann:
 
-Propiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem Geometry-Inspector upgedatet.
+image::../../../../../images/lets-hop-03/ili2db07.png[alt="Apache Hop", align="center"]
+
+Zu guter Letzt hat der Transformer auch einige Output-Felder:
+
+image::../../../../../images/lets-hop-03/ili2db08.png[alt="Apache Hop", align="center"]
+
+Das Resultat eines gelungenen Pipeline-Runs sieht so aus:
+
+image::../../../../../images/lets-hop-03/ili2db09.png[alt="Apache Hop", align="center"]
+
+Probiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem ili2db-Plugin upgedatet.
 
 [source,linenums,bash]
 ----
