@@ -26,7 +26,7 @@ Weil der Raster Clip Transform nur eine einzige Row zurückliefert, können wir 
 
 image::../../../../../images/lets-hop-06/raster05.png[alt="Apache Hop", align="center"]
 
-Es fehlt in https://eclipse.dev/eclipse/swt/[_SWT_] so etwas wie der https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details[`<details>`]-Tag in HTML. Aber hey, es geht noch schlimmer und ich denke da an das Leuchturmprojekt der &laquo;digitalen Transformation&raquo; im Kanton:
+Es fehlt in https://eclipse.dev/eclipse/swt/[_SWT_] so etwas wie der https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details[`<details>`]-Tag in HTML. Aber hey, es geht noch schlimmer und ich denke da an das Leuchturmprojekt (Zeit- und Leistungserfassung) der &laquo;digitalen Transformation&raquo; im Kanton:
 
 image::../../../../../images/lets-hop-06/zemas.png[alt="Zemas macht nicht so Spass", align="center"]
 
