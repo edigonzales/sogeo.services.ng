@@ -16,17 +16,17 @@ Als Beispiel will ich für unser Bürogebäude die Höhe berechnen:
 
 image::../../../../../images/lets-hop-06/raster02.png[alt="Apache Hop", align="center"]
 
-Als erstes lese ich mit einem OGR-Import-Transform die Gebäude eines bestimmten Ausschnittes aus einer GeoPackage-Datei. Gleichzeitig clippe ich dem Raster Clip Transform von einer extern gehosteten Cloud Optimized GeoTIFF-Datei (mit den Gebäudehöhen aus LiDAR-Daten) den gleichen Ausschnitt und speichere die Datei temporär:
+Als erstes lese ich mit einem OGR-Input-Transform die Gebäude eines bestimmten Ausschnittes aus einer GeoPackage-Datei. Gleichzeitig clippe ich dem Raster Clip Transform von einer extern gehosteten Cloud Optimized GeoTIFF-Datei (mit den Gebäudehöhen aus LiDAR-Daten) den gleichen Ausschnitt und speichere die Datei temporär:
 
 image::../../../../../images/lets-hop-06/raster03.png[alt="Apache Hop", align="center"]
 
 image::../../../../../images/lets-hop-06/raster04.png[alt="Apache Hop", align="center"]
 
-Weil der Raster Clip Transform nur eine einzige Row zurückliefert, können wir mit dem Stream aus dem OGR-Import einfach das kartesische Produkt bilden, damit erhält jede Row des OGR-Imports auch den Pfad der temporären, geclippten Rasterdatei. Anschliessend können wir diesen Stream mit dem Raster Zonal Stats Transform verbinden. Das GUI dieses Transforms (und auch anderer) ist noch verbesserungswürdig und irgendwie verwirrend (was ist hier was?). Erstes weil einfach schlecht strukturiert und zweites hat es wirklich viele Optionen und Möglichkeiten, weil vieles auch aus seinem Field eines Streams übernommen werden kann:
+Weil der Raster Clip Transform nur eine einzige Row zurückliefert, können wir mit dem Stream aus dem OGR-Input einfach das kartesische Produkt bilden, damit erhält jede Row des OGR-Inputs auch den Pfad der temporären, geclippten Rasterdatei. Anschliessend können wir diesen Stream mit dem Raster Zonal Stats Transform verbinden. Das GUI dieses Transforms (und auch anderer) ist noch verbesserungswürdig und irgendwie verwirrend (was ist hier was?). Erstes weil einfach schlecht strukturiert und zweites hat es wirklich viele Optionen und Möglichkeiten, weil vieles auch aus seinem Field eines Streams übernommen werden kann:
 
 image::../../../../../images/lets-hop-06/raster05.png[alt="Apache Hop", align="center"]
 
-Aber hey, es geht noch schlimmer und ich denke da an das Leuchturmprojekt der &laquo;digitalen Transformation&raquo; im Kanton:
+Es fehlt in https://eclipse.dev/eclipse/swt/[_SWT_] so etwas wie der https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details[`<details>`]-Tag in HTML. Aber hey, es geht noch schlimmer und ich denke da an das Leuchturmprojekt der &laquo;digitalen Transformation&raquo; im Kanton:
 
 image::../../../../../images/lets-hop-06/zemas.png[alt="Zemas macht nicht so Spass", align="center"]
 
@@ -36,63 +36,11 @@ In diesem Transform sind alle Statistiken gemäss dem https://gdal.org/en/stable
 
 image::../../../../../images/lets-hop-06/raster06.png[alt="Apache Hop", align="center"]
 
+Eine Berechnungsvariante in diesem Transform ist Row-By-Row (Geometrie für Geometrie im Stream). Anschliessend entfernen wir noch ein paar Attribute aus dem Layer und speichern die Datei wieder in einer GeoPackage-Datei mit dem OGR-Output-Transform. Das Resultat:
 
+image::../../../../../images/lets-hop-06/raster07.png[alt="Apache Hop", align="center"]
 
-es fehlt diese details/summary element wie aus html bekannt.
-Wenn
-
-
-In diesem fünften Teil meiner kleinen Serie zu Apache-Hop-Plugins geht es um das https://github.com/edigonzales/hop-geoprocessing-plugin[hop-geoprocessing-plugin]. Das Plugin bündelt Geoverarbeitung für _Apache Hop_ in fünf Transform-Familien: Geometry Operation, Spatial Predicate, Layer Overlay, Layer Aggregate und Coverage Operation.
-
-**Geometry Operation:**
-
-Die Familie _Geometry Operation_ ist der grosse Werkzeugkasten für einzelne Geometrien. Sie arbeitet mit einem Input-Layer, umfasst 34 Operationen und verwendet das Ausführungsmodell Streaming. Das bedeutet: Es wird Zeile für Zeile gearbeitet, ohne den ganzen Layer zu puffern. Im RAM bleibt im Wesentlichen nur die aktuelle Zeile. Typische Beispiele sind Buffer, Centroid, Vereinfachung, Geometrie-Bereinigung oder ähnliche Bearbeitungsschritte auf Einzelfeatures.
-
-**Spatial Predicate:**
-
-Die Familie _Spatial Predicate_ arbeitet mit einem Primary Input und einem Secondary Layer. Es gibt 9 Operationen. Technisch wichtig ist: Der Secondary Layer wird zuerst vollständig eingelesen, im RAM gehalten und anschliessend mit einem STRtree auf den Envelopes indiziert. Erst danach beginnt die Verarbeitung der Primary Rows. Entsprechend ist der Secondary Layer möglichst früh zu reduzieren.
-
-**Layer Overlay:**
-
-Die Familie _Layer Overlay_ deckt klassische GIS-Fälle wie Intersection, Clip, Erase oder Identity ab, insgesamt umfasst sie 4 Operationen und arbeitet ebenfalls mit primary + secondary input, ist technisch aber blocking per layer. Im RAM liegen dabei der vollständige Secondary Layer, ein STRtree auf dem Secondary Layer und optional zusätzlich eine Union-Geometrie des Secondary Layers. Es gibt hier auch die Berechnungsvariante `FIXED_PRECISION`, welche uns in _PostGIS_ einiges besser dünkt, als die bisherige Variante.
-
-**Layer Aggregate:**
-
-Die Familie _Layer Aggregate_ arbeitet mit einem Input-Layer und optionaler Gruppierung. Es gibt 4 Operationen (Dissolve- oder Collect-artige Operationen). Sie ist blocking per layer/group, also gerade nicht streaming. Stattdessen werden alle Zeilen eines Layers oder einer Gruppe gepuffert, bevor das Resultat emittiert wird.
-
-**Coverage Operation:**
-
-Die Familie _Coverage Operation_ ist für Polygon-Coverages (INTERLIS-Area lässt grüssen) gedacht, umfasst 5 Operationen und arbeitet mit einem Input-Layer und optionaler Gruppierung und ist ebenfalls blocking per layer/group. Im RAM liegt der gesamte Layer oder die aktive Gruppe, ergänzt um den Zustand, den Coverage-weite Validierung oder Simplifizierung benötigt.
-
-Kleines Beispiel gefällig? Machen wir gleich Nägel mit Köpfen und prüfen das Coverage &laquo;Waldplan&raquo; und bereinigen allfällige Fehler. Der Waldplan besteht aus 61'971 Polygonen. 
-
-image::../../../../../images/lets-hop-05/geoprocessing01.png[alt="Apache Hop", align="center"]
-
-Die Bearbeitung hat einiges gesehen: _GRASS GIS_, _PostGIS_, _FME_, _ArcGIS_ und einen Bezugsrahmenwechsel durchgemacht. Entsprechend gibt es auch kleinere Unschönheiten wie Überlappungen und Löcher:
-
-image::../../../../../images/lets-hop-05/geoprocessing02.png[alt="Apache Hop", align="center"]
-
-Meine _Apache Hop_ Pipeline sieht so aus:
-
-image::../../../../../images/lets-hop-05/geoprocessing03.png[alt="Apache Hop", align="center"]
-
-Einerseits prüfe ich den Waldplan, ob es Überlappungen gibt und gleichzeitig bereinige ich allfällige Überlappungen. Beide Resultate speichere ich in einer GeoPackage-Datei. Der Validator schreibt Linien-Geometrien (die betroffenen Linien-Segmente) und nicht einen exakten Ort.
-
-Die beiden Transformer sind mehr oder weniger selbsterklärend:
-
-image::../../../../../images/lets-hop-05/geoprocessing04.png[alt="Apache Hop", align="center"]
-
-image::../../../../../images/lets-hop-05/geoprocessing05.png[alt="Apache Hop", align="center"]
-
-Das Resultat kann sich sehen lassen. Zuerst ein Beispiel eines gefundenen Fehlers (die blauen Linien) und anschliessend die bereinigten Geometrien:
-
-image::../../../../../images/lets-hop-05/geoprocessing02.png[alt="Apache Hop", align="center"]
-
-image::../../../../../images/lets-hop-05/geoprocessing06.png[alt="Apache Hop", align="center"]
-
-Das Ganze dauerte für beide Prozesse insgesamt 30 Sekunden.
-
-Probiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem geoprocessing-Plugin upgedatet.
+Probiert es aus und meldet Fehler. Das https://github.com/edigonzales/hop-distributions/releases[Komplettpaket] wurde mit dem verbesserten GDAL-Plugin upgedatet. Und das kostet euch gar nichts. Nicht mal ein https://www.linkedin.com/feed/update/urn:li:activity:7439758001986719745?commentUrn=urn%3Ali%3Acomment%3A%28activity%3A7439758001986719745%2C7442848881903624192%29&dashCommentUrn=urn%3Ali%3Afsd_comment%3A%287442848881903624192%2Curn%3Ali%3Aactivity%3A7439758001986719745%29[Kafi/Gipfeli] pro Tag. Wow.
 
 [source,linenums,bash]
 ----
@@ -100,7 +48,3 @@ HOP_JAVA_HOME=/Users/stefan/.sdkman/candidates/java/25.0.1-tem \
 HOP_OPTIONS="--enable-native-access=ALL-UNNAMED -Xmx2048m" \
 ./hop-gui.sh
 ----
-
-So, ich habe fertig. خلاص. 
-
-Oder vielleicht doch nicht ganz? Einige Ideen habe ich noch (Geometrie-Feldrechner, Python 3 Skripte einbinden, `gdal_translate` etc. und Ideen für Hop Server), aber nun brauchts eine Pause und ich will die gröbsten Bugs ausmisten, wenn ich bei Gelegenheit _Apache Hop_ verwende und dann will ich mir auch noch was bezüglich guter Dokumentation überlegen.
