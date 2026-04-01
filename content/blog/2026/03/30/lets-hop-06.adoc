@@ -6,9 +6,9 @@ Stefan Ziegler
 :jbake-tags: apache hop, hop, java, spatial, gdal
 :idprefix:
 
-Was wäre ein Spatial-ETL ohne Rasterunterstützung? Wir haben die https://github.com/edigonzales/gdal-java-bindings[gdal-java-bindings] und das https://github.com/edigonzales/hop-gdal-plugin/[hop-gdal-plugin], das bis jetzt &laquo;nur&raquo; einen OGR-Input- und -Output-Transform bereitstellt. Wenn wir Rasterprocessing in _Apache Hop_ wollen, müssen wir uns überlegen, wie wir das strukturieren. Ich habe mich entschieden, mich an der Struktur der https://gdal.org/en/stable/programs/gdal_raster.html[neuen GDAL-Tools] zu orientieren. D.h. Nicht mehr ein `gdal_translate` und `gdalwarp`, die fast alles können und vor Optionen nur so strotzen, sondern &laquo;do one thing and do it well&raquo;.
+Was wäre ein Spatial-ETL ohne Rasterunterstützung? Wir haben die https://github.com/edigonzales/gdal-java-bindings[_gdal-java-bindings_] und das https://github.com/edigonzales/hop-gdal-plugin/[_hop-gdal-plugin_], das bis jetzt &laquo;nur&raquo; einen OGR-Input- und -Output-Transform bereitstellt. Wenn wir Rasterprocessing in _Apache Hop_ wollen, müssen wir uns überlegen, wie wir das strukturieren. Ich habe mich entschieden, mich an der Struktur der https://gdal.org/en/stable/programs/gdal_raster.html[neuen GDAL-Tools] zu orientieren. D.h. nicht mehr ein `gdal_translate` und `gdalwarp`, die fast alles können und vor Optionen nur so strotzen, sondern &laquo;do one thing and do it well&raquo;.
 
-Et voilà, neu gibt es im hop-gdal-plugin folgende Raster-Transforms:
+Et voilà, neu gibt es im _hop-gdal-plugin_ folgende Raster-Transforms:
 
 image::../../../../../images/lets-hop-06/raster01.png[alt="Apache Hop", align="center"]
 
@@ -16,7 +16,7 @@ Als Beispiel will ich für unser Bürogebäude die Höhe berechnen:
 
 image::../../../../../images/lets-hop-06/raster02.png[alt="Apache Hop", align="center"]
 
-Als erstes lese ich mit einem OGR-Input-Transform die Gebäude eines bestimmten Ausschnittes aus einer GeoPackage-Datei. Gleichzeitig clippe ich dem Raster Clip Transform von einer extern gehosteten Cloud Optimized GeoTIFF-Datei (mit den Gebäudehöhen aus LiDAR-Daten) den gleichen Ausschnitt und speichere die Datei temporär:
+Als erstes lese ich mit einem OGR-Input-Transform die Gebäude eines bestimmten Ausschnittes aus einer GeoPackage-Datei. Gleichzeitig clippe ich mit dem Raster Clip Transform von einer extern gehosteten Cloud Optimized GeoTIFF-Datei (mit den Gebäudehöhen aus LiDAR-Daten) den gleichen Ausschnitt und speichere die Datei temporär:
 
 image::../../../../../images/lets-hop-06/raster03.png[alt="Apache Hop", align="center"]
 
@@ -36,7 +36,7 @@ In diesem Transform sind alle Statistiken gemäss dem https://gdal.org/en/stable
 
 image::../../../../../images/lets-hop-06/raster06.png[alt="Apache Hop", align="center"]
 
-Eine Berechnungsvariante in diesem Transform ist Row-By-Row (Geometrie für Geometrie im Stream). Anschliessend entfernen wir noch ein paar Attribute aus dem Layer und speichern die Datei wieder in einer GeoPackage-Datei mit dem OGR-Output-Transform. Das Resultat:
+Eine Berechnungsvariante in diesem Transform ist Row-By-Row (Geometrie für Geometrie im Stream). Anschliessend entfernen wir noch ein paar Attribute aus dem Stream und speichern die Daten in einer GeoPackage-Datei mit dem OGR-Output-Transform. Das Resultat:
 
 image::../../../../../images/lets-hop-06/raster07.png[alt="Apache Hop", align="center"]
 
