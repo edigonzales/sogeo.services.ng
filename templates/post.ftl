@@ -1,21 +1,30 @@
-<#include "header.ftl">
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8"/>
 
-	<#include "menu.ftl">
+    <#assign oldUri = content.uri!"">
+    <#assign newPath = oldUri
+      ?replace("^/", "", "r")
+      ?replace("^blog/", "", "r")
+      ?replace("\\.html$", "/", "r")
+    >
+    <#assign newUrl = "https://blog.interlis.guru/" + newPath>
 
-	<div class="page-header">
-		<h1><#escape x as x?xml>${content.title}</#escape></h1>
-	</div>
+    <title>Umgezogen: <#if (content.title)??>${content.title?html}<#else>blog.sogeo.services</#if></title>
 
-	<p class="date"><em>${content.date?string("dd MMMM yyyy")}</em></p>
+    <link rel="canonical" href="${newUrl?html}">
+    <meta http-equiv="refresh" content="0; url=${newUrl?html}">
+    <meta name="robots" content="noindex, follow">
+  </head>
+  <body>
+    <p>
+      Diese Seite ist umgezogen:
+      <a href="${newUrl?html}">${newUrl?html}</a>
+    </p>
 
-	<p>${content.body}</p>
-
-	<p class="author">
-		Posted by ${content.author}. |
-		<#list content.tags as tag><a href="/tags/${tag}.html">${tag}</a>
-		<#if tag_has_next>, </#if></#list>
-	</p>
-
-	<hr />
-
-<#include "footer.ftl">
+    <script>
+      window.location.replace("${newUrl?js_string}");
+    </script>
+  </body>
+</html>

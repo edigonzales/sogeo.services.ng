@@ -23,6 +23,40 @@ jobs:
           sdk install jbake 2.6.4
           jbake -b
       
+      - name: Create migration RSS feed
+        run: |
+          set -euo pipefail
+
+          mkdir -p ./output
+
+          PUB_DATE="$(date -R)"
+
+          cat > ./output/feed.xml <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+            <channel>
+              <title>blog.sogeo.services ist umgezogen</title>
+              <link>https://blog.interlis.guru/</link>
+              <description>Der Blog ist nach https://blog.interlis.guru/ umgezogen.</description>
+              <language>de-ch</language>
+              <lastBuildDate>${PUB_DATE}</lastBuildDate>
+
+              <item>
+                <title>Der RSS-Feed ist umgezogen</title>
+                <link>https://blog.interlis.guru/feed.xml</link>
+                <guid isPermaLink="false">blog-sogeo-services-feed-moved-2026-05-07</guid>
+                <pubDate>${PUB_DATE}</pubDate>
+                <description><![CDATA[
+                  Der Blog und der RSS-Feed sind umgezogen.
+                  Bitte abonnieren Sie neu:
+
+                  https://blog.interlis.guru/feed.xml
+                ]]></description>
+              </item>
+            </channel>
+          </rss>
+          EOF
+                
       - name: Show files
         run: ls -la 
       
